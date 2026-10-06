@@ -1,0 +1,601 @@
+{% extends "base.html" %}
+
+{% block title %}Add Teacher | GSSS Attendance Portal{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <div class="mb-4">
+
+        <a href="{{ url_for('admin.teachers') }}"
+           class="text-decoration-none text-muted small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Teachers
+
+        </a>
+
+        <h2 class="fw-bold mt-2 mb-1">
+            Add New Teacher
+        </h2>
+
+        <p class="text-muted mb-0">
+            Create a teacher account. The information will be stored securely in MySQL.
+        </p>
+
+    </div>
+
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="form-card">
+
+                <div class="form-card-header">
+
+                    <div class="form-icon">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            Teacher Information
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Enter the details below.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <form method="POST"
+                      action="{{ url_for('admin.add_teacher') }}"
+                      id="teacherForm">
+
+                    <div class="row g-3">
+
+                        <!-- NAME -->
+
+                        <div class="col-md-6">
+
+                            <label for="name"
+                                   class="form-label">
+                                Full Name
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="name"
+                                    name="name"
+                                    placeholder="Enter full name"
+                                    required
+                                    autocomplete="name"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="col-md-6">
+
+                            <label for="email"
+                                   class="form-label">
+                                Email
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="email"
+                                    name="email"
+                                    placeholder="teacher@example.com"
+                                    required
+                                    autocomplete="email"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- USERNAME -->
+
+                        <div class="col-md-6">
+
+                            <label for="username"
+                                   class="form-label">
+                                Username
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person-badge"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Enter username"
+                                    required
+                                    autocomplete="username"
+                                >
+
+                            </div>
+
+                            <small class="text-muted">
+                                This username will be used for teacher login.
+                            </small>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="col-md-6">
+
+                            <label for="phone"
+                                   class="form-label">
+                                Phone
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="Enter phone number"
+                                    autocomplete="tel"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+
+                        <div class="col-md-6">
+
+                            <label for="password"
+                                   class="form-label">
+                                Password
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Create password"
+                                    required
+                                    minlength="6"
+                                    autocomplete="new-password"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="btn password-btn"
+                                    onclick="togglePassword()"
+                                >
+                                    <i class="bi bi-eye"
+                                       id="passwordIcon"></i>
+                                </button>
+
+                            </div>
+
+                            <small class="text-muted">
+                                Minimum 6 characters.
+                            </small>
+
+                        </div>
+
+
+                        <!-- CONFIRM PASSWORD -->
+
+                        <div class="col-md-6">
+
+                            <label for="confirm_password"
+                                   class="form-label">
+                                Confirm Password
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock-fill"></i>
+                                </span>
+
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="confirm_password"
+                                    placeholder="Re-enter password"
+                                    required
+                                    minlength="6"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- SECURITY NOTICE -->
+
+                    <div class="security-notice mt-4">
+
+                        <i class="bi bi-shield-check"></i>
+
+                        <div>
+
+                            <strong>
+                                Secure password storage
+                            </strong>
+
+                            <p class="mb-0">
+                                Your password is hashed before being stored in the database.
+                                The original password is never stored.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+
+                        <a
+                            href="{{ url_for('admin.teachers') }}"
+                            class="btn btn-outline-secondary rounded-pill px-4"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-pill px-4"
+                            id="saveButton"
+                        >
+
+                            <span id="saveLabel">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Add Teacher
+                            </span>
+
+                            <span id="saveLoading"
+                                  class="d-none">
+
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                Saving...
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.form-card {
+
+    background:
+        rgba(255,255,255,.94);
+
+    border-radius:
+        22px;
+
+    padding:
+        28px;
+
+    box-shadow:
+        0 14px 38px rgba(15,23,42,.08);
+
+}
+
+
+.form-card-header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        15px;
+
+    padding-bottom:
+        22px;
+
+    margin-bottom:
+        22px;
+
+    border-bottom:
+        1px solid rgba(55,65,81,.08);
+
+}
+
+
+.form-icon {
+
+    width:
+        55px;
+
+    height:
+        55px;
+
+    border-radius:
+        16px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #dcecff,
+            #e8ddff
+        );
+
+    color:
+        #5f72a4;
+
+    font-size:
+        1.3rem;
+
+}
+
+
+.form-label {
+
+    font-weight:
+        600;
+
+    color:
+        #374151;
+
+}
+
+
+.form-control {
+
+    min-height:
+        48px;
+
+    border-color:
+        #e5e7eb;
+
+}
+
+
+.form-control:focus {
+
+    border-color:
+        #8ec5fc;
+
+    box-shadow:
+        0 0 0 .2rem
+        rgba(142,197,252,.18);
+
+}
+
+
+.input-group-text {
+
+    min-width:
+        46px;
+
+    justify-content:
+        center;
+
+    background:
+        #f8fafc;
+
+    color:
+        #6b7280;
+
+    border-color:
+        #e5e7eb;
+
+}
+
+
+.password-btn {
+
+    background:
+        #f8fafc;
+
+    border-color:
+        #e5e7eb;
+
+    color:
+        #6b7280;
+
+}
+
+
+.security-notice {
+
+    display:
+        flex;
+
+    gap:
+        12px;
+
+    padding:
+        15px;
+
+    border-radius:
+        14px;
+
+    background:
+        #effaf7;
+
+    border:
+        1px solid #d7f0e8;
+
+    color:
+        #477c70;
+
+    font-size:
+        .88rem;
+
+}
+
+
+.security-notice > i {
+
+    font-size:
+        1.3rem;
+
+}
+
+
+.security-notice p {
+
+    font-size:
+        .8rem;
+
+    color:
+        #668c83;
+
+    margin-top:
+        3px;
+
+}
+
+
+</style>
+
+
+<script>
+
+function togglePassword() {
+
+    const password =
+        document.getElementById("password");
+
+    const icon =
+        document.getElementById("passwordIcon");
+
+
+    if (password.type === "password") {
+
+        password.type = "text";
+
+        icon.classList.remove("bi-eye");
+
+        icon.classList.add("bi-eye-slash");
+
+    } else {
+
+        password.type = "password";
+
+        icon.classList.remove("bi-eye-slash");
+
+        icon.classList.add("bi-eye");
+
+    }
+
+}
+
+
+document
+    .getElementById("teacherForm")
+    .addEventListener("submit", function(event) {
+
+        const password =
+            document.getElementById("password").value;
+
+        const confirmPassword =
+            document.getElementById("confirm_password").value;
+
+
+        if (password !== confirmPassword) {
+
+            event.preventDefault();
+
+            alert("Passwords do not match.");
+
+            return;
+
+        }
+
+
+        document
+            .getElementById("saveLabel")
+            .classList.add("d-none");
+
+        document
+            .getElementById("saveLoading")
+            .classList.remove("d-none");
+
+        document
+            .getElementById("saveButton")
+            .disabled = true;
+
+    });
+
+</script>
+
+{% endblock %}

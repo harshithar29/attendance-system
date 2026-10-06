@@ -1,0 +1,976 @@
+{% extends "base.html" %}
+
+{% block title %}Add Student | GSSS Attendance Portal{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+
+        <a href="{{ url_for('admin.students') }}"
+           class="text-decoration-none text-muted small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Students
+
+        </a>
+
+        <h2 class="fw-bold mt-2 mb-1">
+            Add New Student
+        </h2>
+
+        <p class="text-muted mb-0">
+            Register a student with academic and login details.
+        </p>
+
+    </div>
+
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-9 col-xl-8">
+
+            <div class="student-form-card">
+
+                <!-- FORM HEADER -->
+
+                <div class="form-card-header">
+
+                    <div class="student-form-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            Student Information
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Enter all required student details.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- FORM -->
+
+                <form method="POST"
+                      action="{{ url_for('admin.add_student') }}"
+                      id="studentForm">
+
+                    <div class="row g-3">
+
+
+                        <!-- NAME -->
+
+                        <div class="col-md-6">
+
+                            <label for="name" class="form-label">
+                                Full Name
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="name"
+                                    name="name"
+                                    placeholder="Enter full name"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- USN -->
+
+                        <div class="col-md-6">
+
+                            <label for="usn" class="form-label">
+                                USN
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-card-text"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="usn"
+                                    name="usn"
+                                    placeholder="Example: 4GW23AI001"
+                                    required
+                                >
+
+                            </div>
+
+                            <small class="text-muted">
+                                USN must be unique.
+                            </small>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="col-md-6">
+
+                            <label for="email" class="form-label">
+                                Email
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="email"
+                                    name="email"
+                                    placeholder="student@example.com"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="col-md-6">
+
+                            <label for="phone" class="form-label">
+                                Phone Number
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="Enter phone number"
+                                    maxlength="15"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SEMESTER -->
+
+                        <div class="col-md-4">
+
+                            <label for="semester" class="form-label">
+                                Semester
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar3"></i>
+                                </span>
+
+                                <select
+                                    class="form-select"
+                                    id="semester"
+                                    name="semester"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Semester
+                                    </option>
+
+                                    <option value="1">1st Semester</option>
+                                    <option value="2">2nd Semester</option>
+                                    <option value="3">3rd Semester</option>
+                                    <option value="4">4th Semester</option>
+                                    <option value="5">5th Semester</option>
+                                    <option value="6">6th Semester</option>
+                                    <option value="7">7th Semester</option>
+                                    <option value="8">8th Semester</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BRANCH -->
+
+                        <div class="col-md-5">
+
+                            <label for="branch" class="form-label">
+                                Branch
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-diagram-3"></i>
+                                </span>
+
+                                <select
+                                    class="form-select"
+                                    id="branch"
+                                    name="branch"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Branch
+                                    </option>
+
+                                    <option value="CSE">
+                                        Computer Science & Engineering
+                                    </option>
+
+                                    <option value="CSE AIML">
+                                        CSE - Artificial Intelligence & Machine Learning
+                                    </option>
+
+                                    <option value="ISE">
+                                        Information Science & Engineering
+                                    </option>
+
+                                    <option value="ECE">
+                                        Electronics & Communication Engineering
+                                    </option>
+
+                                    <option value="EEE">
+                                        Electrical & Electronics Engineering
+                                    </option>
+
+                                    <option value="ME">
+                                        Mechanical Engineering
+                                    </option>
+
+                                    <option value="CIVIL">
+                                        Civil Engineering
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SECTION -->
+
+                        <div class="col-md-3">
+
+                            <label for="section" class="form-label">
+                                Section
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-people"></i>
+                                </span>
+
+                                <select
+                                    class="form-select"
+                                    id="section"
+                                    name="section"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select
+                                    </option>
+
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- LOGIN INFORMATION -->
+
+                        <div class="col-12">
+
+                            <div class="login-section">
+
+                                <div class="section-heading">
+
+                                    <div class="section-heading-icon">
+
+                                        <i class="bi bi-shield-lock-fill"></i>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h6 class="fw-bold mb-1">
+                                            Login Information
+                                        </h6>
+
+                                        <small class="text-muted">
+                                            These credentials will be used by
+                                            the student to access the portal.
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="row g-3 mt-1">
+
+
+                                    <!-- USERNAME -->
+
+                                    <div class="col-md-6">
+
+                                        <label
+                                            for="username"
+                                            class="form-label"
+                                        >
+
+                                            Username
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person-badge"></i>
+                                            </span>
+
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="username"
+                                                name="username"
+                                                placeholder="Enter username"
+                                                required
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- PASSWORD -->
+
+                                    <div class="col-md-6">
+
+                                        <label
+                                            for="password"
+                                            class="form-label"
+                                        >
+
+                                            Password
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-lock"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                class="form-control"
+                                                id="password"
+                                                name="password"
+                                                placeholder="Create password"
+                                                minlength="6"
+                                                required
+                                            >
+
+                                            <button
+                                                type="button"
+                                                class="btn password-toggle"
+                                                id="togglePassword"
+                                            >
+
+                                                <i
+                                                    class="bi bi-eye"
+                                                    id="passwordIcon"
+                                                ></i>
+
+                                            </button>
+
+                                        </div>
+
+                                        <small class="text-muted">
+                                            Minimum 6 characters.
+                                        </small>
+
+                                    </div>
+
+
+                                    <!-- CONFIRM PASSWORD -->
+
+                                    <div class="col-md-6">
+
+                                        <label
+                                            for="confirm_password"
+                                            class="form-label"
+                                        >
+
+                                            Confirm Password
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-lock-fill"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                class="form-control"
+                                                id="confirm_password"
+                                                placeholder="Confirm password"
+                                                minlength="6"
+                                                required
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FACE RECOGNITION -->
+
+                        <div class="col-12">
+
+                            <div class="face-notice">
+
+                                <div class="face-notice-icon">
+
+                                    <i class="bi bi-person-bounding-box"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <h6 class="fw-bold mb-1">
+                                        AI Face Recognition
+                                    </h6>
+
+                                    <p class="mb-1">
+                                        After creating this student account,
+                                        you can register face images for
+                                        attendance recognition.
+                                    </p>
+
+                                    <small>
+                                        Face registration will be connected
+                                        to this student's USN and database ID.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+
+                        <a
+                            href="{{ url_for('admin.students') }}"
+                            class="btn btn-outline-secondary rounded-pill px-4"
+                        >
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-pill px-4"
+                            id="saveButton"
+                        >
+
+                            <span id="saveLabel">
+
+                                <i class="bi bi-person-plus-fill me-1"></i>
+                                Add Student
+
+                            </span>
+
+                            <span
+                                id="saveLoading"
+                                class="d-none"
+                            >
+
+                                <span
+                                    class="spinner-border spinner-border-sm me-2"
+                                ></span>
+
+                                Saving...
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.student-form-card {
+
+    background: rgba(255,255,255,.95);
+
+    border-radius: 22px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 14px 38px rgba(15,23,42,.08);
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.form-card-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding-bottom: 22px;
+
+    margin-bottom: 24px;
+
+    border-bottom:
+        1px solid rgba(55,65,81,.08);
+
+}
+
+
+.student-form-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    border-radius: 17px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e8ddff,
+            #dff4ef
+        );
+
+    color: #7659b8;
+
+    font-size: 1.4rem;
+
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-label {
+
+    font-weight: 600;
+
+    color: #374151;
+
+}
+
+
+.form-control,
+.form-select {
+
+    min-height: 48px;
+
+    border-color: #e5e7eb;
+
+}
+
+
+.form-control:focus,
+.form-select:focus {
+
+    border-color: #8ec5fc;
+
+    box-shadow:
+        0 0 0 .2rem
+        rgba(142,197,252,.18);
+
+}
+
+
+.input-group-text {
+
+    min-width: 46px;
+
+    justify-content: center;
+
+    background: #f8fafc;
+
+    color: #6b7280;
+
+    border-color: #e5e7eb;
+
+}
+
+
+.password-toggle {
+
+    background: #f8fafc;
+
+    border-color: #e5e7eb;
+
+    color: #6b7280;
+
+}
+
+
+/* =========================================================
+   LOGIN SECTION
+========================================================= */
+
+.login-section {
+
+    padding: 19px;
+
+    border-radius: 17px;
+
+    background: #fafbff;
+
+    border: 1px solid #edf0f6;
+
+}
+
+
+.section-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.section-heading-icon {
+
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e8ddff;
+
+    color: #7659b8;
+
+}
+
+
+/* =========================================================
+   FACE RECOGNITION
+========================================================= */
+
+.face-notice {
+
+    display: flex;
+
+    gap: 14px;
+
+    padding: 17px;
+
+    border-radius: 16px;
+
+    background: #f5f2ff;
+
+    border: 1px solid #e7e0ff;
+
+    color: #5d5288;
+
+}
+
+
+.face-notice-icon {
+
+    flex-shrink: 0;
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e8ddff;
+
+    color: #7659b8;
+
+    font-size: 1.2rem;
+
+}
+
+
+.face-notice p {
+
+    font-size: .86rem;
+
+    color: #6b6580;
+
+}
+
+
+.face-notice small {
+
+    color: #806fb8;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+
+    .student-form-card {
+
+        padding: 20px;
+
+    }
+
+    .face-notice {
+
+        flex-direction: column;
+
+    }
+
+}
+
+</style>
+
+
+<script>
+
+/* =========================================================
+   SHOW / HIDE PASSWORD
+========================================================= */
+
+document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+
+        const password =
+            document.getElementById("password");
+
+        const icon =
+            document.getElementById("passwordIcon");
+
+
+        if (password.type === "password") {
+
+            password.type = "text";
+
+            icon.classList.remove("bi-eye");
+
+            icon.classList.add("bi-eye-slash");
+
+        } else {
+
+            password.type = "password";
+
+            icon.classList.remove("bi-eye-slash");
+
+            icon.classList.add("bi-eye");
+
+        }
+
+    });
+
+
+/* =========================================================
+   FORM VALIDATION
+========================================================= */
+
+document
+    .getElementById("studentForm")
+    .addEventListener("submit", function (event) {
+
+        const password =
+            document.getElementById("password").value;
+
+        const confirmPassword =
+            document.getElementById("confirm_password").value;
+
+
+        /* Password match */
+
+        if (password !== confirmPassword) {
+
+            event.preventDefault();
+
+            alert(
+                "Passwords do not match."
+            );
+
+            return;
+
+        }
+
+
+        /* Minimum password length */
+
+        if (password.length < 6) {
+
+            event.preventDefault();
+
+            alert(
+                "Password must contain at least 6 characters."
+            );
+
+            return;
+
+        }
+
+
+        /* USN formatting */
+
+        const usn =
+            document.getElementById("usn").value
+                .trim()
+                .toUpperCase();
+
+
+        document.getElementById("usn").value = usn;
+
+
+        /* Loading state */
+
+        document
+            .getElementById("saveLabel")
+            .classList
+            .add("d-none");
+
+        document
+            .getElementById("saveLoading")
+            .classList
+            .remove("d-none");
+
+        document
+            .getElementById("saveButton")
+            .disabled = true;
+
+    });
+
+
+/* =========================================================
+   AUTO UPPERCASE USN
+========================================================= */
+
+document
+    .getElementById("usn")
+    .addEventListener("input", function () {
+
+        this.value =
+            this.value.toUpperCase();
+
+    });
+
+</script>
+
+{% endblock %}

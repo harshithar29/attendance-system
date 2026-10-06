@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="p-4 p-md-5 mb-4 bg-light rounded-4 text-center shadow-sm">
+    <h1 class="display-6 fw-bold">AI-Based Student Attendance Management System</h1>
+    <p class="col-lg-8 mx-auto fs-5 text-muted">
+        Face-recognition powered attendance from classroom videos — a teacher uploads
+        a video recorded on their phone, the system recognizes students automatically,
+        and Admin, Teacher, and Student dashboards stay in sync.
+    </p>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg mt-2">Login to Continue</a>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Admin</h5>
+                <p class="card-text text-muted">Manage teachers, students, classes, subjects, and view analytics.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Teacher</h5>
+                <p class="card-text text-muted">Upload a classroom video and review recognized &amp; unknown students.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Student</h5>
+                <p class="card-text text-muted">Track attendance percentage and download reports.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

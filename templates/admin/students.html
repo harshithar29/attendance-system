@@ -1,0 +1,1060 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Students | GSSS Attendance Portal{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <a href="{{ url_for('admin.dashboard') }}"
+               class="text-decoration-none text-muted small">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Dashboard
+
+            </a>
+
+            <h2 class="fw-bold mt-2 mb-1">
+                Student Management
+            </h2>
+
+            <p class="text-muted mb-0">
+                Add, view, edit and remove student accounts.
+            </p>
+
+        </div>
+
+        <div class="mt-3 mt-md-0">
+
+            <a href="{{ url_for('admin.add_student') }}"
+               class="btn btn-primary rounded-pill px-4">
+
+                <i class="bi bi-person-plus-fill me-2"></i>
+                Add Student
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+
+            <div class="student-summary-card">
+
+                <div class="student-summary-icon">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+
+                <div>
+
+                    <small class="text-muted">
+                        Total Students
+                    </small>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ students|length }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-8">
+
+            <div class="student-info-card">
+
+                <i class="bi bi-info-circle me-2"></i>
+
+                Student accounts created here can be used
+                to log in to the Student Dashboard.
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- STUDENT TABLE -->
+
+    <div class="student-table-card">
+
+        <div class="table-card-header">
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    All Students
+                </h5>
+
+                <small class="text-muted">
+                    Student records stored in the database
+                </small>
+
+            </div>
+
+            <div class="search-box">
+
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="text"
+                    id="studentSearch"
+                    placeholder="Search students..."
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            {% if students %}
+
+            <table class="table align-middle mb-0"
+                   id="studentsTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Student</th>
+
+                        <th>USN</th>
+
+                        <th>Semester</th>
+
+                        <th>Branch</th>
+
+                        <th>Section</th>
+
+                        <th>Email</th>
+
+                        <th>Phone</th>
+
+                        <th class="text-end">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr class="student-row">
+
+                        <!-- ID -->
+
+                        <td>
+
+                            <span class="id-badge">
+                                {{ student.student_id }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- STUDENT -->
+
+                        <td>
+
+                            <div class="student-person">
+
+                                <div class="student-avatar">
+
+                                    {{ student.name[:1]|upper }}
+
+                                </div>
+
+                                <div>
+
+                                    <div class="fw-semibold">
+                                        {{ student.name }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ student.username }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- USN -->
+
+                        <td>
+
+                            <span class="usn-badge">
+
+                                <i class="bi bi-card-text me-1"></i>
+
+                                {{ student.usn }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- SEMESTER -->
+
+                        <td>
+
+                            {% if student.semester %}
+
+                                <span class="semester-badge">
+
+                                    Semester {{ student.semester }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    Not assigned
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- BRANCH -->
+
+                        <td>
+
+                            {% if student.branch %}
+
+                                <span class="branch-badge">
+
+                                    {{ student.branch }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    Not assigned
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- SECTION -->
+
+                        <td>
+
+                            {% if student.section %}
+
+                                <span class="section-badge">
+
+                                    {{ student.section }}
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- EMAIL -->
+
+                        <td>
+
+                            <span class="email-text">
+
+                                {{ student.email }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- PHONE -->
+
+                        <td>
+
+                            {% if student.phone %}
+
+                                {{ student.phone }}
+
+                            {% else %}
+
+                                <span class="text-muted">
+                                    Not provided
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ACTIONS -->
+
+                        <td class="text-end">
+
+                            <div class="action-buttons">
+
+                                <!-- EDIT -->
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin.edit_student',
+                                        student_id=student.student_id
+                                    ) }}"
+                                    class="action-btn edit-btn"
+                                    title="Edit Student"
+                                >
+
+                                    <i class="bi bi-pencil-square"></i>
+
+                                </a>
+
+
+                                <!-- DELETE -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin.delete_student',
+                                        student_id=student.student_id
+                                    ) }}"
+                                    class="delete-form"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="action-btn delete-btn"
+                                        title="Delete Student"
+                                        onclick="return confirmDelete('{{ student.name }}')"
+                                    >
+
+                                        <i class="bi bi-trash3"></i>
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            <!-- NO SEARCH RESULTS -->
+
+            <div
+                id="noSearchResults"
+                class="empty-search d-none"
+            >
+
+                <i class="bi bi-search"></i>
+
+                <h6 class="fw-bold">
+                    No students found
+                </h6>
+
+                <p class="text-muted mb-0">
+                    Try a different search term.
+                </p>
+
+            </div>
+
+
+            {% else %}
+
+            <!-- EMPTY STATE -->
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+
+                    <i class="bi bi-mortarboard-fill"></i>
+
+                </div>
+
+                <h5 class="fw-bold">
+                    No Students Yet
+                </h5>
+
+                <p class="text-muted">
+                    No student accounts have been added.
+                </p>
+
+                <a
+                    href="{{ url_for('admin.add_student') }}"
+                    class="btn btn-primary rounded-pill px-4"
+                >
+
+                    <i class="bi bi-person-plus me-2"></i>
+                    Add First Student
+
+                </a>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.student-summary-card {
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 20px;
+
+    background: rgba(255,255,255,.92);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 10px 28px rgba(15,23,42,.06);
+}
+
+
+.student-summary-icon {
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e8ddff;
+    color: #7659b8;
+
+    font-size: 1.3rem;
+}
+
+
+.student-info-card {
+
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+
+    padding: 20px;
+
+    background: #f5f2ff;
+
+    color: #6d5bb5;
+
+    border-radius: 18px;
+
+    border: 1px solid #e7e0ff;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.student-table-card {
+
+    background: rgba(255,255,255,.94);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 12px 35px rgba(15,23,42,.07);
+
+    overflow: hidden;
+}
+
+
+.table-card-header {
+
+    padding: 22px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border-bottom:
+        1px solid rgba(55,65,81,.08);
+}
+
+
+.search-box {
+
+    position: relative;
+
+    width: 280px;
+}
+
+
+.search-box i {
+
+    position: absolute;
+
+    left: 13px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #9ca3af;
+}
+
+
+.search-box input {
+
+    width: 100%;
+
+    height: 42px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 12px;
+
+    padding:
+        0 14px 0 38px;
+
+    outline: none;
+
+    font-size: .9rem;
+}
+
+
+.search-box input:focus {
+
+    border-color: #8ec5fc;
+
+    box-shadow:
+        0 0 0 3px rgba(142,197,252,.15);
+}
+
+
+/* =========================================================
+   TABLE TEXT
+========================================================= */
+
+.table {
+
+    color: #374151;
+}
+
+
+.table thead th {
+
+    background: #f8fafc;
+
+    color: #6b7280;
+
+    font-size: .76rem;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+
+    font-weight: 600;
+
+    padding: 15px 16px;
+
+    border-bottom:
+        1px solid #edf0f4;
+
+    white-space: nowrap;
+}
+
+
+.table tbody td {
+
+    padding: 16px;
+
+    border-bottom:
+        1px solid #f0f2f5;
+
+    white-space: nowrap;
+}
+
+
+.student-row {
+
+    transition:
+        background .2s ease;
+}
+
+
+.student-row:hover {
+
+    background: #fafaff;
+}
+
+
+/* =========================================================
+   STUDENT
+========================================================= */
+
+.student-person {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.student-avatar {
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e0c3fc,
+            #b8f2e6
+        );
+
+    color: #4b4666;
+
+    font-weight: 700;
+}
+
+
+.id-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 34px;
+    height: 30px;
+
+    padding: 0 8px;
+
+    border-radius: 9px;
+
+    background: #f1f5f9;
+
+    color: #64748b;
+
+    font-size: .8rem;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.usn-badge {
+
+    display: inline-block;
+
+    padding: 6px 9px;
+
+    border-radius: 9px;
+
+    background: #fff5df;
+
+    color: #9a7139;
+
+    font-size: .82rem;
+
+    font-weight: 600;
+}
+
+
+.semester-badge {
+
+    display: inline-block;
+
+    padding: 6px 9px;
+
+    border-radius: 9px;
+
+    background: #e8ddff;
+
+    color: #7659b8;
+
+    font-size: .82rem;
+
+    font-weight: 500;
+}
+
+
+.branch-badge {
+
+    display: inline-block;
+
+    padding: 6px 9px;
+
+    border-radius: 9px;
+
+    background: #dff4ef;
+
+    color: #4b8c7d;
+
+    font-size: .82rem;
+
+    font-weight: 500;
+}
+
+
+.section-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 32px;
+
+    padding: 6px 9px;
+
+    border-radius: 9px;
+
+    background: #dcecff;
+
+    color: #4b83c4;
+
+    font-size: .82rem;
+
+    font-weight: 600;
+}
+
+
+.email-text {
+
+    font-size: .86rem;
+
+    color: #4b5563;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.action-buttons {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 7px;
+}
+
+
+.action-btn {
+
+    width: 36px;
+    height: 36px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    text-decoration: none;
+
+    transition:
+        transform .2s ease,
+        background .2s ease;
+}
+
+
+.action-btn:hover {
+
+    transform:
+        translateY(-2px);
+}
+
+
+.edit-btn {
+
+    background: #e7f2ff;
+
+    color: #4b83c4;
+}
+
+
+.edit-btn:hover {
+
+    background: #d7eaff;
+
+    color: #3e73b0;
+}
+
+
+.delete-btn {
+
+    background: #fff0f0;
+
+    color: #c56a6a;
+}
+
+
+.delete-btn:hover {
+
+    background: #ffe0e0;
+
+    color: #b65353;
+}
+
+
+.delete-form {
+
+    display: inline;
+}
+
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.empty-state {
+
+    text-align: center;
+
+    padding: 70px 20px;
+}
+
+
+.empty-icon {
+
+    width: 80px;
+    height: 80px;
+
+    border-radius: 24px;
+
+    margin:
+        0 auto 18px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e8ddff,
+            #dff4ef
+        );
+
+    color: #7659b8;
+
+    font-size: 2rem;
+}
+
+
+.empty-search {
+
+    text-align: center;
+
+    padding: 50px 20px;
+}
+
+
+.empty-search i {
+
+    font-size: 2rem;
+
+    color: #9ca3af;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .table-responsive {
+
+        overflow-x: auto;
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .table-card-header {
+
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .search-box {
+
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const searchInput =
+            document.getElementById("studentSearch");
+
+        const rows =
+            document.querySelectorAll(".student-row");
+
+        const noResults =
+            document.getElementById("noSearchResults");
+
+
+        if (!searchInput) {
+            return;
+        }
+
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                const search =
+                    this.value
+                        .toLowerCase()
+                        .trim();
+
+                let visibleRows = 0;
+
+
+                rows.forEach(
+                    function (row) {
+
+                        const text =
+                            row.textContent
+                                .toLowerCase();
+
+
+                        if (text.includes(search)) {
+
+                            row.style.display = "";
+
+                            visibleRows++;
+
+                        } else {
+
+                            row.style.display = "none";
+
+                        }
+
+                    }
+                );
+
+
+                if (noResults) {
+
+                    if (
+                        visibleRows === 0 &&
+                        search !== ""
+                    ) {
+
+                        noResults.classList
+                            .remove("d-none");
+
+                    } else {
+
+                        noResults.classList
+                            .add("d-none");
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+function confirmDelete(name) {
+
+    return confirm(
+        "Are you sure you want to delete student '" +
+        name +
+        "'?\n\nThis action cannot be undone."
+    );
+
+}
+
+</script>
+
+{% endblock %}

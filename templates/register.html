@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | GSSS Attendance Portal{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+
+<div class="auth-shell">
+
+    <div class="auth-card">
+
+        <!-- LEFT PANEL -->
+        <div class="auth-panel-left">
+
+            <div class="brand-badge">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+
+            <div class="portal-title-wrapper">
+                <h1 class="portal-title">
+                    GSSS Attendance Portal
+                </h1>
+            </div>
+
+            <p class="auth-subtitle">
+                Join our AI-powered attendance system. Register your profile to access smart attendance tracking and notifications.
+            </p>
+
+            <div class="auth-illustration">
+                <div class="illustration-card main-card">
+                    <div class="attendance-heading">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Account Setup</span>
+                    </div>
+                    <div class="illustration-row"></div>
+                    <div class="illustration-row short"></div>
+                    <div class="illustration-row"></div>
+                    <div class="illustration-row shorter"></div>
+                </div>
+
+                <div class="illustration-card floating-card">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+
+                <div class="illustration-card badge-card">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+            </div>
+
+            <div class="auth-benefits">
+                <div class="benefit-pill">
+                    <i class="bi bi-person-workspace"></i>
+                    Teacher Portal
+                </div>
+                <div class="benefit-pill">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    Student Access
+                </div>
+                <div class="benefit-pill">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    Role-Based Security
+                </div>
+                <div class="benefit-pill">
+                    <i class="bi bi-clock-history"></i>
+                    Real-Time Tracking
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT PANEL -->
+        <div class="auth-panel-right">
+
+            <div class="glass-card fade-in">
+
+                <div class="text-center mb-3">
+                    <div class="mini-brand">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+
+                    <h2 class="auth-title">
+                        Create New User
+                    </h2>
+
+                    <p class="auth-description">
+                        Select whether you are a Teacher or a Student to proceed.
+                    </p>
+                </div>
+
+
+                <!-- REGISTRATION FORM -->
+                <form method="POST"
+                      action="{{ url_for('auth.register') }}"
+                      id="registerForm">
+
+                    <input type="hidden"
+                           name="role"
+                           id="regSelectedRole"
+                           value="student">
+
+                    <!-- ROLE SELECTION (TEACHER / STUDENT) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">
+                            Select Account Type <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="role-selection d-flex gap-2">
+                            <!-- STUDENT (Default) -->
+                            <button type="button"
+                                    class="role-card active flex-fill"
+                                    id="roleBtnStudent"
+                                    data-role="student"
+                                    onclick="setRegRole('student')">
+                                <i class="bi bi-mortarboard-fill"></i>
+                                <span>Student</span>
+                            </button>
+
+                            <!-- TEACHER -->
+                            <button type="button"
+                                    class="role-card flex-fill"
+                                    id="roleBtnTeacher"
+                                    data-role="teacher"
+                                    onclick="setRegRole('teacher')">
+                                <i class="bi bi-person-workspace"></i>
+                                <span>Teacher</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- FULL NAME -->
+                    <div class="mb-3">
+                        <label for="regName" class="form-label small fw-semibold text-secondary">
+                            Full Name <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="regName"
+                                   name="name"
+                                   placeholder="e.g. Aditi Naduthota / Prof. Priya Sharma"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- EMAIL -->
+                    <div class="mb-3">
+                        <label for="regEmail" class="form-label small fw-semibold text-secondary">
+                            Email Address <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email"
+                                   class="form-control"
+                                   id="regEmail"
+                                   name="email"
+                                   placeholder="e.g. student@college.edu"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- STUDENT USN (Shown only for Student) -->
+                    <div class="mb-3" id="studentUsnGroup">
+                        <label for="regUsn" class="form-label small fw-semibold text-secondary">
+                            USN / Student ID <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                            <input type="text"
+                                   class="form-control text-uppercase"
+                                   id="regUsn"
+                                   name="student_number"
+                                   placeholder="e.g. 4GW23CI001"
+                                   oninput="this.value = this.value.toUpperCase(); syncStudentUsername();">
+                        </div>
+                        <div class="form-text small text-muted">
+                            Your official University Seat Number.
+                        </div>
+                    </div>
+
+                    <!-- TEACHER PHONE (Shown only for Teacher) -->
+                    <div class="mb-3 d-none" id="teacherPhoneGroup">
+                        <label for="regPhone" class="form-label small fw-semibold text-secondary">
+                            Phone Number <span class="text-muted">(Optional)</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <input type="tel"
+                                   class="form-control"
+                                   id="regPhone"
+                                   name="phone"
+                                   placeholder="e.g. 9876543210">
+                        </div>
+                    </div>
+
+                    <!-- USERNAME -->
+                    <div class="mb-3">
+                        <label for="regUsername" class="form-label small fw-semibold text-secondary">
+                            Username <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   id="regUsername"
+                                   name="username"
+                                   placeholder="Desired login username"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="regPassword" class="form-label small fw-semibold text-secondary">
+                                Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="regPassword"
+                                       name="password"
+                                       placeholder="Min 4 chars"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="regConfirmPassword" class="form-label small fw-semibold text-secondary">
+                                Confirm Password <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <input type="password"
+                                       class="form-control"
+                                       id="regConfirmPassword"
+                                       name="confirm_password"
+                                       placeholder="Repeat password"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                            class="btn btn-primary auth-button w-100 py-2 mt-2"
+                            id="regSubmitBtn">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Register Account
+                    </button>
+
+                </form>
+
+                <div class="text-center mt-3 pt-2 border-top border-light-subtle">
+                    <span class="text-muted small">Already have an account? </span>
+                    <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-semibold text-primary small">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Sign In Here
+                    </a>
+                </div>
+
+                <div class="auth-footer mt-3">
+                    <p class="mb-0 text-muted small text-center">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Secure, role-based registration for GSSS Attendance Portal.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function setRegRole(role) {
+    const roleInput = document.getElementById('regSelectedRole');
+    const studentBtn = document.getElementById('roleBtnStudent');
+    const teacherBtn = document.getElementById('roleBtnTeacher');
+    const studentUsnGroup = document.getElementById('studentUsnGroup');
+    const teacherPhoneGroup = document.getElementById('teacherPhoneGroup');
+    const regUsn = document.getElementById('regUsn');
+    const regUsername = document.getElementById('regUsername');
+
+    roleInput.value = role;
+
+    if (role === 'student') {
+        studentBtn.classList.add('active');
+        teacherBtn.classList.remove('active');
+        studentUsnGroup.classList.remove('d-none');
+        teacherPhoneGroup.classList.add('d-none');
+        regUsn.required = true;
+        if (!regUsername.value || regUsername.value === 'teacher_') {
+            syncStudentUsername();
+        }
+    } else {
+        teacherBtn.classList.add('active');
+        studentBtn.classList.remove('active');
+        studentUsnGroup.classList.add('d-none');
+        teacherPhoneGroup.classList.remove('d-none');
+        regUsn.required = false;
+        if (!regUsername.value || regUsername.value === regUsn.value) {
+            regUsername.value = '';
+        }
+    }
+}
+
+function syncStudentUsername() {
+    const role = document.getElementById('regSelectedRole').value;
+    if (role === 'student') {
+        const usnVal = document.getElementById('regUsn').value.trim();
+        const regUsername = document.getElementById('regUsername');
+        if (usnVal) {
+            regUsername.value = usnVal;
+        }
+    }
+}
+
+// Initial setup
+document.addEventListener('DOMContentLoaded', function() {
+    setRegRole('student');
+});
+</script>
+
+{% endblock %}

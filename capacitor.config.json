@@ -1,0 +1,9 @@
+{
+  "appId": "com.gsss.attendence",
+  "appName": "GSSS Attendence Portal",
+  "webDir": "www",
+  "server": {
+    "url": "https://shoe-mechanism-reliability-joyce.trycloudflare.com",
+    "cleartext": true
+  }
+}

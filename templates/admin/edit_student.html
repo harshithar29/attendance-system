@@ -1,0 +1,1054 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student | GSSS Attendance Portal{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <!-- HEADER -->
+    <div class="mb-4">
+
+        <a href="{{ url_for('admin.students') }}"
+           class="text-decoration-none text-muted small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Students
+
+        </a>
+
+        <h2 class="fw-bold mt-2 mb-1">
+            Edit Student
+        </h2>
+
+        <p class="text-muted mb-0">
+            Update the student's academic and account information.
+        </p>
+
+    </div>
+
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-9 col-xl-8">
+
+            <div class="student-form-card">
+
+                <!-- HEADER -->
+
+                <div class="form-card-header">
+
+                    <div class="student-form-icon">
+                        <i class="bi bi-person-gear"></i>
+                    </div>
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Student Information
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Update details and save them to MySQL.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FORM -->
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'admin.edit_student',
+                        student_id=student.student_id
+                    ) }}"
+                    id="editStudentForm"
+                >
+
+                    <div class="row g-3">
+
+
+                        <!-- NAME -->
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="name"
+                                class="form-label"
+                            >
+
+                                Full Name
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="name"
+                                    name="name"
+                                    value="{{ student.name }}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- USN -->
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="usn"
+                                class="form-label"
+                            >
+
+                                USN
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-card-text"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="usn"
+                                    name="usn"
+                                    value="{{ student.usn }}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="email"
+                                class="form-label"
+                            >
+
+                                Email
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="email"
+                                    name="email"
+                                    value="{{ student.email }}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="phone"
+                                class="form-label"
+                            >
+
+                                Phone Number
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="phone"
+                                    name="phone"
+                                    value="{{ student.phone or '' }}"
+                                    maxlength="15"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SEMESTER -->
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="semester"
+                                class="form-label"
+                            >
+
+                                Semester
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-calendar3"></i>
+                                </span>
+
+                                <select
+                                    class="form-select"
+                                    id="semester"
+                                    name="semester"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Semester
+                                    </option>
+
+                                    <option
+                                        value="1"
+                                        {% if student.semester == 1 %}selected{% endif %}
+                                    >
+                                        1st Semester
+                                    </option>
+
+                                    <option
+                                        value="2"
+                                        {% if student.semester == 2 %}selected{% endif %}
+                                    >
+                                        2nd Semester
+                                    </option>
+
+                                    <option
+                                        value="3"
+                                        {% if student.semester == 3 %}selected{% endif %}
+                                    >
+                                        3rd Semester
+                                    </option>
+
+                                    <option
+                                        value="4"
+                                        {% if student.semester == 4 %}selected{% endif %}
+                                    >
+                                        4th Semester
+                                    </option>
+
+                                    <option
+                                        value="5"
+                                        {% if student.semester == 5 %}selected{% endif %}
+                                    >
+                                        5th Semester
+                                    </option>
+
+                                    <option
+                                        value="6"
+                                        {% if student.semester == 6 %}selected{% endif %}
+                                    >
+                                        6th Semester
+                                    </option>
+
+                                    <option
+                                        value="7"
+                                        {% if student.semester == 7 %}selected{% endif %}
+                                    >
+                                        7th Semester
+                                    </option>
+
+                                    <option
+                                        value="8"
+                                        {% if student.semester == 8 %}selected{% endif %}
+                                    >
+                                        8th Semester
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BRANCH -->
+
+                        <div class="col-md-5">
+
+                            <label
+                                for="branch"
+                                class="form-label"
+                            >
+
+                                Branch
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-diagram-3"></i>
+                                </span>
+
+                                <select
+                                    class="form-select"
+                                    id="branch"
+                                    name="branch"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Branch
+                                    </option>
+
+                                    <option
+                                        value="CSE"
+                                        {% if student.branch == "CSE" %}selected{% endif %}
+                                    >
+                                        Computer Science & Engineering
+                                    </option>
+
+                                    <option
+                                        value="CSE AIML"
+                                        {% if student.branch == "CSE AIML" %}selected{% endif %}
+                                    >
+                                        CSE - Artificial Intelligence & Machine Learning
+                                    </option>
+
+                                    <option
+                                        value="ISE"
+                                        {% if student.branch == "ISE" %}selected{% endif %}
+                                    >
+                                        Information Science & Engineering
+                                    </option>
+
+                                    <option
+                                        value="ECE"
+                                        {% if student.branch == "ECE" %}selected{% endif %}
+                                    >
+                                        Electronics & Communication Engineering
+                                    </option>
+
+                                    <option
+                                        value="EEE"
+                                        {% if student.branch == "EEE" %}selected{% endif %}
+                                    >
+                                        Electrical & Electronics Engineering
+                                    </option>
+
+                                    <option
+                                        value="ME"
+                                        {% if student.branch == "ME" %}selected{% endif %}
+                                    >
+                                        Mechanical Engineering
+                                    </option>
+
+                                    <option
+                                        value="CIVIL"
+                                        {% if student.branch == "CIVIL" %}selected{% endif %}
+                                    >
+                                        Civil Engineering
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SECTION -->
+
+                        <div class="col-md-3">
+
+                            <label
+                                for="section"
+                                class="form-label"
+                            >
+
+                                Section
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-people"></i>
+                                </span>
+
+                                <select
+                                    class="form-select"
+                                    id="section"
+                                    name="section"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select
+                                    </option>
+
+                                    <option
+                                        value="A"
+                                        {% if student.section == "A" %}selected{% endif %}
+                                    >
+                                        A
+                                    </option>
+
+                                    <option
+                                        value="B"
+                                        {% if student.section == "B" %}selected{% endif %}
+                                    >
+                                        B
+                                    </option>
+
+                                    <option
+                                        value="C"
+                                        {% if student.section == "C" %}selected{% endif %}
+                                    >
+                                        C
+                                    </option>
+
+                                    <option
+                                        value="D"
+                                        {% if student.section == "D" %}selected{% endif %}
+                                    >
+                                        D
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- LOGIN SECTION -->
+
+                        <div class="col-12">
+
+                            <div class="login-section">
+
+                                <div class="section-heading">
+
+                                    <div class="section-heading-icon">
+
+                                        <i class="bi bi-shield-lock-fill"></i>
+
+                                    </div>
+
+                                    <div>
+
+                                        <h6 class="fw-bold mb-1">
+                                            Login Information
+                                        </h6>
+
+                                        <small class="text-muted">
+                                            Update the username or optionally
+                                            change the password.
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="row g-3 mt-1">
+
+
+                                    <!-- USERNAME -->
+
+                                    <div class="col-md-6">
+
+                                        <label
+                                            for="username"
+                                            class="form-label"
+                                        >
+
+                                            Username
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person-badge"></i>
+                                            </span>
+
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="username"
+                                                name="username"
+                                                value="{{ student.username }}"
+                                                required
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- PASSWORD -->
+
+                                    <div class="col-md-6">
+
+                                        <label
+                                            for="password"
+                                            class="form-label"
+                                        >
+
+                                            New Password
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-lock"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                class="form-control"
+                                                id="password"
+                                                name="password"
+                                                placeholder="Leave blank to keep current password"
+                                                minlength="6"
+                                            >
+
+                                            <button
+                                                type="button"
+                                                class="btn password-toggle"
+                                                id="togglePassword"
+                                            >
+
+                                                <i
+                                                    class="bi bi-eye"
+                                                    id="passwordIcon"
+                                                ></i>
+
+                                            </button>
+
+                                        </div>
+
+                                        <small class="text-muted">
+                                            Leave blank if you don't want
+                                            to change the password.
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FACE INFORMATION -->
+
+                        <div class="col-12">
+
+                            <div class="face-notice">
+
+                                <div class="face-notice-icon">
+
+                                    <i class="bi bi-person-bounding-box"></i>
+
+                                </div>
+
+                                <div>
+
+                                    <h6 class="fw-bold mb-1">
+                                        AI Face Recognition
+                                    </h6>
+
+                                    <p class="mb-1">
+                                        The student's registered face data
+                                        remains associated with this student
+                                        account.
+                                    </p>
+
+                                    <small>
+                                        Face registration will use the
+                                        student's database ID.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+
+                        <a
+                            href="{{ url_for('admin.students') }}"
+                            class="btn btn-outline-secondary rounded-pill px-4"
+                        >
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-pill px-4"
+                            id="updateButton"
+                        >
+
+                            <span id="updateLabel">
+
+                                <i class="bi bi-check-circle-fill me-1"></i>
+                                Save Changes
+
+                            </span>
+
+                            <span
+                                id="updateLoading"
+                                class="d-none"
+                            >
+
+                                <span
+                                    class="spinner-border spinner-border-sm me-2"
+                                ></span>
+
+                                Updating...
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.student-form-card {
+
+    background: rgba(255,255,255,.95);
+
+    border-radius: 22px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 14px 38px rgba(15,23,42,.08);
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.form-card-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding-bottom: 22px;
+
+    margin-bottom: 24px;
+
+    border-bottom:
+        1px solid rgba(55,65,81,.08);
+
+}
+
+
+.student-form-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    border-radius: 17px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e8ddff,
+            #dff4ef
+        );
+
+    color: #7659b8;
+
+    font-size: 1.4rem;
+
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-label {
+
+    font-weight: 600;
+
+    color: #374151;
+
+}
+
+
+.form-control,
+.form-select {
+
+    min-height: 48px;
+
+    border-color: #e5e7eb;
+
+}
+
+
+.form-control:focus,
+.form-select:focus {
+
+    border-color: #8ec5fc;
+
+    box-shadow:
+        0 0 0 .2rem
+        rgba(142,197,252,.18);
+
+}
+
+
+.input-group-text {
+
+    min-width: 46px;
+
+    justify-content: center;
+
+    background: #f8fafc;
+
+    color: #6b7280;
+
+    border-color: #e5e7eb;
+
+}
+
+
+.password-toggle {
+
+    background: #f8fafc;
+
+    border-color: #e5e7eb;
+
+    color: #6b7280;
+
+}
+
+
+/* =========================================================
+   LOGIN SECTION
+========================================================= */
+
+.login-section {
+
+    padding: 19px;
+
+    border-radius: 17px;
+
+    background: #fafbff;
+
+    border: 1px solid #edf0f6;
+
+}
+
+
+.section-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.section-heading-icon {
+
+    width: 42px;
+
+    height: 42px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e8ddff;
+
+    color: #7659b8;
+
+}
+
+
+/* =========================================================
+   FACE NOTICE
+========================================================= */
+
+.face-notice {
+
+    display: flex;
+
+    gap: 14px;
+
+    padding: 17px;
+
+    border-radius: 16px;
+
+    background: #f5f2ff;
+
+    border: 1px solid #e7e0ff;
+
+    color: #5d5288;
+
+}
+
+
+.face-notice-icon {
+
+    flex-shrink: 0;
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #e8ddff;
+
+    color: #7659b8;
+
+    font-size: 1.2rem;
+
+}
+
+
+.face-notice p {
+
+    font-size: .86rem;
+
+    color: #6b6580;
+
+}
+
+
+.face-notice small {
+
+    color: #806fb8;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+
+    .student-form-card {
+
+        padding: 20px;
+
+    }
+
+    .face-notice {
+
+        flex-direction: column;
+
+    }
+
+}
+
+</style>
+
+
+<script>
+
+/* =========================================================
+   PASSWORD VISIBILITY
+========================================================= */
+
+document
+    .getElementById("togglePassword")
+    .addEventListener("click", function () {
+
+        const password =
+            document.getElementById("password");
+
+        const icon =
+            document.getElementById("passwordIcon");
+
+
+        if (password.type === "password") {
+
+            password.type = "text";
+
+            icon.classList.remove("bi-eye");
+
+            icon.classList.add("bi-eye-slash");
+
+        } else {
+
+            password.type = "password";
+
+            icon.classList.remove("bi-eye-slash");
+
+            icon.classList.add("bi-eye");
+
+        }
+
+    });
+
+
+/* =========================================================
+   FORM VALIDATION
+========================================================= */
+
+document
+    .getElementById("editStudentForm")
+    .addEventListener("submit", function (event) {
+
+        const password =
+            document.getElementById("password").value;
+
+
+        if (
+            password.length > 0 &&
+            password.length < 6
+        ) {
+
+            event.preventDefault();
+
+            alert(
+                "New password must contain at least 6 characters."
+            );
+
+            return;
+
+        }
+
+
+        /* Uppercase USN */
+
+        const usn =
+            document
+                .getElementById("usn")
+                .value
+                .trim()
+                .toUpperCase();
+
+
+        document.getElementById("usn").value = usn;
+
+
+        /* Loading state */
+
+        document
+            .getElementById("updateLabel")
+            .classList
+            .add("d-none");
+
+        document
+            .getElementById("updateLoading")
+            .classList
+            .remove("d-none");
+
+        document
+            .getElementById("updateButton")
+            .disabled = true;
+
+    });
+
+
+/* =========================================================
+   AUTO UPPERCASE USN
+========================================================= */
+
+document
+    .getElementById("usn")
+    .addEventListener("input", function () {
+
+        this.value =
+            this.value.toUpperCase();
+
+    });
+
+</script>
+
+{% endblock %}

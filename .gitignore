@@ -1,0 +1,16 @@
+.env
+venv/
+__pycache__/
+*.pyc
+logs/*.log
+node_modules/
+android/
+.gradle/
+*.apk
+uploads/
+dataset/
+face_embeddings/
+extracted_frames/
+reports/
+
+!database/attendance.db

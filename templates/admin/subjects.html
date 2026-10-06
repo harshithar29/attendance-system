@@ -1,0 +1,460 @@
+{% extends "base.html" %}
+
+{% block title %}Subject Management{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-book-half me-2"></i>
+                Subject Management
+            </h2>
+
+            <p class="text-muted mb-0">
+                Add, edit and manage subjects for different classes.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin.dashboard') }}"
+           class="btn btn-outline-secondary">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Dashboard
+
+        </a>
+
+    </div>
+
+
+    <!-- ==================================================
+         FLASH MESSAGES
+    ================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert alert-{{ category }} alert-dismissible fade show"
+                     role="alert">
+
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <div class="row g-4">
+
+        <!-- ==================================================
+             ADD / EDIT SUBJECT FORM
+        ================================================== -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    {% if edit_subject %}
+
+                        <h4 class="fw-bold mb-1">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit Subject
+                        </h4>
+
+                        <p class="text-muted small mb-4">
+                            Update the subject details.
+                        </p>
+
+                    {% else %}
+
+                        <h4 class="fw-bold mb-1">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Add Subject
+                        </h4>
+
+                        <p class="text-muted small mb-4">
+                            Create a new subject.
+                        </p>
+
+                    {% endif %}
+
+
+                    <form method="POST"
+                          action="{{ url_for('admin.subjects') }}">
+
+
+                        <!-- Subject ID for edit -->
+
+                        {% if edit_subject %}
+
+                            <input type="hidden"
+                                   name="subject_id"
+                                   value="{{ edit_subject.subject_id }}">
+
+                        {% endif %}
+
+
+                        <!-- Subject Name -->
+
+                        <div class="mb-3">
+
+                            <label for="subject_name"
+                                   class="form-label fw-semibold">
+
+                                Subject Name
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   id="subject_name"
+                                   name="subject_name"
+                                   placeholder="Enter subject name"
+                                   value="{{ edit_subject.subject_name if edit_subject else '' }}"
+                                   required>
+
+                        </div>
+
+
+                        <!-- Subject Code -->
+
+                        <div class="mb-3">
+
+                            <label for="subject_code"
+                                   class="form-label fw-semibold">
+
+                                Subject Code
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control text-uppercase"
+                                   id="subject_code"
+                                   name="subject_code"
+                                   placeholder="Example: DSA301"
+                                   value="{{ edit_subject.subject_code if edit_subject else '' }}"
+                                   maxlength="30"
+                                   required>
+
+                            <div class="form-text">
+                                Subject code must be unique.
+                            </div>
+
+                        </div>
+
+
+                        <!-- Class -->
+
+                        <div class="mb-4">
+
+                            <label for="class_id"
+                                   class="form-label fw-semibold">
+
+                                Class
+
+                            </label>
+
+                            <select class="form-select"
+                                    id="class_id"
+                                    name="class_id">
+
+                                <option value="">
+                                    Select Class
+                                </option>
+
+                                {% for class in classes %}
+
+                                    <option value="{{ class.class_id }}"
+                                        {% if edit_subject and edit_subject.class_id == class.class_id %}
+                                            selected
+                                        {% endif %}>
+
+                                        {{ class.class_name }}
+                                        -
+                                        {{ class.branch }}
+                                        -
+                                        Sem {{ class.semester }}
+                                        -
+                                        Sec {{ class.section }}
+
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-primary flex-grow-1">
+
+                                {% if edit_subject %}
+
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Update Subject
+
+                                {% else %}
+
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    Add Subject
+
+                                {% endif %}
+
+                            </button>
+
+
+                            {% if edit_subject %}
+
+                                <a href="{{ url_for('admin.subjects') }}"
+                                   class="btn btn-outline-secondary">
+
+                                    Cancel
+
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+             SUBJECT LIST
+        ================================================== -->
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <div>
+
+                            <h4 class="fw-bold mb-1">
+                                All Subjects
+                            </h4>
+
+                            <p class="text-muted small mb-0">
+                                {{ subjects|length }} subject(s) registered.
+                            </p>
+
+                        </div>
+
+                        <span class="badge bg-primary rounded-pill px-3 py-2">
+
+                            {{ subjects|length }}
+
+                        </span>
+
+                    </div>
+
+
+                    {% if subjects %}
+
+                        <div class="table-responsive">
+
+                            <table class="table table-hover align-middle">
+
+                                <thead class="table-light">
+
+                                    <tr>
+
+                                        <th>#</th>
+
+                                        <th>
+                                            Subject
+                                        </th>
+
+                                        <th>
+                                            Code
+                                        </th>
+
+                                        <th>
+                                            Class
+                                        </th>
+
+                                        <th class="text-center">
+                                            Actions
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    {% for subject in subjects %}
+
+                                        <tr>
+
+                                            <td>
+                                                {{ loop.index }}
+                                            </td>
+
+
+                                            <td>
+
+                                                <div class="fw-semibold">
+                                                    {{ subject.subject_name }}
+                                                </div>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <span class="badge bg-light text-dark border">
+
+                                                    {{ subject.subject_code }}
+
+                                                </span>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {% if subject.class_name %}
+
+                                                    <div class="fw-semibold">
+                                                        {{ subject.class_name }}
+                                                    </div>
+
+                                                    <small class="text-muted">
+
+                                                        {{ subject.branch }}
+                                                        |
+                                                        Sem {{ subject.semester }}
+                                                        |
+                                                        Sec {{ subject.section }}
+
+                                                    </small>
+
+                                                {% else %}
+
+                                                    <span class="text-muted">
+                                                        Not assigned
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </td>
+
+
+                                            <td class="text-center">
+
+                                                <div class="d-flex justify-content-center gap-2">
+
+
+                                                    <!-- EDIT -->
+
+                                                    <a href="{{ url_for('admin.subjects', edit=subject.subject_id) }}"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       title="Edit Subject">
+
+                                                        <i class="bi bi-pencil"></i>
+
+                                                    </a>
+
+
+                                                    <!-- DELETE -->
+
+                                                    <form method="POST"
+                                                          action="{{ url_for('admin.delete_subject', subject_id=subject.subject_id) }}"
+                                                          onsubmit="return confirm('Are you sure you want to delete this subject?');">
+
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                title="Delete Subject">
+
+                                                            <i class="bi bi-trash"></i>
+
+                                                        </button>
+
+                                                    </form>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                    {% endfor %}
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    {% else %}
+
+                        <!-- EMPTY STATE -->
+
+                        <div class="text-center py-5">
+
+                            <div class="mb-3">
+
+                                <i class="bi bi-book display-4 text-muted"></i>
+
+                            </div>
+
+                            <h5 class="fw-semibold">
+                                No subjects added yet
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                Add your first subject using the form.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

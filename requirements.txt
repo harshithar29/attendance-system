@@ -1,0 +1,29 @@
+# ==========================================================
+# PHASE 1 — REQUIRED NOW (Flask app, MySQL, Auth, Dashboards)
+# ==========================================================
+Flask==3.0.3
+python-dotenv==1.0.1
+mysql-connector-python==8.4.0
+Werkzeug==3.0.3
+gunicorn==22.0.0
+
+# ==========================================================
+# PHASE 2+ — NOT NEEDED YET
+# (Uploaded classroom video processing: frame extraction with
+# OpenCV, face detection with RetinaFace, recognition with FaceNet)
+# Install these only when we start building video upload +
+# processing, to keep the Phase 1 setup light and fast.
+# ==========================================================
+# opencv-python==4.10.0.84
+# numpy==1.26.4
+# pandas==2.2.2
+# retina-face==0.0.17
+# mtcnn==0.1.1
+# keras-facenet==0.3.2
+# tensorflow==2.16.1
+
+# ==========================================================
+# PHASE 3+ — Reports (Excel / PDF export)
+# ==========================================================
+# openpyxl==3.1.5
+# reportlab==4.2.2

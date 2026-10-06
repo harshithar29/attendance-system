@@ -1,0 +1,2917 @@
+{% extends "base.html" %}
+
+{% block title %}
+Admin Dashboard | GSSS Attendance Portal
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   ADMIN PAGE
+========================================================= */
+
+.admin-page {
+    min-height: calc(100vh - 76px);
+    padding: 25px;
+}
+
+
+/* =========================================================
+   MENU BUTTON - TOP LEFT
+========================================================= */
+
+.admin-menu-btn {
+    position: fixed;
+
+    top: 88px;
+    left: 15px;
+
+    width: 46px;
+    height: 46px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: #315f9d;
+
+    box-shadow:
+        0 6px 20px rgba(15, 23, 42, 0.15);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.35rem;
+
+    cursor: pointer;
+
+    z-index: 1300;
+
+    transition: all 0.25s ease;
+}
+
+.admin-menu-btn:hover {
+    background: #eef6ff;
+    transform: scale(1.05);
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.admin-sidebar {
+    position: fixed;
+
+    left: 0;
+    top: 76px;
+
+    width: 260px;
+    height: calc(100vh - 76px);
+
+    background: #ffffff;
+
+    border-radius: 0 18px 18px 0;
+
+    padding: 70px 12px 20px;
+
+    box-shadow:
+        8px 0 30px rgba(15, 23, 42, 0.10);
+
+    overflow-y: auto;
+
+    z-index: 1200;
+
+    transform: translateX(0);
+    opacity: 1;
+
+    transition:
+        transform 0.25s ease,
+        opacity 0.25s ease;
+}
+
+
+/* =========================================================
+   CLOSED SIDEBAR
+========================================================= */
+
+.admin-sidebar.closed {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SIDEBAR HEADER
+========================================================= */
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 8px 12px 18px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    margin-bottom: 12px;
+}
+
+.sidebar-header-icon {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    background: #e5efff;
+    color: #315f9d;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-header-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #26364d;
+}
+
+.sidebar-header-subtitle {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SIDEBAR MENU
+========================================================= */
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border-radius: 11px;
+
+    text-decoration: none;
+
+    color: #4b5563;
+
+    font-size: 0.94rem;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+.sidebar-link i {
+    width: 22px;
+    text-align: center;
+    font-size: 1.05rem;
+}
+
+.sidebar-link:hover {
+    background: #eef6ff;
+    color: #315f9d;
+
+    transform: translateX(2px);
+}
+
+.sidebar-link.active {
+    background: #e5efff;
+    color: #315f9d;
+    font-weight: 600;
+}
+
+.sidebar-divider {
+    height: 1px;
+
+    background: #edf0f4;
+
+    margin: 12px 8px;
+}
+
+/* =========================================================
+   SIDEBAR SUBMENUS & ARROWS
+========================================================= */
+.sidebar-item-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-submenu {
+    display: none;
+    flex-direction: column;
+    padding-left: 18px;
+    margin-top: 2px;
+    margin-bottom: 4px;
+    gap: 2px;
+    border-left: 2px solid #e2e8f0;
+    margin-left: 24px;
+}
+
+.sidebar-submenu.show {
+    display: flex;
+}
+
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 0.81rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.sidebar-sublink:hover {
+    background: #eef6ff;
+    color: #315f9d;
+    transform: translateX(2px);
+}
+
+.sidebar-sublink.active {
+    background: #e5efff;
+    color: #315f9d;
+    font-weight: 600;
+}
+
+.submenu-arrow {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-link.open .submenu-arrow {
+    transform: rotate(90deg);
+}
+
+/* =========================================================
+   INTERNAL SECTION SUB-NAVIGATION TABS
+========================================================= */
+.admin-subnav-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    padding: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.admin-subnav-btn {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.admin-subnav-btn:hover {
+    color: #1e293b;
+    background: #eef2f6;
+}
+
+.admin-subnav-btn.active {
+    background: #ffffff;
+    color: #315f9d;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.admin-subtab-view {
+    display: none;
+    animation: fadeInAdmin 0.2s ease-in-out;
+}
+
+.admin-subtab-view.active {
+    display: block;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.admin-main {
+    margin-left: 285px;
+
+    transition:
+        margin-left 0.25s ease;
+}
+
+.admin-main.full {
+    margin-left: 0;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.admin-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 25px;
+
+    gap: 20px;
+}
+
+.admin-badge {
+    display: inline-block;
+
+    background: #e0c3fc;
+    color: #374151;
+
+    border-radius: 30px;
+
+    padding: 8px 15px;
+
+    font-size: 0.8rem;
+
+    margin-bottom: 8px;
+}
+
+.admin-header h2 {
+    font-weight: 700;
+
+    color: #1f2937;
+
+    margin-bottom: 5px;
+}
+
+.admin-header p {
+    color: #6b7280;
+
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.dashboard-card,
+.management-card,
+.feature-card {
+
+    background: rgba(255,255,255,0.96);
+
+    border-radius: 20px;
+
+    border: 1px solid rgba(255,255,255,0.9);
+
+    padding: 24px;
+
+    box-shadow:
+        0 10px 28px rgba(15,23,42,0.07);
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-card,
+.management-card {
+    height: 100%;
+}
+
+.dashboard-card:hover,
+.management-card:hover,
+.feature-card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 35px rgba(15,23,42,0.10);
+}
+
+
+/* =========================================================
+   ICONS
+========================================================= */
+
+.stat-icon,
+.management-icon,
+.feature-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+.stat-icon {
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 15px;
+
+    font-size: 1.3rem;
+}
+
+.teacher-icon {
+    background: #dcecff;
+    color: #4b83c4;
+}
+
+.student-icon {
+    background: #e8ddff;
+    color: #7659b8;
+}
+
+.class-icon {
+    background: #d8f4ed;
+    color: #4b9b88;
+}
+
+.subject-icon {
+    background: #fff0d8;
+    color: #a97938;
+}
+
+.management-icon {
+
+    width: 54px;
+    height: 54px;
+
+    border-radius: 15px;
+
+    font-size: 1.3rem;
+}
+
+.teacher-management-icon {
+    background: #dcecff;
+    color: #4b83c4;
+}
+
+.student-management-icon {
+    background: #e8ddff;
+    color: #7659b8;
+}
+
+.feature-icon {
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 15px;
+
+    margin-bottom: 15px;
+
+    font-size: 1.25rem;
+}
+
+.classes-icon {
+    background: #dcecff;
+    color: #4b83c4;
+}
+
+.subjects-icon {
+    background: #fff0d8;
+    color: #a97938;
+}
+
+.face-icon {
+    background: #dff4ef;
+    color: #4c9a88;
+}
+
+.video-icon {
+    background: #dcecff;
+    color: #4b83c4;
+}
+
+.attendance-icon {
+    background: #dff4ef;
+    color: #4c9a88;
+}
+
+.report-icon {
+    background: #e8ddff;
+    color: #7659b8;
+}
+
+
+/* =========================================================
+   ACTION LINKS
+========================================================= */
+
+.dashboard-action {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 13px;
+
+    margin-top: 8px;
+
+    background: #f8fafc;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    color: #374151;
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-action:hover {
+
+    background: #eef6ff;
+
+    color: #315f9d;
+
+    transform: translateX(2px);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 992px) {
+
+    .admin-menu-btn {
+        top: 76px;
+        left: 12px;
+        width: 42px;
+        height: 42px;
+        z-index: 1350;
+    }
+
+    .admin-sidebar {
+        top: 0;
+        left: 0;
+        width: 275px;
+        max-width: 85vw;
+        height: 100vh;
+        max-height: 100vh;
+        padding-top: 24px;
+        z-index: 1300;
+        box-shadow: 12px 0 35px rgba(15, 23, 42, 0.20);
+    }
+
+    .admin-main,
+    .admin-main.full {
+        margin-left: 0 !important;
+    }
+
+    .admin-page {
+        padding: 16px 12px;
+    }
+
+    .admin-header {
+        padding-left: 48px;
+        margin-bottom: 20px;
+    }
+
+    .admin-subnav-tabs {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding: 6px;
+        scrollbar-width: none;
+    }
+    .admin-subnav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .admin-subnav-btn {
+        white-space: nowrap;
+        font-size: 0.82rem;
+        padding: 6px 12px;
+    }
+}
+
+
+@media (max-width: 576px) {
+
+    .admin-menu-btn {
+        top: 72px;
+        left: 8px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .admin-header {
+        padding-left: 44px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .admin-header h2 {
+        font-size: 1.35rem;
+    }
+
+    .dashboard-card,
+    .management-card,
+    .feature-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .stat-summary-box {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .stat-icon-wrap {
+        width: 42px;
+        height: 42px;
+        font-size: 1.15rem;
+    }
+}
+
+/* =========================================================
+   SINGLE-PAGE SECTION SWITCHING & MOBILE OVERLAY
+========================================================= */
+.admin-section-view {
+    display: none;
+    animation: fadeInAdmin 0.2s ease-in-out;
+}
+
+.admin-section-view.active {
+    display: block;
+}
+
+@keyframes fadeInAdmin {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1150;
+    backdrop-filter: blur(2px);
+}
+
+.admin-sidebar-overlay.show {
+    display: block;
+}
+
+.stat-summary-box {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #edf0f4;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.stat-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.search-box-pill {
+    position: relative;
+    max-width: 280px;
+}
+
+.search-box-pill i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.search-box-pill input {
+    padding-left: 38px;
+    border-radius: 20px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.88rem;
+}
+
+.admin-section-card {
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #edf0f4;
+    padding: 24px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+    margin-bottom: 24px;
+}
+</style>
+
+
+<!-- =========================================================
+     MENU BUTTON
+========================================================= -->
+
+<button
+    type="button"
+    id="adminMenuBtn"
+    class="admin-menu-btn"
+    title="Open / Close Menu"
+    aria-label="Open / Close Admin Menu"
+>
+    <i class="bi bi-list"></i>
+</button>
+
+
+<!-- =========================================================
+     ADMIN SIDEBAR
+========================================================= -->
+
+<aside
+    id="adminSidebar"
+    class="admin-sidebar"
+>
+
+    <div class="sidebar-header">
+
+        <div class="sidebar-header-icon">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+
+        <div>
+
+            <div class="sidebar-header-title">
+                Admin Panel
+            </div>
+
+            <div class="sidebar-header-subtitle">
+                Management
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="sidebar-menu">
+
+        <!-- 1. DASHBOARD -->
+        <div class="sidebar-item-group">
+            <a
+                href="{{ url_for('admin.dashboard') }}"
+                class="sidebar-link active"
+                data-section="overview"
+                onclick="switchAdminSection('overview', this); return false;"
+            >
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <!-- 2. TEACHERS -->
+        <div class="sidebar-item-group">
+            <a
+                href="{{ url_for('admin.teachers') }}"
+                class="sidebar-link"
+                data-section="teachers"
+                onclick="switchAdminSection('teachers', this); toggleSubmenu('submenu-teachers'); return false;"
+            >
+                <i class="bi bi-person-workspace"></i>
+                <span>Teachers</span>
+                <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <div class="sidebar-submenu" id="submenu-teachers">
+                <a href="{{ url_for('admin.teachers') }}" class="sidebar-sublink" data-subtab="tea-list" onclick="switchAdminSection('teachers'); setTeacherSubtab('list'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Add/Edit/Delete Teachers</span>
+                </a>
+                <a href="{{ url_for('admin.teachers') }}" class="sidebar-sublink" data-subtab="tea-info" onclick="switchAdminSection('teachers'); setTeacherSubtab('info'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Manage Teacher Information</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. STUDENTS -->
+        <div class="sidebar-item-group">
+            <a
+                href="{{ url_for('admin.students') }}"
+                class="sidebar-link"
+                data-section="students"
+                onclick="switchAdminSection('students', this); toggleSubmenu('submenu-students'); return false;"
+            >
+                <i class="bi bi-mortarboard-fill"></i>
+                <span>Students</span>
+                <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <div class="sidebar-submenu" id="submenu-students">
+                <a href="{{ url_for('admin.students') }}" class="sidebar-sublink" data-subtab="std-view" onclick="switchAdminSection('students'); setStudentSubtab('view'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>View Students</span>
+                </a>
+                <a href="{{ url_for('admin.add_student') }}" class="sidebar-sublink" data-subtab="std-add" onclick="switchAdminSection('students'); setStudentSubtab('add'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Add/Edit Students</span>
+                </a>
+                <a href="#" class="sidebar-sublink" data-subtab="std-face" onclick="switchAdminSection('students'); setStudentSubtab('face'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Face Registration</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- 4. CLASSES -->
+        <div class="sidebar-item-group">
+            <a
+                href="{{ url_for('admin.classes') }}"
+                class="sidebar-link"
+                data-section="classes"
+                onclick="switchAdminSection('classes', this); toggleSubmenu('submenu-classes'); return false;"
+            >
+                <i class="bi bi-building"></i>
+                <span>Classes</span>
+                <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <div class="sidebar-submenu" id="submenu-classes">
+                <a href="{{ url_for('admin.classes') }}" class="sidebar-sublink" data-subtab="cls-view" onclick="switchAdminSection('classes'); setClassesSubtab('view'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>View Classes</span>
+                </a>
+                <a href="{{ url_for('admin.subjects') }}" class="sidebar-sublink" data-subtab="cls-subjects" onclick="switchAdminSection('classes'); setClassesSubtab('subjects'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Manage Subjects</span>
+                </a>
+                <a href="#" class="sidebar-sublink" data-subtab="cls-students" onclick="switchAdminSection('classes'); setClassesSubtab('students'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Manage Students</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 5. ATTENDANCE -->
+        <div class="sidebar-item-group">
+            <a
+                href="{{ url_for('admin.attendance') }}"
+                class="sidebar-link"
+                data-section="attendance"
+                onclick="switchAdminSection('attendance', this); toggleSubmenu('submenu-attendance'); return false;"
+            >
+                <i class="bi bi-calendar-check"></i>
+                <span>Attendance</span>
+                <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <div class="sidebar-submenu" id="submenu-attendance">
+                <a href="#" class="sidebar-sublink" data-subtab="att-records" onclick="switchAdminSection('attendance'); setAttendanceSubtab('records'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>View Attendance Records</span>
+                </a>
+                <a href="#" class="sidebar-sublink" data-subtab="att-review" onclick="switchAdminSection('attendance'); setAttendanceSubtab('review'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Review Attendance</span>
+                </a>
+                <a href="#" class="sidebar-sublink" data-subtab="att-reports" onclick="switchAdminSection('attendance'); setAttendanceSubtab('reports'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Attendance Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- 6. SETTINGS -->
+        <div class="sidebar-item-group">
+            <a
+                href="{{ url_for('admin.settings') }}"
+                class="sidebar-link"
+                data-section="settings"
+                onclick="switchAdminSection('settings', this); toggleSubmenu('submenu-settings'); return false;"
+            >
+                <i class="bi bi-gear-fill"></i>
+                <span>Settings</span>
+                <i class="bi bi-chevron-right submenu-arrow"></i>
+            </a>
+            <div class="sidebar-submenu" id="submenu-settings">
+                <a href="{{ url_for('admin.settings') }}" class="sidebar-sublink" onclick="switchAdminSection('settings'); return false;">
+                    <i class="bi bi-dash"></i>
+                    <span>Admin/System Settings</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</aside>
+
+<!-- Backdrop overlay for mobile sidebar -->
+<div id="adminSidebarOverlay" class="admin-sidebar-overlay"></div>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<div
+    id="adminMain"
+    class="admin-page admin-main"
+>
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="admin-header">
+
+        <div>
+
+            <span class="admin-badge">
+
+                <i class="bi bi-shield-lock-fill me-1"></i>
+
+                ADMIN PANEL
+
+            </span>
+
+
+            <h2>
+                Welcome, {{ name or 'Admin' }}
+            </h2>
+
+
+            <p>
+                Manage teachers, students, classes and attendance
+                from one place.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <a
+                href="{{ url_for('auth.logout') }}"
+                class="btn btn-outline-secondary rounded-pill px-4"
+            >
+
+                <i class="bi bi-box-arrow-right me-1"></i>
+
+                Logout
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         SECTION 1: OVERVIEW
+    ====================================================== -->
+    <div id="section-overview" class="admin-section-view active">
+
+    <!-- =====================================================
+         STATISTICS
+    ====================================================== -->
+
+    <div class="row g-4 mb-5">
+
+
+        <!-- TEACHERS -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="dashboard-card">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-1">
+                            Total Teachers
+                        </p>
+
+                        <h2 class="fw-bold">
+                            {{ stats.get('total_teachers', 0) }}
+                        </h2>
+
+                    </div>
+
+
+                    <div class="stat-icon teacher-icon">
+
+                        <i class="bi bi-person-workspace"></i>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.teachers') }}"
+                    class="text-decoration-none"
+                    onclick="switchAdminSection('teachers'); return false;"
+                >
+
+                    Manage Teachers
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- STUDENTS -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="dashboard-card">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-1">
+                            Total Students
+                        </p>
+
+                        <h2 class="fw-bold">
+                            {{ stats.get('total_students', 0) }}
+                        </h2>
+
+                    </div>
+
+
+                    <div class="stat-icon student-icon">
+
+                        <i class="bi bi-mortarboard-fill"></i>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.students') }}"
+                    class="text-decoration-none"
+                    onclick="switchAdminSection('students'); return false;"
+                >
+
+                    Manage Students
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- CLASSES -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="dashboard-card">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-1">
+                            Total Classes
+                        </p>
+
+                        <h2 class="fw-bold">
+                            {{ stats.get('total_classes', 0) }}
+                        </h2>
+
+                    </div>
+
+
+                    <div class="stat-icon class-icon">
+
+                        <i class="bi bi-building"></i>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.classes') }}"
+                    class="text-decoration-none"
+                    onclick="switchAdminSection('classes'); return false;"
+                >
+
+                    Manage Classes
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUBJECTS -->
+
+        <div class="col-xl-3 col-md-6">
+
+            <div class="dashboard-card">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted mb-1">
+                            Total Subjects
+                        </p>
+
+                        <h2 class="fw-bold">
+                            {{ stats.get('total_subjects', 0) }}
+                        </h2>
+
+                    </div>
+
+
+                    <div class="stat-icon subject-icon">
+
+                        <i class="bi bi-book"></i>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.subjects') }}"
+                    class="text-decoration-none"
+                    onclick="switchAdminSection('subjects'); return false;"
+                >
+
+                    Manage Subjects
+
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MANAGEMENT
+    ====================================================== -->
+
+    <h4 class="fw-bold mb-1">
+        Management
+    </h4>
+
+
+    <p class="text-muted mb-4">
+        Manage users and academic information.
+    </p>
+
+
+    <div class="row g-4 mb-5">
+
+
+        <!-- TEACHER MANAGEMENT -->
+
+        <div class="col-lg-6">
+
+            <div class="management-card">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+
+                    <div class="management-icon teacher-management-icon">
+
+                        <i class="bi bi-person-workspace"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Teacher Management
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            View, add, edit and delete teachers.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.teachers') }}"
+                    class="dashboard-action"
+                    onclick="switchAdminSection('teachers'); return false;"
+                >
+
+                    <i class="bi bi-people"></i>
+
+                    <span>
+                        View Teachers
+                    </span>
+
+                    <i class="bi bi-chevron-right ms-auto"></i>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- STUDENT MANAGEMENT -->
+
+        <div class="col-lg-6">
+
+            <div class="management-card">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+
+                    <div class="management-icon student-management-icon">
+
+                        <i class="bi bi-mortarboard-fill"></i>
+
+                    </div>
+
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Student Management
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            View, add, edit and delete students.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.students') }}"
+                    class="dashboard-action"
+                    onclick="switchAdminSection('students'); return false;"
+                >
+
+                    <i class="bi bi-people"></i>
+
+                    <span>
+                        View Students
+                    </span>
+
+                    <i class="bi bi-chevron-right ms-auto"></i>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ACADEMIC MANAGEMENT
+    ====================================================== -->
+
+    <h4 class="fw-bold mb-1">
+        Academic Management
+    </h4>
+
+
+    <p class="text-muted mb-4">
+        Manage classes and subjects.
+    </p>
+
+
+    <div class="row g-4 mb-5">
+
+
+        <!-- CLASSES -->
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon classes-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <h5 class="fw-bold">Classes</h5>
+                <p class="text-muted">
+                    Organize students into classes, branches, semesters and sections.
+                </p>
+                <a
+                    href="{{ url_for('admin.classes') }}"
+                    class="btn btn-outline-primary rounded-pill"
+                    onclick="switchAdminSection('classes'); setClassesSubtab('view'); return false;"
+                >
+                    Manage Classes
+                </a>
+            </div>
+        </div>
+
+        <!-- SUBJECTS -->
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon subjects-icon">
+                    <i class="bi bi-book"></i>
+                </div>
+                <h5 class="fw-bold">Subjects</h5>
+                <p class="text-muted">
+                    Manage subject names, course codes, and allocations.
+                </p>
+                <a
+                    href="{{ url_for('admin.subjects') }}"
+                    class="btn btn-outline-primary rounded-pill"
+                    onclick="switchAdminSection('classes'); setClassesSubtab('subjects'); return false;"
+                >
+                    Manage Subjects
+                </a>
+            </div>
+        </div>
+
+        <!-- FACE REGISTRATION -->
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon face-icon">
+                    <i class="bi bi-person-bounding-box"></i>
+                </div>
+                <h5 class="fw-bold">Face Registration</h5>
+                <p class="text-muted">
+                    Register student faces and sync AI recognition embeddings.
+                </p>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary rounded-pill mt-2"
+                    onclick="switchAdminSection('students'); setStudentSubtab('face');"
+                >
+                    Manage Face Registration
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         ATTENDANCE & AUDITING SYSTEM
+    ====================================================== -->
+    <h4 class="fw-bold mb-1">
+        Attendance &amp; Verification System
+    </h4>
+    <p class="text-muted mb-4">
+        Live logbooks, verification audits, and comprehensive reports.
+    </p>
+
+    <div class="row g-4">
+        <!-- ATTENDANCE RECORDS -->
+        <div class="col-lg-6">
+            <div class="feature-card">
+                <div class="feature-icon attendance-icon">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <h5 class="fw-bold">Attendance Logbook</h5>
+                <p class="text-muted">
+                    Audit recorded class attendance and verify student presence.
+                </p>
+                <ul class="small text-muted">
+                    <li>Real-time attendance logbook</li>
+                    <li>Present and absent records</li>
+                    <li>Search and filter records</li>
+                    <li>Export logbook to CSV</li>
+                </ul>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary rounded-pill mt-2"
+                    onclick="switchAdminSection('attendance'); setAttendanceSubtab('records');"
+                >
+                    View Attendance Records
+                </button>
+            </div>
+        </div>
+
+        <!-- REPORTS & ANALYTICS -->
+        <div class="col-lg-6">
+            <div class="feature-card">
+                <div class="feature-icon report-icon">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                </div>
+                <h5 class="fw-bold">Reports &amp; Analytics</h5>
+                <p class="text-muted">
+                    Comprehensive student attendance breakdown and shortage defaulter tracking.
+                </p>
+                <ul class="small text-muted">
+                    <li>Attendance Defaulters (&lt; 75%)</li>
+                    <li>Subject-wise attendance percentages</li>
+                    <li>Class-wise statistics</li>
+                    <li>Download master CSV reports</li>
+                </ul>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary rounded-pill mt-2"
+                    onclick="switchAdminSection('attendance'); setAttendanceSubtab('reports');"
+                >
+                    View Reports &amp; Analytics
+                </button>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- END SECTION 1: OVERVIEW -->
+
+
+    <!-- =====================================================
+         SECTION 2: TEACHERS
+    ====================================================== -->
+    <div id="section-teachers" class="admin-section-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-person-workspace text-primary me-2"></i>Teacher Management
+                </h2>
+                <p class="text-muted mb-0">Manage faculty members, credentials, and teaching assignments.</p>
+            </div>
+        </div>
+
+        <!-- Subnav tabs -->
+        <div class="admin-subnav-tabs">
+            <button type="button" class="admin-subnav-btn active" id="btn-tea-list" onclick="setTeacherSubtab('list')">
+                <i class="bi bi-people me-1"></i> Add / Edit / Delete Teachers
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-tea-info" onclick="setTeacherSubtab('info')">
+                <i class="bi bi-info-circle me-1"></i> Manage Teacher Information
+            </button>
+        </div>
+
+        <!-- SUBTAB 1: Add / Edit / Delete Teachers -->
+        <div id="subtab-tea-list" class="admin-subtab-view active">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div class="search-box-pill">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="teacherSearchInput" class="form-control" placeholder="Search teacher...">
+                </div>
+                <a href="{{ url_for('admin.add_teacher') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Add Teacher
+                </a>
+            </div>
+
+            <div class="section-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Teacher Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachersTableBody">
+                            {% for t in teachers %}
+                            <tr>
+                                <td class="text-muted fw-semibold">{{ loop.index }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-weight: 600; font-size: 0.85rem;">
+                                            {{ (t.name or 'T')[:1].upper() }}
+                                        </div>
+                                        <span class="fw-semibold text-dark">{{ t.name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="text-muted">{{ t.email or 'N/A' }}</span></td>
+                                <td><span class="badge bg-light text-dark border">{{ t.department or 'General' }}</span></td>
+                                <td><span class="text-muted">{{ t.phone or 'N/A' }}</span></td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin.edit_teacher', teacher_id=t.teacher_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" title="Edit Teacher">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>No teachers registered yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 2: Manage Teacher Information -->
+        <div id="subtab-tea-info" class="admin-subtab-view">
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-primary-subtle text-primary">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Total Faculty</div>
+                            <div class="fs-4 fw-bold text-dark">{{ teachers|length }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="admin-section-card h-100 p-3 d-flex align-items-center">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1"><i class="bi bi-shield-check text-primary me-2"></i>Faculty Access &amp; Responsibilities</h6>
+                            <p class="text-muted small mb-0">Teachers manage classroom lecture recordings, upload classroom videos, mark attendance, and dispatch shortage warning notices to student dashboards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section-card">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-card-checklist text-primary me-2"></i>Teacher Accounts Overview</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Teacher ID</th>
+                                <th>Full Name</th>
+                                <th>Username / Login</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in teachers %}
+                            <tr>
+                                <td><span class="badge bg-light text-dark border">#{{ t.teacher_id }}</span></td>
+                                <td class="fw-semibold text-dark">{{ t.name }}</td>
+                                <td><code>{{ t.username or 'N/A' }}</code></td>
+                                <td><span class="text-muted">{{ t.email or 'N/A' }}</span></td>
+                                <td><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Course Faculty</span></td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin.edit_teacher', teacher_id=t.teacher_id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">
+                                        <i class="bi bi-pencil-square me-1"></i> Manage
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 3: STUDENTS (VIEW, ADD/EDIT, FACE REGISTRATION)
+    ====================================================== -->
+    <div id="section-students" class="admin-section-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-mortarboard-fill text-primary me-2"></i>Student Management
+                </h2>
+                <p class="text-muted mb-0">Student directory profiles, account registration, and deep facial recognition embeddings.</p>
+            </div>
+        </div>
+
+        <!-- Subnav tabs -->
+        <div class="admin-subnav-tabs">
+            <button type="button" class="admin-subnav-btn active" id="btn-std-view" onclick="setStudentSubtab('view')">
+                <i class="bi bi-people me-1"></i> View Students
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-std-add" onclick="setStudentSubtab('add')">
+                <i class="bi bi-person-plus me-1"></i> Add / Edit Students
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-std-face" onclick="setStudentSubtab('face')">
+                <i class="bi bi-person-bounding-box me-1"></i> Face Registration
+            </button>
+        </div>
+
+        <!-- SUBTAB 1: View Students -->
+        <div id="subtab-std-view" class="admin-subtab-view active">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div class="search-box-pill">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="studentSearchInput" class="form-control" placeholder="Search USN or Name...">
+                </div>
+                <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-person-plus me-1"></i> Add Student
+                </a>
+            </div>
+
+            <div class="section-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">USN</th>
+                                <th scope="col">Full Name</th>
+                                <th scope="col">Class / Stream</th>
+                                <th scope="col">Dataset Photos</th>
+                                <th scope="col">Face Recognition</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            {% for s in students %}
+                            <tr>
+                                <td><span class="badge bg-light text-primary border fw-semibold px-2 py-1">{{ s.usn }}</span></td>
+                                <td class="fw-semibold text-dark">{{ s.name }}</td>
+                                <td><span class="text-muted">{{ s.class_name }}</span></td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary px-2 py-1">
+                                        <i class="bi bi-images me-1"></i>{{ s.photo_count }} photos
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if s.status == 'Registered' %}
+                                        <span class="badge bg-success-subtle text-success px-2 py-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Enrolled
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning-subtle text-warning px-2 py-1">
+                                            <i class="bi bi-exclamation-circle-fill me-1"></i>Pending Photos
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin.edit_student', student_id=s.student_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" title="Edit Student">
+                                        <i class="bi bi-pencil-square me-1"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>No students registered in the database.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 2: Add / Edit Students -->
+        <div id="subtab-std-add" class="admin-subtab-view">
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="admin-section-card h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="stat-icon-wrap bg-primary-subtle text-primary">
+                                <i class="bi bi-person-plus-fill"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Add New Student</h5>
+                                <p class="text-muted small mb-0">Enroll a new student profile with USN, contact info, and class allocation.</p>
+                            </div>
+                        </div>
+                        <p class="text-muted small">
+                            Adding a student creates their academic profile in the database. Once created, you can upload facial training images in the <strong>Face Registration</strong> tab.
+                        </p>
+                        <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-person-plus me-1"></i> Open Add Student Form
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="admin-section-card h-100">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="stat-icon-wrap bg-info-subtle text-info">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Quick Student Search &amp; Edit</h5>
+                                <p class="text-muted small mb-0">Search and edit student demographic or login credentials.</p>
+                            </div>
+                        </div>
+                        <div class="search-box-pill mb-3 w-100" style="max-width: 100%;">
+                            <i class="bi bi-search"></i>
+                            <input type="text" id="quickEditSearchInput" class="form-control" placeholder="Search student USN to edit...">
+                        </div>
+                        <div class="text-muted small">
+                            Use the Search input in the <em>View Students</em> tab to quickly access individual profile editing.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 3: Face Registration -->
+        <div id="subtab-std-face" class="admin-subtab-view">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Face Recognition &amp; Dataset Enrolment</h5>
+                    <p class="text-muted small mb-0">Upload student face photos and synchronize facial embeddings for real-time video attendance.</p>
+                </div>
+                <form action="{{ url_for('admin.sync_face_embeddings') }}" method="POST" class="d-inline" onsubmit="return confirm('Do you want to extract and synchronize facial embeddings for all student dataset images?');">
+                    <button type="submit" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-arrow-repeat me-1"></i> Sync Embeddings Now
+                    </button>
+                </form>
+            </div>
+
+            <!-- Metrics Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-primary-subtle text-primary">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Enrolled Students</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('enrolled_faces', 0) }} / {{ stats.get('total_students', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-warning-subtle text-warning">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Pending Enrolment</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('pending_faces', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-info-subtle text-info">
+                            <i class="bi bi-images"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Total Training Photos</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('total_face_images', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">Student Dataset Catalog</h6>
+                    <div class="search-box-pill">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="faceSearchInput" class="form-control" placeholder="Search student or USN...">
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">USN</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Class</th>
+                                <th scope="col">Dataset Photos</th>
+                                <th scope="col">Status</th>
+                                <th scope="col" class="text-end">Upload Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faceTableBody">
+                            {% for s in students %}
+                            <tr>
+                                <td><span class="badge bg-light text-primary border fw-semibold">{{ s.usn }}</span></td>
+                                <td class="fw-semibold text-dark">{{ s.name }}</td>
+                                <td><span class="text-muted">{{ s.class_name }}</span></td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary px-2 py-1">
+                                        <i class="bi bi-camera me-1"></i>{{ s.photo_count }} photos
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if s.photo_count > 0 %}
+                                        <span class="badge bg-success-subtle text-success px-2 py-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Ready
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning-subtle text-warning px-2 py-1">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>No Photos
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#uploadModal{{ s.student_id }}">
+                                        <i class="bi bi-upload me-1"></i> Upload Photos
+                                    </button>
+
+                                    <!-- Upload Modal -->
+                                    <div class="modal fade text-start" id="uploadModal{{ s.student_id }}" tabindex="-1" aria-labelledby="uploadModalLabel{{ s.student_id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+                                                <div class="modal-header bg-light">
+                                                    <h5 class="modal-title fw-bold" id="uploadModalLabel{{ s.student_id }}">
+                                                        <i class="bi bi-cloud-upload text-primary me-2"></i>Upload Photos: {{ s.name }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ url_for('admin.upload_student_photos', student_id=s.student_id) }}" method="POST" enctype="multipart/form-data">
+                                                    <div class="modal-body">
+                                                        <p class="text-muted small mb-3">
+                                                            Upload clear facial images for <strong>{{ s.usn }}</strong>. Supported formats: JPG, PNG, WEBP.
+                                                        </p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-semibold">Select Facial Photos</label>
+                                                            <input type="file" name="photos" class="form-control" multiple accept="image/*" required>
+                                                            <div class="form-text">You can select multiple photos at once.</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer bg-light">
+                                                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary rounded-pill px-3">
+                                                            <i class="bi bi-upload me-1"></i> Upload &amp; Sync
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 4: CLASSES (VIEW CLASSES, MANAGE SUBJECTS, MANAGE STUDENTS)
+    ====================================================== -->
+    <div id="section-classes" class="admin-section-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-building text-primary me-2"></i>Class &amp; Academic Management
+                </h2>
+                <p class="text-muted mb-0">Configure academic semesters, branches, student sections, and curriculum courses.</p>
+            </div>
+        </div>
+
+        <!-- Subnav tabs -->
+        <div class="admin-subnav-tabs">
+            <button type="button" class="admin-subnav-btn active" id="btn-cls-view" onclick="setClassesSubtab('view')">
+                <i class="bi bi-building me-1"></i> View Classes
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-cls-subjects" onclick="setClassesSubtab('subjects')">
+                <i class="bi bi-book me-1"></i> Manage Subjects
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-cls-students" onclick="setClassesSubtab('students')">
+                <i class="bi bi-mortarboard me-1"></i> Manage Students
+            </button>
+        </div>
+
+        <!-- SUBTAB 1: View Classes -->
+        <div id="subtab-cls-view" class="admin-subtab-view active">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Active Classes</h5>
+                <a href="{{ url_for('admin.classes') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-gear me-1"></i> Configure Classes
+                </a>
+            </div>
+
+            <div class="section-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Class Name</th>
+                                <th scope="col">Semester</th>
+                                <th scope="col">Branch</th>
+                                <th scope="col">Section</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in classes %}
+                            <tr>
+                                <td class="text-muted fw-semibold">{{ loop.index }}</td>
+                                <td class="fw-semibold text-dark">{{ c.class_name }}</td>
+                                <td><span class="badge bg-light text-dark border">Sem {{ c.semester }}</span></td>
+                                <td><span class="fw-medium">{{ c.branch }}</span></td>
+                                <td><span class="badge bg-secondary-subtle text-dark">{{ c.section or 'N/A' }}</span></td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin.classes') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
+                                        <i class="bi bi-pencil-square me-1"></i> Manage
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>No classes configured yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 2: Manage Subjects -->
+        <div id="subtab-cls-subjects" class="admin-subtab-view">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Curriculum Course Subjects</h5>
+                <a href="{{ url_for('admin.subjects') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Manage / Add Subject
+                </a>
+            </div>
+
+            <div class="section-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Subject Code</th>
+                                <th scope="col">Subject Name</th>
+                                <th scope="col">Semester</th>
+                                <th scope="col">Branch</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in subjects %}
+                            <tr>
+                                <td><span class="badge bg-light text-primary border fw-semibold">{{ sub.subject_code }}</span></td>
+                                <td class="fw-semibold text-dark">{{ sub.subject_name }}</td>
+                                <td><span class="badge bg-light text-dark border">Sem {{ sub.semester }}</span></td>
+                                <td><span class="fw-medium">{{ sub.branch }}</span></td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin.subjects') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
+                                        <i class="bi bi-pencil-square me-1"></i> Manage
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>No subjects configured yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 3: Manage Students -->
+        <div id="subtab-cls-students" class="admin-subtab-view">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Class-wise Student Allocation</h5>
+                <a href="{{ url_for('admin.students') }}" class="btn btn-outline-primary rounded-pill px-3" onclick="switchAdminSection('students'); setStudentSubtab('view'); return false;">
+                    <i class="bi bi-people me-1"></i> Open Student Directory
+                </a>
+            </div>
+
+            <div class="row g-3">
+                {% for c in classes %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="admin-section-card h-100 p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Sem {{ c.semester }} &bull; Sec {{ c.section or 'A' }}</span>
+                            <span class="badge bg-light text-muted border">{{ c.branch }}</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">{{ c.class_name }}</h6>
+                        <p class="text-muted small mb-3">Branch: <strong>{{ c.branch }}</strong> &bull; Semester {{ c.semester }}</p>
+                        <a href="{{ url_for('admin.classes') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            <i class="bi bi-gear me-1"></i> Class Details
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="p-4 bg-light rounded-3 text-center text-muted">No classes configured.</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 5: ATTENDANCE (RECORDS, REVIEW, REPORTS)
+    ====================================================== -->
+    <div id="section-attendance" class="admin-section-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-calendar-check text-primary me-2"></i>Attendance Management &amp; Reports
+                </h2>
+                <p class="text-muted mb-0">Live attendance logbook, presence verification review, and comprehensive academic shortage reports.</p>
+            </div>
+        </div>
+
+        <!-- Subnav tabs -->
+        <div class="admin-subnav-tabs">
+            <button type="button" class="admin-subnav-btn active" id="btn-att-records" onclick="setAttendanceSubtab('records')">
+                <i class="bi bi-table me-1"></i> View Attendance Records
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-att-review" onclick="setAttendanceSubtab('review')">
+                <i class="bi bi-check2-circle me-1"></i> Review Attendance
+            </button>
+            <button type="button" class="admin-subnav-btn" id="btn-att-reports" onclick="setAttendanceSubtab('reports')">
+                <i class="bi bi-file-earmark-bar-graph me-1"></i> Attendance Reports
+            </button>
+        </div>
+
+        <!-- SUBTAB 1: View Attendance Records -->
+        <div id="subtab-att-records" class="admin-subtab-view active">
+            <!-- CASCADING ACADEMIC FILTERS (BRANCH, SEMESTER, SUBJECT) -->
+            <div class="p-3 bg-light rounded-3 border mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttBranchFilter">
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch
+                        </label>
+                        <select class="form-select form-select-sm" id="adminAttBranchFilter" onchange="onAdminAttFilterChange()">
+                            <option value="" selected>-- All Branches --</option>
+                            <option value="AIML">Artificial Intelligence &amp; Machine Learning (AIML)</option>
+                            <option value="CSE">Computer Science &amp; Engineering (CSE)</option>
+                            <option value="ISE">Information Science &amp; Engineering (ISE)</option>
+                            <option value="ECE">Electronics &amp; Communication (ECE)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttSemFilter">
+                            <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester
+                        </label>
+                        <select class="form-select form-select-sm" id="adminAttSemFilter" onchange="onAdminAttFilterChange()">
+                            <option value="" selected>-- All Semesters --</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                            <option value="7">7th Semester</option>
+                            <option value="8">8th Semester</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttSubjectFilter">
+                            <i class="bi bi-book me-1 text-primary"></i> Select Subject
+                        </label>
+                        <select class="form-select form-select-sm" id="adminAttSubjectFilter" onchange="onAdminAttFilterChange()">
+                            <option value="" selected>-- All Subjects --</option>
+                            {% for sub in subjects %}
+                                <option value="{{ sub.subject_name }}" data-semester="{{ sub.semester }}" data-branch="{{ sub.branch }}">{{ sub.subject_name }} ({{ sub.subject_code or 'N/A' }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetAdminAttFilters()">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="search-box-pill">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="attSearchInput" class="form-control" placeholder="Filter student or subject..." oninput="onAdminAttFilterChange()">
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary active" onclick="filterAttendanceStatus('all', this)">All</button>
+                        <button type="button" class="btn btn-outline-success" onclick="filterAttendanceStatus('present', this)">Present</button>
+                        <button type="button" class="btn btn-outline-danger" onclick="filterAttendanceStatus('absent', this)">Absent</button>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small" id="adminAttCounterSpan">
+                        Showing latest {{ attendance_records|length }} entries
+                    </span>
+                    <a href="{{ url_for('admin.export_reports_csv') }}" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+                    </a>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Date &amp; Time</th>
+                                <th scope="col">Student USN</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Subject</th>
+                                <th scope="col">Class</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            {% for a in attendance_records %}
+                            <tr data-status="{{ (a.status or '').lower() }}"
+                                data-branch="{{ (a.branch or '').upper() }}"
+                                data-semester="{{ a.semester or '' }}"
+                                data-subject="{{ (a.subject_name or '').lower() }}"
+                                data-subject-code="{{ (a.subject_code or '').lower() }}"
+                                class="attendance-log-row">
+                                <td><span class="text-muted small fw-medium">{{ a.check_in_time }}</span></td>
+                                <td><span class="badge bg-light text-primary border fw-semibold">{{ a.usn }}</span></td>
+                                <td class="fw-semibold text-dark">{{ a.student_name }}</td>
+                                <td><span class="text-dark">{{ a.subject_name or a.subject_code or 'N/A' }}</span></td>
+                                <td><span class="badge bg-light text-secondary border">{{ a.class_name or 'N/A' }}</span></td>
+                                <td>
+                                    {% if (a.status or '').lower() == 'present' %}
+                                        <span class="badge bg-success-subtle text-success px-2 py-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Present
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger px-2 py-1">
+                                            <i class="bi bi-x-circle-fill me-1"></i>Absent
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-muted border">Class Lecture Session</span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>No attendance records captured yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 2: Review Attendance -->
+        <div id="subtab-att-review" class="admin-subtab-view">
+            <!-- Metrics Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-primary-subtle text-primary">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Total Logs</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('total_attendance', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-success-subtle text-success">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Present Marks</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('present_attendance', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-danger-subtle text-danger">
+                            <i class="bi bi-x-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Absent Marks</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('absent_attendance', 0) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-summary-box">
+                        <div class="stat-icon-wrap bg-info-subtle text-info">
+                            <i class="bi bi-pie-chart-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Average Presence</div>
+                            <div class="fs-4 fw-bold text-dark">{{ stats.get('attendance_rate', 0) }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section-card">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-patch-check-fill text-primary me-2"></i>Attendance Verification &amp; Auditing Protocol</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-1-circle-fill text-primary me-2"></i>Automated Recognition Verification</h6>
+                            <p class="small text-muted mb-0">Classroom sessions processed by faculty utilize RetinaFace detection and FaceNet 512-dimensional embeddings to match registered student facial datasets.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 border h-100">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-2-circle-fill text-primary me-2"></i>Faculty Shortage Notifications</h6>
+                            <p class="small text-muted mb-0">Course teachers inspect real-time attendance percentages and dispatch official weekly and monthly shortage notices directly to affected students' dashboards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBTAB 3: Attendance Reports -->
+        <div id="subtab-att-reports" class="admin-subtab-view">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1">Attendance Breakdown &amp; Shortage Defaulters</h5>
+                    <p class="text-muted small mb-0">Track students falling below statutory 75% thresholds and analyze subject attendance.</p>
+                </div>
+                <a href="{{ url_for('admin.export_reports_csv') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-download me-1"></i> Download Master Report (.CSV)
+                </a>
+            </div>
+
+            <!-- Defaulters List Card -->
+            <div class="section-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h6 class="fw-bold mb-1 text-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Attendance Defaulters List (&lt; 75%)
+                        </h6>
+                        <p class="text-muted small mb-0">Students who require immediate follow-up due to falling below statutory attendance thresholds.</p>
+                    </div>
+                    <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">{{ defaulters|length }} Students</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">USN</th>
+                                <th scope="col">Student Name</th>
+                                <th scope="col">Total Classes</th>
+                                <th scope="col">Attended</th>
+                                <th scope="col">Percentage</th>
+                                <th scope="col">Risk Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in defaulters %}
+                            <tr>
+                                <td><span class="badge bg-light text-danger border fw-semibold">{{ d.usn }}</span></td>
+                                <td class="fw-semibold text-dark">{{ d.name }}</td>
+                                <td>{{ d.total }}</td>
+                                <td class="fw-semibold text-success">{{ d.attended }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold text-danger">{{ d.percentage }}%</span>
+                                        <div class="progress flex-grow-1" style="height: 6px; max-width: 80px;">
+                                            <div class="progress-bar bg-danger" style="width: {{ d.percentage }}%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ d.badge_class }}-subtle text-{{ d.badge_class }} px-2 py-1">
+                                        {{ d.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-success">
+                                    <i class="bi bi-check-circle fs-3 d-block mb-2"></i>All students currently satisfy the 75% attendance threshold!
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Subject-wise Breakdown -->
+                <div class="col-lg-6">
+                    <div class="section-card h-100">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-book me-2 text-primary"></i>Subject-wise Attendance Rate
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Subject</th>
+                                        <th scope="col">Logs</th>
+                                        <th scope="col">Attendance Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sub in subject_reports %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark">{{ sub.subject_name }}</div>
+                                            <small class="text-muted">{{ sub.subject_code }}</small>
+                                        </td>
+                                        <td>{{ sub.present }} / {{ sub.total }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ sub.badge_class }}-subtle text-{{ sub.badge_class }} fw-semibold px-2 py-1">
+                                                {{ sub.percentage }}%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3 text-muted">No subject records available.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class-wise Breakdown -->
+                <div class="col-lg-6">
+                    <div class="section-card h-100">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-building me-2 text-primary"></i>Class-wise Attendance Rate
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Class / Section</th>
+                                        <th scope="col">Logs</th>
+                                        <th scope="col">Attendance Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cl in class_reports %}
+                                    <tr>
+                                        <td class="fw-semibold text-dark">{{ cl.class_name }}</td>
+                                        <td>{{ cl.present }} / {{ cl.total }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ cl.badge_class }}-subtle text-{{ cl.badge_class }} fw-semibold px-2 py-1">
+                                                {{ cl.percentage }}%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3 text-muted">No class records available.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         SECTION 6: SETTINGS (ADMIN / SYSTEM SETTINGS)
+    ====================================================== -->
+    <div id="section-settings" class="admin-section-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-gear-fill text-primary me-2"></i>Admin &amp; System Settings
+                </h2>
+                <p class="text-muted mb-0">System configuration, institutional attendance policies, and administrative preferences.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Institutional Attendance Policy -->
+            <div class="col-lg-6">
+                <div class="admin-section-card h-100">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-shield-check text-primary me-2"></i>VTU Attendance Guidelines &amp; Criteria
+                    </h5>
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold text-dark">Statutory Minimum Attendance</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">75.0%</span>
+                        </div>
+                        <p class="small text-muted mb-0">Students maintaining &ge; 75% aggregate in each subject are fully eligible for Semester End Examinations (SEE).</p>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold text-dark">Condonation Margin (Medical / Sports)</span>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1">65.0% - 74.9%</span>
+                        </div>
+                        <p class="small text-muted mb-0">Condonation is subject to official principal approval upon submission of certified medical or university representation documentation.</p>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-semibold text-dark">Detention Threshold</span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">&lt; 65.0%</span>
+                        </div>
+                        <p class="small text-muted mb-0">Students below 65% are flagged for mandatory course repetition as per University Ordinance.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information & Engine -->
+            <div class="col-lg-6">
+                <div class="admin-section-card h-100">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-cpu-fill text-primary me-2"></i>AI Engine &amp; Platform Status
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Facial Detection Model</td>
+                                    <td><span class="badge bg-light text-dark border">RetinaFace (ResNet50 / MobileNet)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Feature Embedding Model</td>
+                                    <td><span class="badge bg-light text-dark border">FaceNet (512-dim)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Enrolled Students</td>
+                                    <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ stats.get('enrolled_faces', 0) }} / {{ stats.get('total_students', 0) }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Total Face Images</td>
+                                    <td><span class="badge bg-info-subtle text-info border border-info-subtle">{{ stats.get('total_face_images', 0) }} photos</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Database Connection</td>
+                                    <td><span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Active MySQL</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Video Upload Handling</td>
+                                    <td><span class="badge bg-secondary-subtle text-secondary">Faculty / Teacher Portal Exclusive</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info py-2 px-3 mt-4 small mb-0">
+                        <i class="bi bi-info-circle-fill me-1"></i> Video uploading and class lecture video processing are managed exclusively by Course Faculty via the Teacher Dashboard.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     SIDEBAR JAVASCRIPT
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const menuButton =
+            document.getElementById("adminMenuBtn");
+
+        const sidebar =
+            document.getElementById("adminSidebar");
+
+        const main =
+            document.getElementById("adminMain");
+
+        const icon =
+            menuButton.querySelector("i");
+
+
+        let sidebarOpen =
+            window.innerWidth > 992;
+
+
+        function updateSidebar() {
+
+            const overlay = document.getElementById("adminSidebarOverlay");
+
+            if (sidebarOpen) {
+
+                sidebar.classList.remove("closed");
+
+                main.classList.remove("full");
+
+                icon.className =
+                    "bi bi-x-lg";
+
+                menuButton.setAttribute(
+                    "aria-label",
+                    "Close Admin Menu"
+                );
+
+                if (overlay && window.innerWidth <= 992) {
+                    overlay.classList.add("show");
+                }
+
+            } else {
+
+                sidebar.classList.add("closed");
+
+                main.classList.add("full");
+
+                icon.className =
+                    "bi bi-list";
+
+                menuButton.setAttribute(
+                    "aria-label",
+                    "Open Admin Menu"
+                );
+
+                if (overlay) {
+                    overlay.classList.remove("show");
+                }
+
+            }
+        }
+
+
+        menuButton.addEventListener(
+            "click",
+            function () {
+                sidebarOpen = !sidebarOpen;
+                updateSidebar();
+            }
+        );
+
+        // Sidebar overlay click closes sidebar
+        const overlay = document.getElementById("adminSidebarOverlay");
+        if (overlay) {
+            overlay.addEventListener("click", function() {
+                sidebarOpen = false;
+                updateSidebar();
+            });
+        }
+
+
+        window.addEventListener(
+            "resize",
+            function () {
+
+                if (window.innerWidth <= 992) {
+
+                    if (!sidebar.classList.contains("closed")) {
+                        sidebarOpen = false;
+                    }
+
+                }
+
+                updateSidebar();
+
+            }
+        );
+
+
+        updateSidebar();
+
+    }
+);
+
+
+// Submenu Toggle
+function toggleSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    if (!submenu) return;
+    const parentLink = submenu.previousElementSibling;
+    const isShowing = submenu.classList.contains("show");
+    
+    // Toggle active state
+    if (isShowing) {
+        submenu.classList.remove("show");
+        if (parentLink) parentLink.classList.remove("open");
+    } else {
+        submenu.classList.add("show");
+        if (parentLink) parentLink.classList.add("open");
+    }
+}
+
+function openSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    if (!submenu) return;
+    submenu.classList.add("show");
+    const parentLink = submenu.previousElementSibling;
+    if (parentLink) parentLink.classList.add("open");
+}
+
+// Subtab Controllers
+function setTeacherSubtab(subtab) {
+    document.querySelectorAll("#section-teachers .admin-subtab-view").forEach(v => v.classList.remove("active"));
+    document.querySelectorAll("#section-teachers .admin-subnav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll('#submenu-teachers .sidebar-sublink').forEach(l => l.classList.remove("active"));
+
+    const targetView = document.getElementById("subtab-tea-" + subtab);
+    const targetBtn = document.getElementById("btn-tea-" + subtab);
+    const targetSublink = document.querySelector(`#submenu-teachers .sidebar-sublink[data-subtab="tea-${subtab}"]`);
+
+    if (targetView) targetView.classList.add("active");
+    if (targetBtn) targetBtn.classList.add("active");
+    if (targetSublink) targetSublink.classList.add("active");
+}
+
+function setStudentSubtab(subtab) {
+    document.querySelectorAll("#section-students .admin-subtab-view").forEach(v => v.classList.remove("active"));
+    document.querySelectorAll("#section-students .admin-subnav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll('#submenu-students .sidebar-sublink').forEach(l => l.classList.remove("active"));
+
+    const targetView = document.getElementById("subtab-std-" + subtab);
+    const targetBtn = document.getElementById("btn-std-" + subtab);
+    const targetSublink = document.querySelector(`#submenu-students .sidebar-sublink[data-subtab="std-${subtab}"]`);
+
+    if (targetView) targetView.classList.add("active");
+    if (targetBtn) targetBtn.classList.add("active");
+    if (targetSublink) targetSublink.classList.add("active");
+}
+
+function setClassesSubtab(subtab) {
+    document.querySelectorAll("#section-classes .admin-subtab-view").forEach(v => v.classList.remove("active"));
+    document.querySelectorAll("#section-classes .admin-subnav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll('#submenu-classes .sidebar-sublink').forEach(l => l.classList.remove("active"));
+
+    const targetView = document.getElementById("subtab-cls-" + subtab);
+    const targetBtn = document.getElementById("btn-cls-" + subtab);
+    const targetSublink = document.querySelector(`#submenu-classes .sidebar-sublink[data-subtab="cls-${subtab}"]`);
+
+    if (targetView) targetView.classList.add("active");
+    if (targetBtn) targetBtn.classList.add("active");
+    if (targetSublink) targetSublink.classList.add("active");
+}
+
+function setAttendanceSubtab(subtab) {
+    document.querySelectorAll("#section-attendance .admin-subtab-view").forEach(v => v.classList.remove("active"));
+    document.querySelectorAll("#section-attendance .admin-subnav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll('#submenu-attendance .sidebar-sublink').forEach(l => l.classList.remove("active"));
+
+    const targetView = document.getElementById("subtab-att-" + subtab);
+    const targetBtn = document.getElementById("btn-att-" + subtab);
+    const targetSublink = document.querySelector(`#submenu-attendance .sidebar-sublink[data-subtab="att-${subtab}"]`);
+
+    if (targetView) targetView.classList.add("active");
+    if (targetBtn) targetBtn.classList.add("active");
+    if (targetSublink) targetSublink.classList.add("active");
+}
+
+// Tab Switching Controller for Admin Dashboard
+function switchAdminSection(sectionId, el) {
+    if (!sectionId) sectionId = "overview";
+
+    // Handle aliases & mapping
+    if (sectionId === "dashboard") sectionId = "overview";
+    if (sectionId === "subjects") {
+        sectionId = "classes";
+        setTimeout(() => setClassesSubtab("subjects"), 50);
+    }
+    if (sectionId === "face-registration" || sectionId === "face") {
+        sectionId = "students";
+        setTimeout(() => setStudentSubtab("face"), 50);
+    }
+    if (sectionId === "reports") {
+        sectionId = "attendance";
+        setTimeout(() => setAttendanceSubtab("reports"), 50);
+    }
+    if (sectionId === "videos" || sectionId === "video-processing") {
+        sectionId = "overview";
+    }
+
+    // 1. Hide all sections
+    const views = document.querySelectorAll(".admin-section-view");
+    views.forEach(function(v) {
+        v.classList.remove("active");
+    });
+
+    // 2. Activate target section
+    const target = document.getElementById("section-" + sectionId);
+    if (target) {
+        target.classList.add("active");
+    } else {
+        const ov = document.getElementById("section-overview");
+        if (ov) ov.classList.add("active");
+        sectionId = "overview";
+    }
+
+    // 3. Update sidebar active class & open relevant submenu
+    const links = document.querySelectorAll(".sidebar-link[data-section]");
+    links.forEach(function(l) {
+        if (l.getAttribute("data-section") === sectionId) {
+            l.classList.add("active");
+        } else {
+            l.classList.remove("active");
+        }
+    });
+
+    if (sectionId === "teachers") openSubmenu("submenu-teachers");
+    if (sectionId === "students") openSubmenu("submenu-students");
+    if (sectionId === "classes") openSubmenu("submenu-classes");
+    if (sectionId === "attendance") openSubmenu("submenu-attendance");
+    if (sectionId === "settings") openSubmenu("submenu-settings");
+
+    // 4. Update browser history state
+    if (window.history && window.history.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("view", sectionId);
+        window.history.replaceState({ path: url.href }, "", url.href);
+    }
+
+    // 5. Close sidebar on mobile
+    if (window.innerWidth <= 992) {
+        const sidebar = document.getElementById("adminSidebar");
+        const overlay = document.getElementById("adminSidebarOverlay");
+        if (sidebar) sidebar.classList.add("closed");
+        if (overlay) overlay.classList.remove("show");
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Attendance Status Filter
+function filterAttendanceStatus(status, btn) {
+    if (btn) {
+        const group = btn.closest(".btn-group");
+        if (group) {
+            group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        }
+    }
+    onAdminAttFilterChange();
+}
+
+// Master Attendance Cascading Filter (Branch, Semester, Subject, Status, Search)
+function onAdminAttFilterChange() {
+    const branchVal = (document.getElementById('adminAttBranchFilter')?.value || '').trim().toUpperCase();
+    const semVal = (document.getElementById('adminAttSemFilter')?.value || '').trim();
+    const subVal = (document.getElementById('adminAttSubjectFilter')?.value || '').trim().toLowerCase();
+    const searchVal = (document.getElementById('attSearchInput')?.value || '').trim().toLowerCase();
+    const activeStatusBtn = document.querySelector('#subtab-att-records .btn-group button.active');
+    const statusVal = (activeStatusBtn?.textContent || 'all').trim().toLowerCase();
+
+    // Dynamically filter subjects dropdown options
+    const subDropdown = document.getElementById('adminAttSubjectFilter');
+    if (subDropdown) {
+        const options = subDropdown.querySelectorAll('option');
+        options.forEach(opt => {
+            if (!opt.value) return; // Keep "All Subjects"
+            const optSem = (opt.getAttribute('data-semester') || '').trim();
+            const optBranch = (opt.getAttribute('data-branch') || '').toUpperCase();
+            let show = true;
+            if (semVal && optSem && optSem !== semVal) show = false;
+            if (branchVal && optBranch && !optBranch.includes(branchVal) && !branchVal.includes(optBranch)) show = false;
+            opt.style.display = show ? '' : 'none';
+        });
+    }
+
+    const tbody = document.getElementById("attendanceTableBody");
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll("tr.attendance-log-row");
+    let visibleCount = 0;
+
+    rows.forEach(function(tr) {
+        const rowStatus = (tr.getAttribute("data-status") || "").toLowerCase();
+        const rowBranch = (tr.getAttribute("data-branch") || "").toUpperCase();
+        const rowSem = (tr.getAttribute("data-semester") || "").trim();
+        const rowSubject = (tr.getAttribute("data-subject") || "").toLowerCase();
+        const rowSubCode = (tr.getAttribute("data-subject-code") || "").toLowerCase();
+        const rowText = tr.innerText.toLowerCase();
+
+        let match = true;
+
+        if (statusVal && statusVal !== "all" && rowStatus !== statusVal) {
+            match = false;
+        }
+        if (branchVal && rowBranch && !rowBranch.includes(branchVal) && !branchVal.includes(rowBranch)) {
+            match = false;
+        }
+        if (semVal && rowSem && rowSem !== semVal) {
+            match = false;
+        }
+        if (subVal && !rowSubject.includes(subVal) && !rowSubCode.includes(subVal)) {
+            match = false;
+        }
+        if (searchVal && !rowText.includes(searchVal)) {
+            match = false;
+        }
+
+        if (match) {
+            tr.style.display = "";
+            visibleCount++;
+        } else {
+            tr.style.display = "none";
+        }
+    });
+
+    const counterSpan = document.getElementById("adminAttCounterSpan");
+    if (counterSpan) {
+        counterSpan.textContent = `Showing ${visibleCount} entries`;
+    }
+}
+
+function resetAdminAttFilters() {
+    const bSel = document.getElementById('adminAttBranchFilter');
+    const sSel = document.getElementById('adminAttSemFilter');
+    const subSel = document.getElementById('adminAttSubjectFilter');
+    const searchInp = document.getElementById('attSearchInput');
+    if (bSel) bSel.value = '';
+    if (sSel) sSel.value = '';
+    if (subSel) subSel.value = '';
+    if (searchInp) searchInp.value = '';
+    const allBtn = document.querySelector('#subtab-att-records .btn-group button:first-child');
+    if (allBtn) {
+        const group = allBtn.closest(".btn-group");
+        if (group) group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+        allBtn.classList.add("active");
+    }
+    onAdminAttFilterChange();
+}
+
+// Table search helper
+function attachSearchFilter(inputId, tableBodyId) {
+    const input = document.getElementById(inputId);
+    const tbody = document.getElementById(tableBodyId);
+    if (!input || !tbody) return;
+    input.addEventListener("input", function() {
+        const q = this.value.toLowerCase().trim();
+        const rows = tbody.querySelectorAll("tr");
+        rows.forEach(function(tr) {
+            const text = tr.innerText.toLowerCase();
+            tr.style.display = text.includes(q) ? "" : "none";
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Attach real-time search filters
+    attachSearchFilter("teacherSearchInput", "teachersTableBody");
+    attachSearchFilter("studentSearchInput", "studentsTableBody");
+    attachSearchFilter("faceSearchInput", "faceTableBody");
+    attachSearchFilter("attSearchInput", "attendanceTableBody");
+    attachSearchFilter("quickEditSearchInput", "studentsTableBody");
+
+    // Boot initial view from server or URL parameter
+    const initialView = {{ initial_view|tojson|safe }} || "overview";
+    switchAdminSection(initialView);
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,1573 @@
+/* =========================================================
+   GSSS ATTENDANCE PORTAL - LOGIN PAGE
+   ========================================================= */
+
+:root {
+    --primary: #8EC5FC;
+    --secondary: #E0C3FC;
+    --background: #F8FAFC;
+    --card: #FFFFFF;
+    --accent: #B8F2E6;
+    --warning: #FFE5B4;
+    --danger: #FFD6D6;
+    --text: #374151;
+    --dark: #111827;
+    --muted: #6B7280;
+    --border: rgba(55, 65, 81, 0.12);
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    background:
+        linear-gradient(
+            135deg,
+            #f8fafc 0%,
+            #eef6ff 50%,
+            #f6f2ff 100%
+        );
+}
+
+
+/* =========================================================
+   AUTH PAGE
+   ========================================================= */
+
+body.auth-page {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 5% 10%,
+            rgba(142, 197, 252, 0.30),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 95% 90%,
+            rgba(224, 195, 252, 0.32),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #f8fafc,
+            #eef6ff,
+            #f7f2ff
+        );
+}
+
+
+body.auth-page .container {
+    max-width: 100%;
+    padding: 0;
+}
+
+
+/* =========================================================
+   AUTH SHELL
+   ========================================================= */
+
+.auth-shell {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 2rem 1rem;
+
+}
+
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.auth-card {
+
+    width: min(1200px, 100%);
+
+    display: grid;
+
+    grid-template-columns:
+        1.05fr
+        0.95fr;
+
+    background:
+        rgba(255, 255, 255, 0.72);
+
+    backdrop-filter: blur(25px);
+
+    -webkit-backdrop-filter: blur(25px);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.8);
+
+    border-radius: 28px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 30px 80px
+        rgba(15, 23, 42, 0.13);
+
+}
+
+
+/* =========================================================
+   LEFT PANEL
+   ========================================================= */
+
+.auth-panel-left {
+
+    position: relative;
+
+    padding: 3rem;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(142, 197, 252, 0.20),
+            rgba(224, 195, 252, 0.24)
+        );
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+}
+
+
+/* Decorative circles */
+
+.auth-panel-left::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 260px;
+
+    height: 260px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.25);
+
+    top: -130px;
+
+    left: -100px;
+
+}
+
+
+.auth-panel-left::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+
+    height: 220px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(184,242,230,0.22);
+
+    bottom: -120px;
+
+    right: -80px;
+
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand-badge {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: 68px;
+
+    height: 68px;
+
+    border-radius: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
+
+    color: #111827;
+
+    font-size: 1.6rem;
+
+    box-shadow:
+        0 15px 35px
+        rgba(142, 197, 252, 0.35);
+
+    animation:
+        floatBadge 3s ease-in-out infinite;
+
+}
+
+
+@keyframes floatBadge {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+
+}
+
+
+/* =========================================================
+   MOVING GSSS TITLE
+   ========================================================= */
+
+.portal-title-wrapper {
+
+    overflow: hidden;
+
+    margin-top: 1.5rem;
+
+}
+
+
+.portal-title {
+
+    color: var(--dark);
+
+    font-size: clamp(
+        2rem,
+        4vw,
+        3.2rem
+    );
+
+    font-weight: 800;
+
+    line-height: 1.15;
+
+    margin: 0;
+
+    animation:
+        titleSlide 1.2s
+        cubic-bezier(.2,.8,.2,1)
+        both;
+
+}
+
+
+@keyframes titleSlide {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateX(-100px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateX(0);
+
+    }
+
+}
+
+
+/* =========================================================
+   SUBTITLE
+   ========================================================= */
+
+.auth-subtitle {
+
+    position: relative;
+
+    z-index: 2;
+
+    color: var(--muted);
+
+    max-width: 560px;
+
+    line-height: 1.8;
+
+    margin-top: 1rem;
+
+    margin-bottom: 1.5rem;
+
+}
+
+
+/* =========================================================
+   ILLUSTRATION
+   ========================================================= */
+
+.auth-illustration {
+
+    position: relative;
+
+    min-height: 230px;
+
+    margin: 1rem 0 1.5rem;
+
+}
+
+
+/* Cards */
+
+.illustration-card {
+
+    position: absolute;
+
+    background:
+        rgba(255,255,255,0.92);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.95);
+
+    box-shadow:
+        0 18px 40px
+        rgba(15,23,42,0.09);
+
+    border-radius: 22px;
+
+}
+
+
+/* Main card */
+
+.main-card {
+
+    inset:
+        0
+        3rem
+        1rem
+        0;
+
+    padding: 1.5rem;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 0.75rem;
+
+    animation:
+        cardFloat 4s ease-in-out infinite;
+
+}
+
+
+@keyframes cardFloat {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+
+}
+
+
+/* Attendance heading */
+
+.attendance-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.7rem;
+
+    font-weight: 700;
+
+    color: var(--dark);
+
+    margin-bottom: 0.5rem;
+
+}
+
+
+.attendance-heading i {
+
+    width: 45px;
+
+    height: 45px;
+
+    border-radius: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--primary)
+        );
+
+}
+
+
+/* Illustration rows */
+
+.illustration-row {
+
+    height: 10px;
+
+    width: 90%;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            var(--secondary)
+        );
+
+    animation:
+        loadingBar 3s ease-in-out infinite;
+
+}
+
+
+.illustration-row.short {
+    width: 62%;
+}
+
+
+.illustration-row.shorter {
+    width: 45%;
+}
+
+
+@keyframes loadingBar {
+
+    0%, 100% {
+        opacity: .55;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+}
+
+
+/* Floating person card */
+
+.floating-card {
+
+    top: 1.2rem;
+
+    left: 1rem;
+
+    width: 65px;
+
+    height: 65px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #111827;
+
+    font-size: 1.4rem;
+
+    background:
+        linear-gradient(
+            135deg,
+            #b8f2e6,
+            #8ec5fc
+        );
+
+    animation:
+        floatingPerson 3s ease-in-out infinite;
+
+}
+
+
+@keyframes floatingPerson {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+}
+
+
+/* Shield */
+
+.badge-card {
+
+    right: 1rem;
+
+    bottom: 0;
+
+    width: 55px;
+
+    height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        #ffe0df;
+
+    color: #374151;
+
+}
+
+
+/* =========================================================
+   BENEFITS
+   ========================================================= */
+
+.auth-benefits {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: .7rem;
+
+}
+
+
+.benefit-pill {
+
+    padding:
+        .6rem
+        .9rem;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.75);
+
+    border:
+        1px solid
+        rgba(255,255,255,.9);
+
+    color: #334155;
+
+    font-size: .82rem;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: .4rem;
+
+    box-shadow:
+        0 6px 15px
+        rgba(15,23,42,.04);
+
+}
+
+
+/* =========================================================
+   RIGHT PANEL
+   ========================================================= */
+
+.auth-panel-right {
+
+    padding: 2.5rem;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        rgba(255,255,255,.78);
+
+}
+
+
+/* =========================================================
+   LOGIN CARD
+   ========================================================= */
+
+.glass-card {
+
+    width: 100%;
+
+    max-width: 470px;
+
+    padding: 2.3rem;
+
+    background:
+        rgba(255,255,255,.92);
+
+    border:
+        1px solid
+        rgba(255,255,255,.9);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(15,23,42,.08);
+
+}
+
+
+.fade-in {
+
+    animation:
+        fadeInUp .8s ease both;
+
+}
+
+
+@keyframes fadeInUp {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
+
+/* =========================================================
+   MINI BRAND
+   ========================================================= */
+
+.mini-brand {
+
+    width: 60px;
+
+    height: 60px;
+
+    border-radius: 18px;
+
+    margin:
+        0 auto
+        1rem;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--primary)
+        );
+
+    color: #111827;
+
+    font-size: 1.4rem;
+
+}
+
+
+/* =========================================================
+   LOGIN TEXT
+   ========================================================= */
+
+.auth-title {
+
+    font-size: 1.9rem;
+
+    font-weight: 800;
+
+    color: var(--dark);
+
+    margin-bottom: .4rem;
+
+}
+
+
+.auth-description {
+
+    color: var(--muted);
+
+    margin-bottom: 1.5rem;
+
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.form-label {
+
+    color: #374151;
+
+    font-weight: 600;
+
+    margin-bottom: .5rem;
+
+}
+
+
+.form-control,
+.input-group-text,
+.password-toggle {
+
+    border-color:
+        rgba(55,65,81,.14);
+
+}
+
+
+.form-control {
+
+    min-height: 50px;
+
+}
+
+
+.form-control:focus {
+
+    border-color:
+        var(--primary);
+
+    box-shadow:
+        0 0 0 .2rem
+        rgba(142,197,252,.20);
+
+}
+
+
+.input-group-text {
+
+    background:
+        #f8fafc;
+
+    color: var(--muted);
+
+    min-width: 48px;
+
+    justify-content: center;
+
+}
+
+
+.password-toggle {
+
+    background:
+        #f8fafc;
+
+    color: var(--muted);
+
+}
+
+
+/* =========================================================
+   ROLE SELECTION
+   ========================================================= */
+
+.role-selection {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+
+}
+
+
+.role-card {
+
+    min-height: 95px;
+
+    border:
+        1px solid
+        rgba(55,65,81,.12);
+
+    border-radius: 16px;
+
+    background:
+        #ffffff;
+
+    color: #374151;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.role-card i {
+
+    font-size: 1.35rem;
+
+}
+
+
+.role-card span {
+
+    font-size: .9rem;
+
+    font-weight: 600;
+
+}
+
+
+.role-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        var(--primary);
+
+    box-shadow:
+        0 10px 25px
+        rgba(142,197,252,.18);
+
+}
+
+
+.role-card.selected {
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(142,197,252,.28),
+            rgba(224,195,252,.38)
+        );
+
+    border:
+        2px solid
+        #8EC5FC;
+
+    color:
+        #111827;
+
+    box-shadow:
+        0 10px 28px
+        rgba(142,197,252,.25);
+
+    transform:
+        translateY(-2px);
+
+}
+
+
+/* =========================================================
+   SHAKE ANIMATION
+   ========================================================= */
+
+.shake {
+
+    animation:
+        shake .4s ease;
+
+}
+
+
+@keyframes shake {
+
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-6px);
+    }
+
+    75% {
+        transform: translateX(6px);
+    }
+
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+   ========================================================= */
+
+.auth-button {
+
+    min-height: 54px;
+
+    border-radius: 14px;
+
+    padding:
+        .85rem 1rem;
+
+    font-size: 1rem;
+
+    font-weight: 700;
+
+    border: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
+
+    color:
+        #111827;
+
+    box-shadow:
+        0 12px 25px
+        rgba(142,197,252,.25);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.auth-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 16px 30px
+        rgba(142,197,252,.32);
+
+}
+
+
+/* =========================================================
+   LINKS / FOOTER
+   ========================================================= */
+
+.auth-link {
+
+    color:
+        #6366f1;
+
+    text-decoration:
+        none;
+
+    font-size:
+        .9rem;
+
+}
+
+
+.auth-link.disabled {
+
+    opacity:
+        .65;
+
+    cursor:
+        default;
+
+}
+
+
+.auth-footer {
+
+    margin-top:
+        1.3rem;
+
+    text-align:
+        center;
+
+    color:
+        var(--muted);
+
+    font-size:
+        .85rem;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+/* =========================================================
+   GLOBAL MOBILE RESPONSIVENESS & AUTH RESPONSIVE STYLES
+   ========================================================= */
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Prevent image / media overflow across all pages */
+img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* =========================================================
+   PORTAL NAVBAR - MOBILE STYLES
+   ========================================================= */
+.portal-navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    padding: 0.65rem 0;
+}
+
+.portal-brand {
+    text-decoration: none;
+    gap: 10px;
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 12px rgba(142, 197, 252, 0.35);
+    flex-shrink: 0;
+}
+
+.brand-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.brand-main {
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: #111827;
+    letter-spacing: -0.02em;
+}
+
+.brand-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.navbar-toggler {
+    padding: 0.35rem 0.5rem;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    transition: background 0.2s ease;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(142, 197, 252, 0.35);
+}
+
+.portal-nav-link {
+    color: #475569 !important;
+    font-weight: 500;
+    font-size: 0.92rem;
+    padding: 0.5rem 0.9rem !important;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.portal-nav-link:hover {
+    color: #0f172a !important;
+    background: rgba(142, 197, 252, 0.15);
+}
+
+.portal-login-btn,
+.portal-logout-btn {
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.5rem 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.portal-login-btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #111827;
+    border: none;
+}
+
+.portal-logout-btn {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.portal-logout-btn:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.user-info {
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #111827;
+    flex-shrink: 0;
+}
+
+.user-details {
+    line-height: 1.2;
+}
+
+.user-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1e293b;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.role-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #6366f1;
+    text-transform: uppercase;
+}
+
+/* =========================================================
+   PORTAL FOOTER
+   ========================================================= */
+.portal-footer {
+    background: #ffffff;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    padding: 1.25rem 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.footer-dot {
+    margin: 0 6px;
+    color: #cbd5e1;
+}
+
+/* =========================================================
+   FLASH MESSAGES - RESPONSIVE
+   ========================================================= */
+.flash-container {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.portal-alert {
+    border-radius: 14px;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.15rem;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    border: none;
+}
+
+.flash-icon {
+    font-size: 1.2rem;
+    margin-right: 0.65rem;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   RESPONSIVE TABLES & CONTAINERS
+   ========================================================= */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Touch-friendly table rows */
+.table th, .table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   RESPONSIVE FORM CONTROLS & TOUCH TARGETS
+   ========================================================= */
+@media (max-width: 768px) {
+    /* Inputs 16px prevents iOS browser zoom on focus */
+    .form-control,
+    .form-select,
+    .input-group-text {
+        font-size: 16px !important;
+        min-height: 46px;
+    }
+
+    .btn {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE MODALS FOR MOBILE
+   ========================================================= */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem auto;
+        max-width: calc(100vw - 1rem);
+    }
+
+    .modal-content {
+        border-radius: 18px;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem 1.15rem;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .modal-footer > * {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
+/* =========================================================
+   AUTH PAGES - DESKTOP & TABLET BREAKPOINTS
+   ========================================================= */
+@media (max-width: 900px) {
+    .auth-card {
+        grid-template-columns: 1fr;
+        border-radius: 22px;
+    }
+
+    .auth-panel-left {
+        padding: 2rem 1.75rem 1.5rem;
+    }
+
+    .auth-panel-right {
+        padding: 1.75rem;
+    }
+
+    .portal-title {
+        font-size: 2.2rem;
+    }
+
+    .auth-illustration {
+        min-height: 180px;
+    }
+}
+
+/* =========================================================
+   AUTH PAGES - MOBILE BREAKPOINT (< 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+    .auth-shell {
+        padding: 1rem 0.75rem;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+        border-radius: 20px;
+    }
+
+    /* Keep left panel concise on phones so login form is immediately visible */
+    .auth-panel-left {
+        padding: 1.5rem 1.25rem 1rem;
+        text-align: center;
+        align-items: center;
+    }
+
+    .brand-badge {
+        width: 54px;
+        height: 54px;
+        font-size: 1.35rem;
+        margin: 0 auto;
+        border-radius: 16px;
+    }
+
+    .portal-title {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+
+    .auth-subtitle {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.75rem;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    /* Hide heavy decorative illustration on mobile to avoid endless scrolling */
+    .auth-illustration {
+        display: none !important;
+    }
+
+    /* Benefit pills clean centered wrap on mobile */
+    .auth-benefits {
+        justify-content: center;
+        gap: 0.45rem;
+        margin-top: 0.5rem;
+    }
+
+    .benefit-pill {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .auth-panel-right {
+        padding: 1.25rem 1rem 1.75rem;
+    }
+
+    .glass-card {
+        padding: 1.25rem 1rem;
+        border-radius: 18px;
+        box-shadow: none;
+        background: transparent;
+        border: none;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+    }
+
+    .auth-description {
+        font-size: 0.85rem;
+        margin-bottom: 1.15rem;
+    }
+
+    /* Role selection touch cards */
+    .role-selection {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .role-card {
+        min-height: 70px;
+        padding: 8px 4px;
+        border-radius: 12px;
+    }
+
+    .role-card i {
+        font-size: 1.15rem;
+    }
+
+    .role-card span {
+        font-size: 0.78rem;
+    }
+
+    /* Auth button */
+    .auth-button {
+        min-height: 50px;
+        font-size: 0.95rem;
+        border-radius: 12px;
+        width: 100%;
+    }
+
+    /* Mobile Navbar dropdown layout */
+    .portal-navbar .navbar-collapse {
+        background: #ffffff;
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.10);
+        margin-top: 0.75rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .portal-navbar .portal-nav-link {
+        padding: 0.65rem 0.75rem !important;
+        font-size: 0.95rem;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+    }
+}
+
+/* =========================================================
+   VERY SMALL SCREENS (< 420px)
+   ========================================================= */
+@media (max-width: 420px) {
+    .auth-shell {
+        padding: 0.5rem 0.35rem;
+    }
+
+    .auth-panel-left {
+        padding: 1.25rem 0.85rem 0.75rem;
+    }
+
+    .portal-title {
+        font-size: 1.45rem;
+    }
+
+    .role-selection {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .role-card {
+        min-height: 50px;
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 10px 16px;
+        gap: 12px;
+    }
+
+    .brand-main {
+        font-size: 1.05rem;
+    }
+
+    .brand-sub {
+        font-size: 0.68rem;
+    }
+}

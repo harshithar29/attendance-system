@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Teacher | GSSS Attendance Portal{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <!-- Header -->
+    <div class="mb-4">
+
+        <a href="{{ url_for('admin.teachers') }}"
+           class="text-decoration-none text-muted small">
+
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Teachers
+
+        </a>
+
+        <h2 class="fw-bold mt-2 mb-1">
+            Edit Teacher
+        </h2>
+
+        <p class="text-muted mb-0">
+            Update the teacher's account information.
+        </p>
+
+    </div>
+
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="edit-card">
+
+                <!-- Card Header -->
+
+                <div class="edit-header">
+
+                    <div class="teacher-avatar-large">
+                        {{ teacher.name[:1]|upper }}
+                    </div>
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            {{ teacher.name }}
+                        </h5>
+
+                        <span class="badge rounded-pill"
+                              style="background:#dcecff;color:#4b83c4;">
+
+                            Teacher ID: {{ teacher.teacher_id }}
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Form -->
+
+                <form method="POST"
+                      action="{{ url_for(
+                          'admin.edit_teacher',
+                          teacher_id=teacher.teacher_id
+                      ) }}"
+                      id="editTeacherForm">
+
+                    <div class="row g-3">
+
+
+                        <!-- NAME -->
+
+                        <div class="col-md-6">
+
+                            <label for="name"
+                                   class="form-label">
+
+                                Full Name
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="name"
+                                    name="name"
+                                    value="{{ teacher.name }}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="col-md-6">
+
+                            <label for="email"
+                                   class="form-label">
+
+                                Email
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    id="email"
+                                    name="email"
+                                    value="{{ teacher.email }}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- USERNAME -->
+
+                        <div class="col-md-6">
+
+                            <label for="username"
+                                   class="form-label">
+
+                                Username
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-person-badge"></i>
+                                </span>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="username"
+                                    name="username"
+                                    value="{{ teacher.username }}"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="col-md-6">
+
+                            <label for="phone"
+                                   class="form-label">
+
+                                Phone
+
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-telephone"></i>
+                                </span>
+
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="phone"
+                                    name="phone"
+                                    value="{{ teacher.phone or '' }}"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+
+                        <div class="col-12">
+
+                            <div class="password-section">
+
+                                <div class="password-title">
+
+                                    <i class="bi bi-key-fill"></i>
+
+                                    <div>
+
+                                        <h6 class="fw-bold mb-1">
+                                            Change Password
+                                        </h6>
+
+                                        <small class="text-muted">
+                                            Leave blank if you don't want to
+                                            change the current password.
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="row g-3 mt-1">
+
+                                    <div class="col-md-6">
+
+                                        <label for="password"
+                                               class="form-label">
+
+                                            New Password
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-lock"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                class="form-control"
+                                                id="password"
+                                                name="password"
+                                                placeholder="New password"
+                                                minlength="6"
+                                                autocomplete="new-password"
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label for="confirm_password"
+                                               class="form-label">
+
+                                            Confirm New Password
+
+                                        </label>
+
+                                        <div class="input-group">
+
+                                            <span class="input-group-text">
+                                                <i class="bi bi-lock-fill"></i>
+                                            </span>
+
+                                            <input
+                                                type="password"
+                                                class="form-control"
+                                                id="confirm_password"
+                                                placeholder="Confirm password"
+                                                minlength="6"
+                                                autocomplete="new-password"
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Buttons -->
+
+                    <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+
+                        <a
+                            href="{{ url_for('admin.teachers') }}"
+                            class="btn btn-outline-secondary rounded-pill px-4"
+                        >
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel
+
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary rounded-pill px-4"
+                            id="updateButton"
+                        >
+
+                            <span id="updateLabel">
+
+                                <i class="bi bi-check-circle me-1"></i>
+                                Save Changes
+
+                            </span>
+
+                            <span
+                                id="updateLoading"
+                                class="d-none"
+                            >
+
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                Updating...
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.edit-card {
+
+    background:
+        rgba(255,255,255,.94);
+
+    border-radius:
+        22px;
+
+    padding:
+        28px;
+
+    box-shadow:
+        0 14px 38px rgba(15,23,42,.08);
+
+}
+
+
+.edit-header {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        15px;
+
+    padding-bottom:
+        22px;
+
+    margin-bottom:
+        24px;
+
+    border-bottom:
+        1px solid rgba(55,65,81,.08);
+
+}
+
+
+.teacher-avatar-large {
+
+    width:
+        62px;
+
+    height:
+        62px;
+
+    border-radius:
+        18px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #8ec5fc,
+            #e0c3fc
+        );
+
+    color:
+        #273247;
+
+    font-size:
+        1.4rem;
+
+    font-weight:
+        800;
+
+}
+
+
+.form-label {
+
+    font-weight:
+        600;
+
+    color:
+        #374151;
+
+}
+
+
+.form-control {
+
+    min-height:
+        48px;
+
+    border-color:
+        #e5e7eb;
+
+}
+
+
+.form-control:focus {
+
+    border-color:
+        #8ec5fc;
+
+    box-shadow:
+        0 0 0 .2rem
+        rgba(142,197,252,.18);
+
+}
+
+
+.input-group-text {
+
+    min-width:
+        46px;
+
+    justify-content:
+        center;
+
+    background:
+        #f8fafc;
+
+    color:
+        #6b7280;
+
+    border-color:
+        #e5e7eb;
+
+}
+
+
+.password-section {
+
+    margin-top:
+        8px;
+
+    padding:
+        18px;
+
+    border-radius:
+        16px;
+
+    background:
+        #fafbff;
+
+    border:
+        1px solid #edf0f6;
+
+}
+
+
+.password-title {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    color:
+        #5f72a4;
+
+}
+
+
+.password-title > i {
+
+    width:
+        40px;
+
+    height:
+        40px;
+
+    border-radius:
+        11px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        #e8ddff;
+
+}
+
+
+@media (max-width: 576px) {
+
+    .edit-card {
+
+        padding:
+            20px;
+
+    }
+
+}
+
+</style>
+
+
+<script>
+
+document
+    .getElementById("editTeacherForm")
+    .addEventListener("submit", function(event) {
+
+        const password =
+            document.getElementById("password").value;
+
+        const confirmPassword =
+            document.getElementById("confirm_password").value;
+
+
+        /*
+         * Only compare passwords when a new password
+         * has actually been entered.
+         */
+
+        if (password !== "" &&
+            password !== confirmPassword) {
+
+            event.preventDefault();
+
+            alert(
+                "New password and confirmation password do not match."
+            );
+
+            return;
+
+        }
+
+
+        document
+            .getElementById("updateLabel")
+            .classList.add("d-none");
+
+        document
+            .getElementById("updateLoading")
+            .classList.remove("d-none");
+
+        document
+            .getElementById("updateButton")
+            .disabled = true;
+
+    });
+
+</script>
+
+{% endblock %}
