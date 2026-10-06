@@ -34,12 +34,16 @@ from werkzeug.utils import secure_filename
 from backend.utilities.security import login_required
 from backend.models.class_model import ClassModel
 from backend.models.subject import Subject
-
 from backend.services.db_service import run_query
-from backend.services.video_service import (
-    process_classroom_video,
-    mark_video_failed
-)
+
+try:
+    from backend.services.video_service import (
+        process_classroom_video,
+        mark_video_failed
+    )
+except (ImportError, Exception):
+    process_classroom_video = None
+    mark_video_failed = None
 
 
 # =========================================================
