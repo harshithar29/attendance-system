@@ -3,7 +3,7 @@
   "appName": "GSSS Attendence Portal",
   "webDir": "www",
   "server": {
-    "url": "https://shoe-mechanism-reliability-joyce.trycloudflare.com",
+    "url": "https://attendance-system-9v65.onrender.com",
     "cleartext": true
   }
 }
