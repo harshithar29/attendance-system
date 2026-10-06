@@ -34,6 +34,9 @@ def _get_sqlite_conn():
     conn.create_function("DATE", 1, lambda val: str(val)[:10] if val else None)
     conn.create_function("IFNULL", 2, lambda a, b: b if a is None else a)
     conn.create_function("LAST_DAY", 1, lambda val: str(val)[:7] + "-28" if val else None)
+    conn.create_function("CONCAT", -1, lambda *args: "".join(str(a) if a is not None else "" for a in args))
+    conn.create_function("CONCAT_WS", -1, lambda sep, *args: sep.join(str(a) for a in args if a is not None))
+    conn.create_function("DATE_FORMAT", 2, lambda d, fmt: (str(d)[:7] + "-01") if fmt and "%Y-%m-01" in fmt else str(d)[:10] if d else None)
     return conn
 
 

@@ -572,6 +572,11 @@ def dashboard():
     # 7B. Live Real-Time Weekly Snapshot (Dynamically computed from actual DB date range)
     ref_date_row = run_query("SELECT MAX(DATE(check_in_time)) as max_d FROM attendance", fetch_one=True) or {}
     max_d = ref_date_row.get("max_d") or date.today()
+    if isinstance(max_d, str):
+        try:
+            max_d = datetime.strptime(str(max_d)[:10], "%Y-%m-%d").date()
+        except Exception:
+            max_d = date.today()
     week_start = max_d - timedelta(days=6)
 
     week_sess_row = run_query(
