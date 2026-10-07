@@ -63,8 +63,8 @@ def create_app():
 
     @app.route("/download-apk")
     def download_apk():
-        from flask import send_from_directory
-        return send_from_directory("static/apk", "GSSS_Attendance.apk", as_attachment=True)
+        from flask import redirect
+        return redirect("https://github.com/harshithar29/attendance-system/releases/download/v1.0.0/GSSS_Attendance_Portal.apk")
 
     return app
 
