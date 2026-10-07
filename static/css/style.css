@@ -1571,3 +1571,89 @@ img, video, canvas, svg {
         font-size: 0.68rem;
     }
 }
+
+/* =========================================================
+   MOBILE APP POLISH & RESPONSIVENESS (< 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+    /* Safe padding for bottom phone navigation */
+    body {
+        padding-bottom: 24px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .teacher-dashboard-layout {
+        padding: 12px 10px !important;
+    }
+
+    .teacher-card {
+        border-radius: 20px !important;
+        margin-bottom: 18px !important;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
+        overflow: hidden;
+    }
+
+    .teacher-card-header {
+        padding: 16px 16px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    .teacher-card-title {
+        font-size: 1.05rem !important;
+    }
+
+    .teacher-card-subtitle {
+        font-size: 0.8rem !important;
+    }
+
+    .teacher-card-body {
+        padding: 16px 14px !important;
+    }
+
+    /* Mobile Upload Button */
+    .upload-button {
+        width: 100% !important;
+        min-height: 50px !important;
+        font-size: 1rem !important;
+        border-radius: 14px !important;
+        justify-content: center !important;
+        display: flex !important;
+        align-items: center !important;
+        font-weight: 700 !important;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25) !important;
+    }
+
+    /* Mobile Form Controls */
+    .teacher-form-control, .form-select, .form-control {
+        min-height: 48px !important;
+        font-size: 0.95rem !important;
+        border-radius: 12px !important;
+    }
+
+    /* Mobile Attendance Table */
+    .attendance-table-wrap {
+        border-radius: 14px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -4px;
+    }
+
+    .attendance-table th, .attendance-table td {
+        padding: 12px 10px !important;
+        font-size: 0.85rem !important;
+        white-space: nowrap;
+    }
+
+    /* Stat Cards */
+    .stat-card-widget {
+        border-radius: 18px !important;
+        padding: 16px !important;
+    }
+
+    .stat-number {
+        font-size: 1.6rem !important;
+    }
+}

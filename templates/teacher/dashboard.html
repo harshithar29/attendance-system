@@ -1288,8 +1288,11 @@ Teacher Dashboard - GSSS Attendance Portal
                                 <label for="uploadSubjectSelect" class="form-label">
                                     <i class="bi bi-book me-1 text-primary"></i> Select Subject
                                 </label>
-                                <select name="subject_id" id="uploadSubjectSelect" class="form-select teacher-form-control" onchange="onUploadSubjectChange()" required disabled>
-                                    <option value="" selected>-- Select Subject (None) --</option>
+                                <select name="subject_id" id="uploadSubjectSelect" class="form-select teacher-form-control" onchange="onUploadSubjectChange()" required>
+                                    <option value="" selected>-- Select Subject --</option>
+                                    {% for sub in subjects %}
+                                    <option value="{{ sub.subject_id }}" data-branch="{{ sub.branch }}" data-sem="{{ sub.semester }}" data-class="{{ sub.class_id }}">{{ sub.subject_name }} ({{ sub.subject_code }}) - Sem {{ sub.semester }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
 
@@ -1317,6 +1320,21 @@ Teacher Dashboard - GSSS Attendance Portal
                             </button>
                         </div>
                     </form>
+
+                    <!-- UPLOAD PROGRESS MODAL OVERLAY -->
+                    <div id="mobileUploadProgressOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: rgba(15, 23, 42, 0.75); z-index: 999999; backdrop-filter: blur(4px);">
+                        <div class="card p-4 rounded-4 shadow-lg text-center mx-3 border-0" style="max-width: 360px; width: 100%;">
+                            <div class="spinner-border text-primary mx-auto mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                            <h5 class="fw-bold mb-1 text-dark">Uploading Video...</h5>
+                            <p class="text-muted small mb-3">Sending classroom video to attendance server. Please wait, do not close or leave this screen.</p>
+                            <div class="progress mb-3" style="height: 6px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%"></div>
+                            </div>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-2">
+                                <i class="bi bi-cpu-fill me-1"></i> AI Attendance Processing
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1451,6 +1469,26 @@ Teacher Dashboard - GSSS Attendance Portal
                     </div>
                 </div>
             </div>
+            {% elif processing_video %}
+            <div class="teacher-card border-primary border shadow-sm my-3">
+                <div class="teacher-card-body p-4 text-center">
+                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                    <h5 class="fw-bold text-dark mb-1">
+                        <i class="bi bi-camera-video-fill me-1 text-primary"></i> Processing Classroom Video #{{ processing_video.video_id }}
+                    </h5>
+                    <p class="text-muted small mb-3">AI facial recognition and student attendance marking is running in the background. Results will automatically appear here once complete.</p>
+                    <div class="d-inline-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="window.location.reload()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <script>
+                setTimeout(function() {
+                    window.location.reload();
+                }, 3500);
+            </script>
             {% else %}
             <div class="teacher-card">
                 <div class="teacher-card-header">
@@ -5660,13 +5698,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const uploadButton = document.getElementById("uploadButton");
 
     window.checkUploadForm = function() {
-        const branchOk = uploadBranch && uploadBranch.value !== "";
-        const yearOk = uploadYear && uploadYear.value !== "";
-        const semOk = uploadSem && uploadSem.value !== "";
         const subOk = uploadSub && uploadSub.value !== "";
         const videoOk = videoInput && videoInput.files && videoInput.files.length > 0;
         if (uploadButton) {
-            uploadButton.disabled = !(branchOk && yearOk && semOk && subOk && videoOk);
+            uploadButton.disabled = !(subOk && videoOk);
         }
     };
 
@@ -5681,10 +5716,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!yearVal) {
             uploadSem.innerHTML = '<option value="" selected>-- Select Semester (None) --</option>';
             uploadSem.disabled = true;
-            if (uploadSub) {
-                uploadSub.innerHTML = '<option value="" selected>-- Select Subject (None) --</option>';
-                uploadSub.disabled = true;
-            }
         } else {
             const yNum = parseInt(yearVal, 10);
             const sem1 = (yNum * 2) - 1;
@@ -5698,11 +5729,6 @@ document.addEventListener("DOMContentLoaded", function() {
             uploadSem.innerHTML = opts;
             uploadSem.disabled = false;
             uploadSem.value = '';
-
-            if (uploadSub) {
-                uploadSub.innerHTML = '<option value="" selected>-- Select Subject (None) --</option>';
-                uploadSub.disabled = true;
-            }
         }
         checkUploadForm();
     };
@@ -5711,34 +5737,46 @@ document.addEventListener("DOMContentLoaded", function() {
         const semVal = (uploadSem?.value || "").trim();
         if (!uploadSub) return;
 
-        if (!semVal) {
-            uploadSub.innerHTML = '<option value="" selected>-- Select Subject (None) --</option>';
-            uploadSub.disabled = true;
-        } else {
-            const matching = (typeof allSubjectsData !== 'undefined' && Array.isArray(allSubjectsData))
-                ? allSubjectsData.filter(s => String(s.semester) === String(semVal))
-                : [];
-
-            let opts = '<option value="" selected>-- Select Subject (None) --</option>';
-            matching.forEach(s => {
-                opts += `<option value="${s.subject_id}">${s.subject_name} (${s.subject_code})</option>`;
-            });
-
-            uploadSub.innerHTML = opts;
-            uploadSub.disabled = false;
-            uploadSub.value = '';
+        if (semVal && typeof allSubjectsData !== 'undefined' && Array.isArray(allSubjectsData)) {
+            const matching = allSubjectsData.filter(s => String(s.semester) === String(semVal));
+            if (matching.length > 0) {
+                let opts = '<option value="" selected>-- Select Subject --</option>';
+                matching.forEach(s => {
+                    opts += `<option value="${s.subject_id}">${s.subject_name} (${s.subject_code})</option>`;
+                });
+                uploadSub.innerHTML = opts;
+                uploadSub.value = '';
+            }
         }
         checkUploadForm();
     };
 
     window.onUploadSubjectChange = function() {
-        if (uploadSub && uploadClassHidden) {
+        if (uploadSub) {
             const subId = uploadSub.value;
             const subObj = (typeof allSubjectsData !== 'undefined' && Array.isArray(allSubjectsData))
                 ? allSubjectsData.find(s => String(s.subject_id) === String(subId))
                 : null;
-            if (subObj && subObj.class_id) {
-                uploadClassHidden.value = subObj.class_id;
+            if (subObj) {
+                if (uploadClassHidden && subObj.class_id) {
+                    uploadClassHidden.value = subObj.class_id;
+                }
+                // Auto-sync branch, year, sem dropdowns if available
+                if (uploadBranch && (!uploadBranch.value || uploadBranch.value === "")) {
+                    uploadBranch.value = subObj.branch || "CSE (AIML)";
+                }
+                if (uploadYear && (!uploadYear.value || uploadYear.value === "")) {
+                    const calcYear = String(subObj.year || Math.ceil((subObj.semester || 7) / 2));
+                    uploadYear.value = calcYear;
+                    if (uploadSem) {
+                        const sem1 = (calcYear * 2) - 1;
+                        const sem2 = calcYear * 2;
+                        const ordinals = {1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th', 6: '6th', 7: '7th', 8: '8th'};
+                        uploadSem.innerHTML = `<option value="">-- Select Semester --</option><option value="${sem1}">${ordinals[sem1] || sem1 + 'th'} Semester</option><option value="${sem2}">${ordinals[sem2] || sem2 + 'th'} Semester</option>`;
+                        uploadSem.disabled = false;
+                        uploadSem.value = String(subObj.semester || sem2);
+                    }
+                }
             }
         }
         checkUploadForm();
@@ -5749,7 +5787,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const file = this.files[0];
             if (!file) {
                 if (videoInfo) videoInfo.classList.add("d-none");
-                checkForm();
+                checkUploadForm();
                 return;
             }
             const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
@@ -5758,7 +5796,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     file.name + ' &nbsp;|&nbsp; <strong>Size:</strong> ' + sizeMB + ' MB';
                 videoInfo.classList.remove("d-none");
             }
-            checkForm();
+            checkUploadForm();
         });
     }
 
@@ -5766,11 +5804,9 @@ document.addEventListener("DOMContentLoaded", function() {
         uploadForm.addEventListener("submit", function() {
             uploadButton.disabled = true;
             uploadButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Uploading...';
-            const statusDiv = document.getElementById('uploadStatus');
-            if (statusDiv) {
-                statusDiv.className = 'alert alert-info d-flex align-items-center gap-2';
-                statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm"></span> <div>Uploading video. Processing will begin in background...</div>';
-                statusDiv.classList.remove('d-none');
+            const progressOverlay = document.getElementById('mobileUploadProgressOverlay');
+            if (progressOverlay) {
+                progressOverlay.classList.remove('d-none');
             }
         });
     }
