@@ -61,6 +61,11 @@ def create_app():
     app.register_blueprint(teacher_bp)
     app.register_blueprint(student_bp)
 
+    @app.route("/download-apk")
+    def download_apk():
+        from flask import send_from_directory
+        return send_from_directory("static/apk", "GSSS_Attendance.apk", as_attachment=True)
+
     return app
 
 
