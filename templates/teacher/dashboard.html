@@ -88,7 +88,24 @@ Teacher Dashboard - GSSS Attendance Portal
     top: 0;
     left: 0;
     z-index: 1000;
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease,
+                visibility 0.3s ease !important;
+}
+
+.teacher-sidebar.collapsed {
+    margin-left: -270px !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 .teacher-brand {
@@ -702,46 +719,43 @@ Teacher Dashboard - GSSS Attendance Portal
 /* =========================================================
    RESPONSIVE DESIGN & ALIGNMENT
 ========================================================= */
-/* Desktop Sidebar Collapse Transitions */
-@media (min-width: 993px) {
-    .teacher-sidebar {
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .teacher-sidebar.collapsed {
-        margin-left: -275px;
-    }
-    .desktop-sidebar-toggle-btn {
-        display: inline-flex !important;
-    }
-}
-
-.desktop-sidebar-toggle-btn {
-    display: none;
+/* Sidebar Header Toggle Button */
+.sidebar-toggle-btn-header {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.desktop-sidebar-toggle-btn:hover {
-    background-color: #f1f5f9;
+.sidebar-toggle-btn-header:hover {
+    background-color: #e2e8f0;
     border-color: #cbd5e1;
 }
 
 @media (max-width: 992px) {
     .teacher-sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 275px;
-        max-width: 85vw;
-        height: 100vh;
-        transform: translateX(-100%);
-        z-index: 1050;
-        box-shadow: 12px 0 35px rgba(15, 23, 42, 0.22);
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 275px !important;
+        min-width: 275px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        transform: translateX(-100%) !important;
+        z-index: 1050 !important;
+        box-shadow: 12px 0 35px rgba(15, 23, 42, 0.22) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        margin-left: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
     }
 
     .teacher-sidebar.open {
-        transform: translateX(0);
+        transform: translateX(0) !important;
     }
+}
 
     .mobile-sidebar-button {
         display: flex;
@@ -1075,17 +1089,19 @@ Teacher Dashboard - GSSS Attendance Portal
     ====================================================== -->
     <aside class="teacher-sidebar" id="teacherSidebar">
 
-        <!-- BRAND (Clickable to toggle sidebar) -->
-        <div class="teacher-brand" id="teacherBrandToggle" onclick="toggleTeacherSidebar()" role="button" title="Toggle Sidebar" style="cursor: pointer; user-select: none;">
+        <!-- BRAND (Click to CLOSE sidebar) -->
+        <div class="teacher-brand" id="teacherBrandToggle" onclick="closeTeacherSidebar()" role="button" title="Click to close sidebar" style="cursor: pointer; user-select: none;">
             <div class="teacher-brand-icon">
                 <i class="bi bi-camera-video-fill"></i>
             </div>
-            <div class="teacher-brand-text">
+            <div class="teacher-brand-text flex-grow-1">
                 <div class="teacher-brand-title d-flex align-items-center justify-content-between">
                     <span>GSSS Attendance</span>
-                    <i class="bi bi-layout-sidebar-inset text-primary fs-6 ms-2 opacity-75" title="Toggle Sidebar"></i>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 ms-2" style="font-size: 0.7rem;" title="Close Sidebar">
+                        <i class="bi bi-x-lg me-1"></i>Close
+                    </span>
                 </div>
-                <div class="teacher-brand-subtitle">Teacher Portal</div>
+                <div class="teacher-brand-subtitle">Teacher Portal &bull; <span class="text-primary fw-semibold">Click to Close &laquo;</span></div>
             </div>
         </div>
 
@@ -1150,12 +1166,12 @@ Teacher Dashboard - GSSS Attendance Portal
 
         <!-- TOP BAR -->
         <div class="teacher-topbar">
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-light border sidebar-toggle-btn-header shadow-sm p-2 rounded-3 me-2" id="desktopSidebarButton" onclick="toggleTeacherSidebar()" title="Open/Toggle Sidebar" style="cursor: pointer;">
+                    <i class="bi bi-layout-sidebar-inset fs-5 text-primary"></i>
+                </button>
                 <button type="button" class="mobile-sidebar-button" id="mobileSidebarButton" onclick="toggleTeacherSidebar()" aria-label="Toggle Menu">
                     <i class="bi bi-list fs-4"></i>
-                </button>
-                <button type="button" class="btn btn-sm btn-light border desktop-sidebar-toggle-btn align-items-center justify-content-center p-2 rounded-3 shadow-sm" id="desktopSidebarButton" onclick="toggleTeacherSidebar()" title="Toggle Sidebar">
-                    <i class="bi bi-layout-sidebar-inset fs-5 text-primary"></i>
                 </button>
                 <div class="d-flex flex-column cursor-pointer user-select-none" id="teacherTopHeaderArea" onclick="toggleTeacherSidebar()" role="button" title="Click to toggle sidebar" style="cursor: pointer;">
                     <div class="d-flex align-items-center gap-2">
@@ -6306,16 +6322,46 @@ function openTeacherProfileFromDropdown() {
     }
 }
 
-function toggleTeacherSidebar() {
+function closeTeacherSidebar() {
     const sidebar = document.getElementById('teacherSidebar');
     const backdrop = document.getElementById('sidebarBackdrop');
+    if (sidebar) {
+        sidebar.classList.add('collapsed');
+        sidebar.classList.remove('open');
+    }
+    if (backdrop) {
+        backdrop.classList.remove('active');
+    }
+}
+
+function openTeacherSidebar() {
+    const sidebar = document.getElementById('teacherSidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    if (sidebar) {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('open');
+    }
+    if (backdrop && window.innerWidth <= 992) {
+        backdrop.classList.add('active');
+    }
+}
+
+function toggleTeacherSidebar() {
+    const sidebar = document.getElementById('teacherSidebar');
     if (!sidebar) return;
     const isMobile = window.innerWidth <= 992;
     if (isMobile) {
-        sidebar.classList.toggle('open');
-        if (backdrop) backdrop.classList.toggle('active');
+        if (sidebar.classList.contains('open')) {
+            closeTeacherSidebar();
+        } else {
+            openTeacherSidebar();
+        }
     } else {
-        sidebar.classList.toggle('collapsed');
+        if (sidebar.classList.contains('collapsed')) {
+            openTeacherSidebar();
+        } else {
+            closeTeacherSidebar();
+        }
     }
 }
 

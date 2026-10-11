@@ -746,10 +746,23 @@ Student Dashboard - GSSS Attendance Portal
 /* Desktop Sidebar Collapse Transitions */
 @media (min-width: 992px) {
     .student-sidebar {
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    opacity 0.25s ease,
+                    visibility 0.3s ease !important;
     }
     .student-sidebar.collapsed {
-        margin-left: -270px;
+        margin-left: -270px !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
     }
 }
 
@@ -1122,17 +1135,19 @@ Student Dashboard - GSSS Attendance Portal
          STUDENT SIDEBAR
     ====================================================== -->
     <aside class="student-sidebar" id="studentSidebar">
-        <!-- Brand (Clickable to toggle sidebar) -->
-        <div class="student-brand" id="studentBrandToggle" onclick="toggleStudentSidebar()" role="button" title="Toggle Sidebar" style="cursor: pointer; user-select: none;">
+        <!-- Brand (Click to CLOSE sidebar) -->
+        <div class="student-brand" id="studentBrandToggle" onclick="closeStudentSidebar()" role="button" title="Click to close sidebar" style="cursor: pointer; user-select: none;">
             <div class="student-brand-icon">
                 <i class="bi bi-mortarboard-fill"></i>
             </div>
-            <div class="student-brand-text">
+            <div class="student-brand-text flex-grow-1">
                 <span class="student-brand-title d-flex align-items-center justify-content-between">
                     <span>GSSS Attendance</span>
-                    <i class="bi bi-layout-sidebar-inset text-primary fs-6 ms-2 opacity-75" title="Toggle Sidebar"></i>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 ms-2" style="font-size: 0.7rem;" title="Close Sidebar">
+                        <i class="bi bi-x-lg me-1"></i>Close
+                    </span>
                 </span>
-                <span class="student-brand-subtitle">Student Dashboard</span>
+                <span class="student-brand-subtitle">Student Portal &bull; <span class="text-primary fw-semibold">Click to Close &laquo;</span></span>
             </div>
         </div>
 
@@ -2568,24 +2583,51 @@ function switchSection(sectionId, element) {
     closeMobileSidebar();
 }
 
-function toggleStudentSidebar() {
+function closeStudentSidebar() {
     const sidebar = document.getElementById('studentSidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) {
+        sidebar.classList.add('collapsed');
+        sidebar.classList.remove('show');
+    }
+    if (overlay) {
+        overlay.classList.remove('show');
+    }
+}
+
+function openStudentSidebar() {
+    const sidebar = document.getElementById('studentSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('show');
+    }
+    if (overlay && window.innerWidth <= 991.98) {
+        overlay.classList.add('show');
+    }
+}
+
+function toggleStudentSidebar() {
+    const sidebar = document.getElementById('studentSidebar');
     if (!sidebar) return;
     const isMobile = window.innerWidth <= 991.98;
     if (isMobile) {
-        sidebar.classList.toggle('show');
-        if (overlay) overlay.classList.toggle('show');
+        if (sidebar.classList.contains('show')) {
+            closeStudentSidebar();
+        } else {
+            openStudentSidebar();
+        }
     } else {
-        sidebar.classList.toggle('collapsed');
+        if (sidebar.classList.contains('collapsed')) {
+            openStudentSidebar();
+        } else {
+            closeStudentSidebar();
+        }
     }
 }
 
 function closeMobileSidebar() {
-    const sidebar = document.getElementById('studentSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    if (sidebar) sidebar.classList.remove('show');
-    if (overlay) overlay.classList.remove('show');
+    closeStudentSidebar();
 }
 
 function focusProfileEdit() {
