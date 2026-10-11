@@ -702,6 +702,30 @@ Teacher Dashboard - GSSS Attendance Portal
 /* =========================================================
    RESPONSIVE DESIGN & ALIGNMENT
 ========================================================= */
+/* Desktop Sidebar Collapse Transitions */
+@media (min-width: 993px) {
+    .teacher-sidebar {
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .teacher-sidebar.collapsed {
+        margin-left: -275px;
+    }
+    .desktop-sidebar-toggle-btn {
+        display: inline-flex !important;
+    }
+}
+
+.desktop-sidebar-toggle-btn {
+    display: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.desktop-sidebar-toggle-btn:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
 @media (max-width: 992px) {
     .teacher-sidebar {
         position: fixed;
@@ -1051,13 +1075,16 @@ Teacher Dashboard - GSSS Attendance Portal
     ====================================================== -->
     <aside class="teacher-sidebar" id="teacherSidebar">
 
-        <!-- BRAND -->
-        <div class="teacher-brand">
+        <!-- BRAND (Clickable to toggle sidebar) -->
+        <div class="teacher-brand" id="teacherBrandToggle" onclick="toggleTeacherSidebar()" role="button" title="Toggle Sidebar" style="cursor: pointer; user-select: none;">
             <div class="teacher-brand-icon">
                 <i class="bi bi-camera-video-fill"></i>
             </div>
             <div class="teacher-brand-text">
-                <div class="teacher-brand-title">GSSS Attendance</div>
+                <div class="teacher-brand-title d-flex align-items-center justify-content-between">
+                    <span>GSSS Attendance</span>
+                    <i class="bi bi-layout-sidebar-inset text-primary fs-6 ms-2 opacity-75" title="Toggle Sidebar"></i>
+                </div>
                 <div class="teacher-brand-subtitle">Teacher Portal</div>
             </div>
         </div>
@@ -1113,14 +1140,6 @@ Teacher Dashboard - GSSS Attendance Portal
                 <span>Email Reports</span>
             </button>
 
-            <!-- 4. ACCOUNT -->
-            <div class="menu-heading">ACCOUNT</div>
-
-            <button type="button" class="teacher-menu-link" data-section="profileSection">
-                <i class="bi bi-person-circle"></i>
-                <span>Teacher Profile</span>
-            </button>
-
         </div>
     </aside>
 
@@ -1132,12 +1151,18 @@ Teacher Dashboard - GSSS Attendance Portal
         <!-- TOP BAR -->
         <div class="teacher-topbar">
             <div class="d-flex align-items-center gap-3">
-                <button type="button" class="mobile-sidebar-button" id="mobileSidebarButton" aria-label="Toggle Menu">
+                <button type="button" class="mobile-sidebar-button" id="mobileSidebarButton" onclick="toggleTeacherSidebar()" aria-label="Toggle Menu">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <div>
-                    <h1 class="teacher-page-title" id="pageTitle">Dashboard</h1>
-                    <p class="teacher-page-subtitle" id="pageSubtitle">
+                <button type="button" class="btn btn-sm btn-light border desktop-sidebar-toggle-btn align-items-center justify-content-center p-2 rounded-3 shadow-sm" id="desktopSidebarButton" onclick="toggleTeacherSidebar()" title="Toggle Sidebar">
+                    <i class="bi bi-layout-sidebar-inset fs-5 text-primary"></i>
+                </button>
+                <div class="d-flex flex-column cursor-pointer user-select-none" id="teacherTopHeaderArea" onclick="toggleTeacherSidebar()" role="button" title="Click to toggle sidebar" style="cursor: pointer;">
+                    <div class="d-flex align-items-center gap-2">
+                        <h1 class="teacher-page-title mb-0" id="pageTitle">Dashboard</h1>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0 d-none d-sm-inline" style="font-size: 0.7rem;">GSSS Portal</span>
+                    </div>
+                    <p class="teacher-page-subtitle mb-0" id="pageSubtitle">
                         Welcome, {{ name or session.get('name') or 'Teacher' }}. Manage classroom video attendance and student records.
                     </p>
                 </div>
@@ -2957,6 +2982,369 @@ Teacher Dashboard - GSSS Attendance Portal
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             8. TEACHER SETTINGS SECTION (APPEARANCE, DATA REFRESH, HELP & SUPPORT, ABOUT)
+        ====================================================== -->
+        <section id="settingsSection" class="dashboard-section d-none">
+            <div class="row g-4">
+                <!-- SETTINGS NAVIGATION PILLS / TABS -->
+                <div class="col-lg-3 col-md-4">
+                    <div class="teacher-card p-3">
+                        <div class="fw-bold text-dark small text-uppercase mb-2 px-2">Settings Menu</div>
+                        <div class="nav flex-column nav-pills settings-nav-pills gap-1" id="teacherSettingsTabs" role="tablist">
+                            <button class="nav-link active text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="tab-btn-appearance" data-bs-toggle="pill" data-bs-target="#tab-appearance" type="button" role="tab" onclick="switchSettingsSubTab('appearance')">
+                                <i class="bi bi-palette-fill text-primary"></i>
+                                <span>Appearance</span>
+                            </button>
+                            <button class="nav-link text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="tab-btn-refresh" data-bs-toggle="pill" data-bs-target="#tab-refresh" type="button" role="tab" onclick="switchSettingsSubTab('refresh')">
+                                <i class="bi bi-arrow-repeat text-success"></i>
+                                <span>Data Refresh</span>
+                            </button>
+                            <button class="nav-link text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="tab-btn-help" data-bs-toggle="pill" data-bs-target="#tab-help" type="button" role="tab" onclick="switchSettingsSubTab('help')">
+                                <i class="bi bi-question-circle-fill text-warning"></i>
+                                <span>Help &amp; Support</span>
+                            </button>
+                            <button class="nav-link text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="tab-btn-about" data-bs-toggle="pill" data-bs-target="#tab-about" type="button" role="tab" onclick="switchSettingsSubTab('about')">
+                                <i class="bi bi-info-circle-fill text-info"></i>
+                                <span>About</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS CONTENT PANELS -->
+                <div class="col-lg-9 col-md-8">
+                    <div class="tab-content" id="teacherSettingsContent">
+                        <!-- 1. APPEARANCE (LIGHT / DARK MODE) -->
+                        <div class="tab-pane fade show active" id="tab-appearance" role="tabpanel">
+                            <div class="teacher-card">
+                                <div class="teacher-card-header">
+                                    <h5 class="teacher-card-title">
+                                        <i class="bi bi-palette-fill text-primary me-2"></i> Appearance &amp; Display Theme
+                                    </h5>
+                                    <div class="teacher-card-subtitle">Choose between crisp Light Mode or eye-friendly Dark Mode. Preferences are saved automatically.</div>
+                                </div>
+                                <div class="teacher-card-body">
+                                    <div class="row g-4">
+                                        <!-- Light Mode Card -->
+                                        <div class="col-sm-6">
+                                            <div class="border rounded-4 p-3 h-100 theme-selector-card cursor-pointer" id="themeCardLight" onclick="setPortalTheme('light')" role="button" style="cursor: pointer; transition: all 0.2s ease;">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="bi bi-sun-fill text-warning fs-4"></i>
+                                                        <h6 class="fw-bold mb-0">Light Mode</h6>
+                                                    </div>
+                                                    <span class="badge rounded-pill bg-primary text-white theme-check-badge" id="badgeThemeLight">Active</span>
+                                                </div>
+                                                <p class="text-muted small mb-3">Default bright daylight layout with clean borders, vibrant colors, and optimal readability.</p>
+                                                <div class="p-2 rounded-3 border bg-light d-flex align-items-center gap-2">
+                                                    <span class="rounded-circle bg-white border d-inline-block" style="width: 16px; height: 16px;"></span>
+                                                    <span class="small text-muted font-monospace" style="font-size: 0.75rem;">Daylight Canvas &bull; #F8FAFC</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Dark Mode Card -->
+                                        <div class="col-sm-6">
+                                            <div class="border rounded-4 p-3 h-100 theme-selector-card cursor-pointer" id="themeCardDark" onclick="setPortalTheme('dark')" role="button" style="cursor: pointer; transition: all 0.2s ease;">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="bi bi-moon-stars-fill fs-4" style="color: #818cf8;"></i>
+                                                        <h6 class="fw-bold mb-0">Dark Mode</h6>
+                                                    </div>
+                                                    <span class="badge rounded-pill bg-secondary text-white theme-check-badge" id="badgeThemeDark">Select</span>
+                                                </div>
+                                                <p class="text-muted small mb-3">Deep contrast midnight dark mode optimized for reduced glare, night work, and battery saving.</p>
+                                                <div class="p-2 rounded-3 border bg-dark d-flex align-items-center gap-2">
+                                                    <span class="rounded-circle border d-inline-block" style="width: 16px; height: 16px; background: #0B0F19;"></span>
+                                                    <span class="small text-light font-monospace" style="font-size: 0.75rem;">Midnight Canvas &bull; #0B0F19</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-info d-flex align-items-center gap-2 mt-4 mb-0">
+                                        <i class="bi bi-magic fs-5"></i>
+                                        <div class="small">
+                                            Theme preference is instantly saved in your local storage and stays preserved when you navigate across dashboards or log back in.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. DATA REFRESH -->
+                        <div class="tab-pane fade" id="tab-refresh" role="tabpanel">
+                            <div class="teacher-card">
+                                <div class="teacher-card-header">
+                                    <h5 class="teacher-card-title">
+                                        <i class="bi bi-arrow-repeat text-success me-2"></i> Data Refresh Settings
+                                    </h5>
+                                    <div class="teacher-card-subtitle">Control real-time synchronization of attendance logs, summaries, and student rosters.</div>
+                                </div>
+                                <div class="teacher-card-body">
+                                    <!-- Manual Refresh Card -->
+                                    <div class="p-3 border rounded-3 bg-light mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                        <div>
+                                            <h6 class="fw-bold mb-1"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Instant Manual Refresh</h6>
+                                            <div class="text-muted small" id="lastRefreshedText">Last refreshed: Just now</div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary d-flex align-items-center gap-2 fw-semibold" id="btnManualRefresh" onclick="triggerManualRefresh()">
+                                            <i class="bi bi-arrow-clockwise" id="refreshBtnIcon"></i>
+                                            <span>Refresh Now</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Auto Refresh Toggle -->
+                                    <div class="p-3 border rounded-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Automatic Dashboard Refresh</h6>
+                                                <div class="text-muted small">Periodically poll database for updated classroom records and video logs.</div>
+                                            </div>
+                                            <div class="form-check form-switch fs-4 mb-0">
+                                                <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="autoRefreshSwitch" onchange="toggleAutoRefresh(this.checked)" style="cursor: pointer;">
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3 align-items-center" id="autoRefreshIntervalRow">
+                                            <div class="col-sm-5">
+                                                <label class="form-label small fw-semibold text-muted mb-0" for="autoRefreshIntervalSelect">Refresh Frequency</label>
+                                            </div>
+                                            <div class="col-sm-7">
+                                                <select class="form-select form-select-sm" id="autoRefreshIntervalSelect" onchange="changeAutoRefreshInterval(this.value)">
+                                                    <option value="30000">Every 30 Seconds</option>
+                                                    <option value="60000" selected>Every 1 Minute</option>
+                                                    <option value="120000">Every 2 Minutes</option>
+                                                    <option value="300000">Every 5 Minutes</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="small text-muted" id="autoRefreshStatusNotice">
+                                        <i class="bi bi-info-circle me-1"></i> Auto-refresh is currently <strong class="text-secondary">disabled</strong>.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. HELP & SUPPORT -->
+                        <div class="tab-pane fade" id="tab-help" role="tabpanel">
+                            <div class="teacher-card mb-4">
+                                <div class="teacher-card-header">
+                                    <h5 class="teacher-card-title">
+                                        <i class="bi bi-question-circle-fill text-warning me-2"></i> Frequently Asked Questions (FAQs)
+                                    </h5>
+                                    <div class="teacher-card-subtitle">Quick answers to common questions about classroom video processing and attendance rules.</div>
+                                </div>
+                                <div class="teacher-card-body">
+                                    <div class="accordion" id="faqAccordion">
+                                        <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                            <h2 class="accordion-header" id="faqHead1">
+                                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol1" aria-expanded="false" aria-controls="faqCol1">
+                                                    How does the video facial attendance detection work?
+                                                </button>
+                                            </h2>
+                                            <div id="faqCol1" class="accordion-collapse collapse" aria-labelledby="faqHead1" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body small text-muted">
+                                                    When you upload a classroom video recording, the backend extracts video frames and runs high-precision facial recognition algorithms. Each detected face is matched with high confidence against registered student roster profiles. Attendance status is updated instantly in the database.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                            <h2 class="accordion-header" id="faqHead2">
+                                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol2" aria-expanded="false" aria-controls="faqCol2">
+                                                    What are the official VTU attendance regulations?
+                                                </button>
+                                            </h2>
+                                            <div id="faqCol2" class="accordion-collapse collapse" aria-labelledby="faqHead2" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body small text-muted">
+                                                    According to Visvesvaraya Technological University (VTU) academic guidelines:
+                                                    <ul class="mb-1 mt-1 ps-3">
+                                                        <li><strong>&ge; 75%</strong>: Eligible to appear for Semester End Examinations (SEE).</li>
+                                                        <li><strong>65% – 74.9%</strong>: Condonation considered strictly on certified medical grounds or authorized college sports representation.</li>
+                                                        <li><strong>&lt; 65%</strong>: Mandatory course detention; student must repeat the semester.</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                            <h2 class="accordion-header" id="faqHead3">
+                                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol3" aria-expanded="false" aria-controls="faqCol3">
+                                                    Can I make manual corrections if a student was missed in video?
+                                                </button>
+                                            </h2>
+                                            <div id="faqCol3" class="accordion-collapse collapse" aria-labelledby="faqHead3" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body small text-muted">
+                                                    Yes! Navigate to the <strong>Manual Attendance</strong> section in the sidebar. You can toggle any student's status between <em>Present</em> and <em>Absent</em> with a single click, and the change syncs immediately.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="accordion-item border rounded-3 overflow-hidden">
+                                            <h2 class="accordion-header" id="faqHead4">
+                                                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faqCol4" aria-expanded="false" aria-controls="faqCol4">
+                                                    How do I export reports for University submission?
+                                                </button>
+                                            </h2>
+                                            <div id="faqCol4" class="accordion-collapse collapse" aria-labelledby="faqHead4" data-bs-parent="#faqAccordion">
+                                                <div class="accordion-body small text-muted">
+                                                    Navigate to <strong>Excel / PDF Reports</strong> in the sidebar, select your Branch, Year, Semester, and Subject, and click either <em>Export Excel (.xlsx)</em> or <em>Generate Formatted PDF</em>.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Report a Problem Card -->
+                            <div class="teacher-card mb-4">
+                                <div class="teacher-card-header">
+                                    <h5 class="teacher-card-title">
+                                        <i class="bi bi-exclamation-octagon-fill text-danger me-2"></i> Report a Problem / Send Feedback
+                                    </h5>
+                                    <div class="teacher-card-subtitle">Submit technical issues or feedback directly to the portal administrator.</div>
+                                </div>
+                                <div class="teacher-card-body">
+                                    <form id="teacherReportProblemForm" onsubmit="event.preventDefault(); submitProblemReport('teacher');">
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold" for="problemCategory">Issue Category</label>
+                                                <select class="form-select form-select-sm" id="problemCategory" required>
+                                                    <option value="video_processing">Video Attendance Processing</option>
+                                                    <option value="attendance_mismatch">Attendance Mismatch / Sync</option>
+                                                    <option value="reports_export">Reports Export / Download</option>
+                                                    <option value="email_dispatch">Email Notification Dispatch</option>
+                                                    <option value="other">General Feedback / Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label small fw-semibold" for="problemSubject">Subject / Summary</label>
+                                                <input type="text" class="form-control form-control-sm" id="problemSubject" placeholder="Brief description of the problem" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-semibold" for="problemDetails">Detailed Description</label>
+                                            <textarea class="form-control form-control-sm" id="problemDetails" rows="3" placeholder="Provide details including relevant subject, semester, or error message..." required></textarea>
+                                        </div>
+                                        <div id="problemReportAlert" class="d-none"></div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary btn-sm px-4 fw-semibold d-flex align-items-center gap-2" id="btnSubmitProblem">
+                                                <i class="bi bi-send-fill"></i>
+                                                <span>Submit Report</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Contact Support Info -->
+                            <div class="teacher-card">
+                                <div class="teacher-card-header">
+                                    <h5 class="teacher-card-title">
+                                        <i class="bi bi-headset text-primary me-2"></i> Contact Technical Support
+                                    </h5>
+                                    <div class="teacher-card-subtitle">Official contact channels for assistance and IT support.</div>
+                                </div>
+                                <div class="teacher-card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light text-center h-100">
+                                                <i class="bi bi-envelope-at-fill text-primary fs-3 d-block mb-2"></i>
+                                                <div class="fw-bold small">Email Support</div>
+                                                <div class="text-muted small mb-2">support@gsss.edu.in</div>
+                                                <a href="mailto:support@gsss.edu.in?subject=GSSS%20Attendance%20Support%20Request" class="btn btn-outline-primary btn-sm py-1 px-3 rounded-pill">Email Now</a>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light text-center h-100">
+                                                <i class="bi bi-telephone-fill text-success fs-3 d-block mb-2"></i>
+                                                <div class="fw-bold small">Helpdesk Line</div>
+                                                <div class="text-muted small mb-2">+91 821 4257300</div>
+                                                <a href="tel:+918214257300" class="btn btn-outline-success btn-sm py-1 px-3 rounded-pill">Call Office</a>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border rounded-3 bg-light text-center h-100">
+                                                <i class="bi bi-geo-alt-fill text-danger fs-3 d-block mb-2"></i>
+                                                <div class="fw-bold small">Campus Location</div>
+                                                <div class="text-muted small mb-2">CSE (AIML) Dept, GSSSIETW</div>
+                                                <span class="badge bg-secondary-subtle text-secondary border">Mysuru, Karnataka</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. ABOUT -->
+                        <div class="tab-pane fade" id="tab-about" role="tabpanel">
+                            <div class="teacher-card">
+                                <div class="teacher-card-header">
+                                    <h5 class="teacher-card-title">
+                                        <i class="bi bi-info-circle-fill text-info me-2"></i> About GSSS Attendance Portal
+                                    </h5>
+                                    <div class="teacher-card-subtitle">System specifications, version history, and institutional details.</div>
+                                </div>
+                                <div class="teacher-card-body">
+                                    <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border mb-4">
+                                        <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 56px; height: 56px; font-size: 1.7rem; flex-shrink: 0;">
+                                            <i class="bi bi-camera-video-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="fw-bold text-dark mb-0">GSSS Smart Video Attendance &amp; Academic Analytics Portal</h5>
+                                            <div class="d-flex align-items-center gap-2 mt-1">
+                                                <span class="badge bg-primary">Version 1.0.1 (Production)</span>
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle">Build #2026.10</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-sm-6">
+                                            <div class="p-3 border rounded-3 bg-light">
+                                                <div class="text-muted small text-uppercase fw-semibold mb-1">Institution</div>
+                                                <div class="fw-bold text-dark">GSSS Institute of Engineering &amp; Technology for Women</div>
+                                                <div class="small text-muted">KRS Road, Metagalli, Mysuru - 570016</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="p-3 border rounded-3 bg-light">
+                                                <div class="text-muted small text-uppercase fw-semibold mb-1">Affiliation &amp; Regulation</div>
+                                                <div class="fw-bold text-dark">Visvesvaraya Technological University (VTU)</div>
+                                                <div class="small text-muted">Belagavi, Karnataka &bull; 75% Attendance Compliant</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="p-3 border rounded-3 bg-light">
+                                                <div class="text-muted small text-uppercase fw-semibold mb-1">AI Video Processing Engine</div>
+                                                <div class="fw-bold text-dark">OpenCV &amp; Deep Learning Face Recognition</div>
+                                                <div class="small text-muted">High-accuracy facial detection &amp; real-time roster matching</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="p-3 border rounded-3 bg-light">
+                                                <div class="text-muted small text-uppercase fw-semibold mb-1">Academic Copilot</div>
+                                                <div class="fw-bold text-dark">EduBot AI Assistant</div>
+                                                <div class="small text-muted">VTU syllabus-grounded curriculum &amp; study plan engine</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 border rounded-3 text-muted small">
+                                        &copy; 2026 GSSSIETW Mysuru. Designed and developed for the Department of Computer Science &amp; Engineering. All rights reserved.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -5651,7 +6039,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 "exportSection": ["Excel / PDF Reports", "Download attendance records as Excel or PDF documents."],
                 "emailSection": ["Email Reports", ""],
                 "notificationsSection": ["Notifications", "Real-time alerts, processing confirmations, and attendance shortages."],
-                "profileSection": ["Teacher Profile", "Your account credentials and editable contact details."]
+                "profileSection": ["Teacher Profile", "Your account credentials and editable contact details."],
+                "settingsSection": ["Settings & Preferences", "Configure portal appearance, auto-refresh intervals, help & support, and system specifications."]
             };
 
             if (titleMap[targetId] && pageTitle && pageSubtitle) {
@@ -5917,10 +6306,193 @@ function openTeacherProfileFromDropdown() {
     }
 }
 
+function toggleTeacherSidebar() {
+    const sidebar = document.getElementById('teacherSidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    if (!sidebar) return;
+    const isMobile = window.innerWidth <= 992;
+    if (isMobile) {
+        sidebar.classList.toggle('open');
+        if (backdrop) backdrop.classList.toggle('active');
+    } else {
+        sidebar.classList.toggle('collapsed');
+    }
+}
+
 function openTeacherSettingsFromDropdown() {
     closeTeacherUserDropdown();
-    const btn = document.querySelector('.teacher-menu-link[data-section="profileSection"]');
-    if (btn) btn.click();
+    const menuLinks = document.querySelectorAll(".teacher-menu-link");
+    const sections = document.querySelectorAll(".dashboard-section");
+    menuLinks.forEach(item => item.classList.remove("active"));
+    sections.forEach(sec => sec.classList.add("d-none"));
+    const target = document.getElementById("settingsSection");
+    if (target) {
+        target.classList.remove("d-none");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+    if (pageTitle && pageSubtitle) {
+        pageTitle.textContent = "Settings & Preferences";
+        pageSubtitle.textContent = "Configure portal appearance, auto-refresh intervals, help & support, and system specifications.";
+    }
 }
+
+function switchSettingsSubTab(tabName) {
+    document.querySelectorAll('#teacherSettingsTabs .nav-link').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('#teacherSettingsContent .tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+    });
+    const btn = document.getElementById(`tab-btn-${tabName}`);
+    const pane = document.getElementById(`tab-${tabName}`);
+    if (btn) btn.classList.add('active');
+    if (pane) pane.classList.add('show', 'active');
+}
+
+// 1. Theme Switcher Engine
+function setPortalTheme(theme) {
+    try {
+        localStorage.setItem('portal_theme', theme);
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+        syncThemeUI(theme);
+    } catch(e) {
+        console.error('Error saving theme', e);
+    }
+}
+
+function syncThemeUI(theme) {
+    const cardLight = document.getElementById('themeCardLight');
+    const cardDark = document.getElementById('themeCardDark');
+    const badgeLight = document.getElementById('badgeThemeLight');
+    const badgeDark = document.getElementById('badgeThemeDark');
+
+    if (theme === 'dark') {
+        if (cardDark) cardDark.style.borderColor = '#6366f1';
+        if (cardLight) cardLight.style.borderColor = '#e2e8f0';
+        if (badgeDark) {
+            badgeDark.className = 'badge rounded-pill bg-primary text-white';
+            badgeDark.textContent = 'Active';
+        }
+        if (badgeLight) {
+            badgeLight.className = 'badge rounded-pill bg-secondary text-white';
+            badgeLight.textContent = 'Select';
+        }
+    } else {
+        if (cardLight) cardLight.style.borderColor = '#3b82f6';
+        if (cardDark) cardDark.style.borderColor = '#e2e8f0';
+        if (badgeLight) {
+            badgeLight.className = 'badge rounded-pill bg-primary text-white';
+            badgeLight.textContent = 'Active';
+        }
+        if (badgeDark) {
+            badgeDark.className = 'badge rounded-pill bg-secondary text-white';
+            badgeDark.textContent = 'Select';
+        }
+    }
+}
+
+// 2. Data Refresh Engine
+let autoRefreshTimer = null;
+
+function triggerManualRefresh() {
+    const btn = document.getElementById('btnManualRefresh');
+    const icon = document.getElementById('refreshBtnIcon');
+    const txt = document.getElementById('lastRefreshedText');
+    if (icon) icon.classList.add('spin-animation');
+    if (btn) btn.disabled = true;
+
+    setTimeout(() => {
+        const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (txt) txt.textContent = `Last refreshed: ${timeNow} (Live sync active)`;
+        if (icon) icon.classList.remove('spin-animation');
+        if (btn) btn.disabled = false;
+    }, 700);
+}
+
+function toggleAutoRefresh(enabled) {
+    try {
+        localStorage.setItem('portal_auto_refresh_enabled', enabled ? 'true' : 'false');
+    } catch(e) {}
+    const notice = document.getElementById('autoRefreshStatusNotice');
+    if (enabled) {
+        const intervalMs = parseInt(document.getElementById('autoRefreshIntervalSelect')?.value || '60000', 10);
+        if (notice) notice.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> Auto-refresh is <strong class="text-success">active</strong> (polling every ${intervalMs/1000}s).`;
+        startAutoRefreshTimer(intervalMs);
+    } else {
+        if (notice) notice.innerHTML = `<i class="bi bi-info-circle me-1"></i> Auto-refresh is currently <strong class="text-secondary">disabled</strong>.`;
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    }
+}
+
+function changeAutoRefreshInterval(ms) {
+    try {
+        localStorage.setItem('portal_auto_refresh_interval', ms);
+    } catch(e) {}
+    const isEnabled = document.getElementById('autoRefreshSwitch')?.checked;
+    if (isEnabled) {
+        toggleAutoRefresh(true);
+    }
+}
+
+function startAutoRefreshTimer(ms) {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+    autoRefreshTimer = setInterval(() => {
+        triggerManualRefresh();
+    }, ms);
+}
+
+// 3. Problem Reporting Feedback Handler
+function submitProblemReport(portalType) {
+    const cat = document.getElementById('problemCategory')?.value || 'General';
+    const subj = document.getElementById('problemSubject')?.value || '';
+    const details = document.getElementById('problemDetails')?.value || '';
+    const alertBox = document.getElementById('problemReportAlert');
+    const btn = document.getElementById('btnSubmitProblem');
+
+    if (!subj.trim() || !details.trim()) return;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+    }
+
+    setTimeout(() => {
+        const ticketNum = 'GSSS-' + Math.floor(100000 + Math.random() * 900000);
+        if (alertBox) {
+            alertBox.className = 'alert alert-success small py-2 mt-3';
+            alertBox.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Problem report registered under Ticket <strong>#${ticketNum}</strong>. Support team will review and contact your registered email address.`;
+            alertBox.classList.remove('d-none');
+        }
+        const form = document.getElementById('teacherReportProblemForm') || document.getElementById('studentReportProblemForm');
+        if (form) form.reset();
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Submit Report';
+        }
+    }, 600);
+}
+
+// Initialize saved settings on page load
+document.addEventListener("DOMContentLoaded", function() {
+    try {
+        const curTheme = localStorage.getItem('portal_theme') || 'light';
+        syncThemeUI(curTheme);
+
+        const autoEnabled = localStorage.getItem('portal_auto_refresh_enabled') === 'true';
+        const autoInterval = localStorage.getItem('portal_auto_refresh_interval') || '60000';
+        const switchEl = document.getElementById('autoRefreshSwitch');
+        const intervalEl = document.getElementById('autoRefreshIntervalSelect');
+        if (intervalEl) intervalEl.value = autoInterval;
+        if (switchEl) {
+            switchEl.checked = autoEnabled;
+            if (autoEnabled) toggleAutoRefresh(true);
+        }
+    } catch(e) {}
+});
 </script>
 {% endblock %}

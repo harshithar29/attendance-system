@@ -75,6 +75,19 @@
 
     {% block extra_css %}{% endblock %}
 
+    <!-- Immediate Theme Initialization to Prevent Flash -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('portal_theme');
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else if (savedTheme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 
 

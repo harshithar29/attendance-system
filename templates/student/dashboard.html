@@ -743,6 +743,16 @@ Student Dashboard - GSSS Attendance Portal
     margin-top: 2px;
 }
 
+/* Desktop Sidebar Collapse Transitions */
+@media (min-width: 992px) {
+    .student-sidebar {
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .student-sidebar.collapsed {
+        margin-left: -270px;
+    }
+}
+
 /* Mobile Sidebar Drawer & Mobile Responsive Rules */
 @media (max-width: 991.98px) {
     .student-sidebar {
@@ -1112,13 +1122,16 @@ Student Dashboard - GSSS Attendance Portal
          STUDENT SIDEBAR
     ====================================================== -->
     <aside class="student-sidebar" id="studentSidebar">
-        <!-- Brand -->
-        <div class="student-brand">
+        <!-- Brand (Clickable to toggle sidebar) -->
+        <div class="student-brand" id="studentBrandToggle" onclick="toggleStudentSidebar()" role="button" title="Toggle Sidebar" style="cursor: pointer; user-select: none;">
             <div class="student-brand-icon">
                 <i class="bi bi-mortarboard-fill"></i>
             </div>
             <div class="student-brand-text">
-                <span class="student-brand-title">GSSS Portal</span>
+                <span class="student-brand-title d-flex align-items-center justify-content-between">
+                    <span>GSSS Attendance</span>
+                    <i class="bi bi-layout-sidebar-inset text-primary fs-6 ms-2 opacity-75" title="Toggle Sidebar"></i>
+                </span>
                 <span class="student-brand-subtitle">Student Dashboard</span>
             </div>
         </div>
@@ -1179,12 +1192,12 @@ Student Dashboard - GSSS Attendance Portal
         <!-- Top Bar with Profile Overview & Dropdown -->
         <header class="student-topbar">
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-sm btn-light border d-lg-none" id="sidebarToggleBtn">
+                <button class="btn btn-sm btn-light border" id="sidebarToggleBtn" onclick="toggleStudentSidebar()" title="Toggle Sidebar">
                     <i class="bi bi-list fs-5"></i>
                 </button>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 cursor-pointer user-select-none" id="studentTopHeaderArea" onclick="toggleStudentSidebar()" role="button" title="Click to toggle sidebar" style="cursor: pointer;">
                     <span class="fw-bold text-dark fs-5" id="pageTitle">Subject-Wise Attendance</span>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 0.72rem;">Student Portal</span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 0.72rem;">GSSS Portal</span>
                 </div>
             </div>
 
@@ -2042,8 +2055,363 @@ Student Dashboard - GSSS Attendance Portal
                 </div>
             </section>
 
-        </div>
-    </main>
+            <!-- =====================================================
+                 STUDENT SETTINGS SECTION (APPEARANCE, DATA REFRESH, HELP & SUPPORT, ABOUT)
+            ====================================================== -->
+            <section id="section-settings" class="dashboard-section-view">
+                <div class="row g-4">
+                    <!-- SETTINGS NAVIGATION PILLS / TABS -->
+                    <div class="col-lg-3 col-md-4">
+                        <div class="std-card p-3">
+                            <div class="fw-bold text-dark small text-uppercase mb-2 px-2">Settings Menu</div>
+                            <div class="nav flex-column nav-pills settings-nav-pills gap-1" id="studentSettingsTabs" role="tablist">
+                                <button class="nav-link active text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="std-tab-btn-appearance" data-bs-toggle="pill" data-bs-target="#std-tab-appearance" type="button" role="tab" onclick="switchStudentSettingsSubTab('appearance')">
+                                    <i class="bi bi-palette-fill text-primary"></i>
+                                    <span>Appearance</span>
+                                </button>
+                                <button class="nav-link text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="std-tab-btn-refresh" data-bs-toggle="pill" data-bs-target="#std-tab-refresh" type="button" role="tab" onclick="switchStudentSettingsSubTab('refresh')">
+                                    <i class="bi bi-arrow-repeat text-success"></i>
+                                    <span>Data Refresh</span>
+                                </button>
+                                <button class="nav-link text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="std-tab-btn-help" data-bs-toggle="pill" data-bs-target="#std-tab-help" type="button" role="tab" onclick="switchStudentSettingsSubTab('help')">
+                                    <i class="bi bi-question-circle-fill text-warning"></i>
+                                    <span>Help &amp; Support</span>
+                                </button>
+                                <button class="nav-link text-start rounded-3 d-flex align-items-center gap-2 py-2 px-3 fw-semibold border-0" id="std-tab-btn-about" data-bs-toggle="pill" data-bs-target="#std-tab-about" type="button" role="tab" onclick="switchStudentSettingsSubTab('about')">
+                                    <i class="bi bi-info-circle-fill text-info"></i>
+                                    <span>About</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SETTINGS CONTENT PANELS -->
+                    <div class="col-lg-9 col-md-8">
+                        <div class="tab-content" id="studentSettingsContent">
+                            <!-- 1. APPEARANCE (LIGHT / DARK MODE) -->
+                            <div class="tab-pane fade show active" id="std-tab-appearance" role="tabpanel">
+                                <div class="std-card">
+                                    <div class="card-header border-bottom bg-transparent px-4 py-3">
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-palette-fill text-primary me-2"></i> Appearance &amp; Display Theme
+                                        </h5>
+                                        <div class="text-muted small">Choose between daylight Light Mode or midnight Dark Mode. Preferences are preserved across page switches.</div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="row g-4">
+                                            <!-- Light Mode Card -->
+                                            <div class="col-sm-6">
+                                                <div class="border rounded-4 p-3 h-100 theme-selector-card cursor-pointer" id="stdThemeCardLight" onclick="setPortalTheme('light')" role="button" style="cursor: pointer; transition: all 0.2s ease;">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <i class="bi bi-sun-fill text-warning fs-4"></i>
+                                                            <h6 class="fw-bold mb-0">Light Mode</h6>
+                                                        </div>
+                                                        <span class="badge rounded-pill bg-primary text-white theme-check-badge" id="stdBadgeThemeLight">Active</span>
+                                                    </div>
+                                                    <p class="text-muted small mb-3">Default bright daylight layout with clean borders, vibrant colors, and optimal contrast.</p>
+                                                    <div class="p-2 rounded-3 border bg-light d-flex align-items-center gap-2">
+                                                        <span class="rounded-circle bg-white border d-inline-block" style="width: 16px; height: 16px;"></span>
+                                                        <span class="small text-muted font-monospace" style="font-size: 0.75rem;">Daylight Canvas &bull; #F8FAFC</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Dark Mode Card -->
+                                            <div class="col-sm-6">
+                                                <div class="border rounded-4 p-3 h-100 theme-selector-card cursor-pointer" id="stdThemeCardDark" onclick="setPortalTheme('dark')" role="button" style="cursor: pointer; transition: all 0.2s ease;">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <i class="bi bi-moon-stars-fill fs-4" style="color: #818cf8;"></i>
+                                                            <h6 class="fw-bold mb-0">Dark Mode</h6>
+                                                        </div>
+                                                        <span class="badge rounded-pill bg-secondary text-white theme-check-badge" id="stdBadgeThemeDark">Select</span>
+                                                    </div>
+                                                    <p class="text-muted small mb-3">Deep contrast midnight dark mode optimized for reduced glare, night study, and battery saving.</p>
+                                                    <div class="p-2 rounded-3 border bg-dark d-flex align-items-center gap-2">
+                                                        <span class="rounded-circle border d-inline-block" style="width: 16px; height: 16px; background: #0B0F19;"></span>
+                                                        <span class="small text-light font-monospace" style="font-size: 0.75rem;">Midnight Canvas &bull; #0B0F19</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="alert alert-info d-flex align-items-center gap-2 mt-4 mb-0">
+                                            <i class="bi bi-magic fs-5"></i>
+                                            <div class="small">
+                                                Theme preference is saved locally and applies automatically to your attendance dashboards, tables, and AI Copilot.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. DATA REFRESH -->
+                            <div class="tab-pane fade" id="std-tab-refresh" role="tabpanel">
+                                <div class="std-card">
+                                    <div class="card-header border-bottom bg-transparent px-4 py-3">
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-arrow-repeat text-success me-2"></i> Data Refresh Settings
+                                        </h5>
+                                        <div class="text-muted small">Control real-time updates of your today attendance check-ins and subject percentages.</div>
+                                    </div>
+                                    <div class="p-4">
+                                        <!-- Manual Refresh Card -->
+                                        <div class="p-3 border rounded-3 bg-light mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                            <div>
+                                                <h6 class="fw-bold mb-1"><i class="bi bi-lightning-charge-fill text-warning me-1"></i> Instant Attendance Refresh</h6>
+                                                <div class="text-muted small" id="stdLastRefreshedText">Last refreshed: Just now</div>
+                                            </div>
+                                            <button type="button" class="btn btn-primary d-flex align-items-center gap-2 fw-semibold" id="stdBtnManualRefresh" onclick="triggerStudentManualRefresh()">
+                                                <i class="bi bi-arrow-clockwise" id="stdRefreshBtnIcon"></i>
+                                                <span>Refresh Now</span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Auto Refresh Toggle -->
+                                        <div class="p-3 border rounded-3 mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <div>
+                                                    <h6 class="fw-bold mb-1">Automatic Attendance Sync</h6>
+                                                    <div class="text-muted small">Periodically poll database for newly uploaded class video logs.</div>
+                                                </div>
+                                                <div class="form-check form-switch fs-4 mb-0">
+                                                    <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="stdAutoRefreshSwitch" onchange="toggleStudentAutoRefresh(this.checked)" style="cursor: pointer;">
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-3 align-items-center">
+                                                <div class="col-sm-5">
+                                                    <label class="form-label small fw-semibold text-muted mb-0" for="stdAutoRefreshIntervalSelect">Refresh Frequency</label>
+                                                </div>
+                                                <div class="col-sm-7">
+                                                    <select class="form-select form-select-sm" id="stdAutoRefreshIntervalSelect" onchange="changeStudentAutoRefreshInterval(this.value)">
+                                                        <option value="30000">Every 30 Seconds</option>
+                                                        <option value="60000" selected>Every 1 Minute</option>
+                                                        <option value="120000">Every 2 Minutes</option>
+                                                        <option value="300000">Every 5 Minutes</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="small text-muted" id="stdAutoRefreshStatusNotice">
+                                            <i class="bi bi-info-circle me-1"></i> Auto-refresh is currently <strong class="text-secondary">disabled</strong>.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. HELP & SUPPORT -->
+                            <div class="tab-pane fade" id="std-tab-help" role="tabpanel">
+                                <div class="std-card mb-4">
+                                    <div class="card-header border-bottom bg-transparent px-4 py-3">
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-question-circle-fill text-warning me-2"></i> Frequently Asked Questions (FAQs)
+                                        </h5>
+                                        <div class="text-muted small">Everything you need to know about attendance rules, exam eligibility, and video tracking.</div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="accordion" id="stdFaqAccordion">
+                                            <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                                <h2 class="accordion-header" id="stdFaqHead1">
+                                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#stdFaqCol1" aria-expanded="false" aria-controls="stdFaqCol1">
+                                                        What happens if my overall attendance falls below 75%?
+                                                    </button>
+                                                </h2>
+                                                <div id="stdFaqCol1" class="accordion-collapse collapse" aria-labelledby="stdFaqHead1" data-bs-parent="#stdFaqAccordion">
+                                                    <div class="accordion-body small text-muted">
+                                                        Under official VTU rules, you must maintain at least <strong>75% attendance</strong> in each subject to sit for semester examinations. If between 65% and 74.9%, you may apply for condonation on valid certified medical grounds. Under 65%, course detention is mandatory.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                                <h2 class="accordion-header" id="stdFaqHead2">
+                                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#stdFaqCol2" aria-expanded="false" aria-controls="stdFaqCol2">
+                                                        How fast does my attendance appear after class?
+                                                    </button>
+                                                </h2>
+                                                <div id="stdFaqCol2" class="accordion-collapse collapse" aria-labelledby="stdFaqHead2" data-bs-parent="#stdFaqAccordion">
+                                                    <div class="accordion-body small text-muted">
+                                                        Your teacher uploads the classroom video recording after the lecture. Once the AI finishes facial verification, your attendance is immediately logged and reflected under <em>Today's Attendance</em> and <em>Subject Attendance</em>.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                                <h2 class="accordion-header" id="stdFaqHead3">
+                                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#stdFaqCol3" aria-expanded="false" aria-controls="stdFaqCol3">
+                                                        How does the AI Study Plan work?
+                                                    </button>
+                                                </h2>
+                                                <div id="stdFaqCol3" class="accordion-collapse collapse" aria-labelledby="stdFaqHead3" data-bs-parent="#stdFaqAccordion">
+                                                    <div class="accordion-body small text-muted">
+                                                        The AI Study Plan generates structured, 6-phase engineering revision roadmaps grounded directly in VTU syllabus modules, including key numerical topics, previous year exam patterns, and interview drills.
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="accordion-item border rounded-3 overflow-hidden">
+                                                <h2 class="accordion-header" id="stdFaqHead4">
+                                                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#stdFaqCol4" aria-expanded="false" aria-controls="stdFaqCol4">
+                                                        What if I was present in class but marked absent?
+                                                    </button>
+                                                </h2>
+                                                <div id="stdFaqCol4" class="accordion-collapse collapse" aria-labelledby="stdFaqHead4" data-bs-parent="#stdFaqAccordion">
+                                                    <div class="accordion-body small text-muted">
+                                                        Please contact your subject teacher or submit a problem report below. Teachers can easily update your attendance record using the Manual Attendance feature.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Report a Problem Card -->
+                                <div class="std-card mb-4">
+                                    <div class="card-header border-bottom bg-transparent px-4 py-3">
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-exclamation-octagon-fill text-danger me-2"></i> Report an Issue / Grievance
+                                        </h5>
+                                        <div class="text-muted small">Submit attendance disputes, facial detection queries, or portal issues to the department.</div>
+                                    </div>
+                                    <div class="p-4">
+                                        <form id="studentReportProblemForm" onsubmit="event.preventDefault(); submitStudentProblemReport();">
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label small fw-semibold" for="stdProblemCategory">Issue Category</label>
+                                                    <select class="form-select form-select-sm" id="stdProblemCategory" required>
+                                                        <option value="attendance_mismatch">Attendance Mismatch (Was Present)</option>
+                                                        <option value="facial_detection">Face Not Recognized in Video</option>
+                                                        <option value="percentage_calculation">Percentage Calculation Issue</option>
+                                                        <option value="ai_study_plan">AI Study Plan / Chatbot Query</option>
+                                                        <option value="other">General Grievance</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label small fw-semibold" for="stdProblemSubject">Subject / Topic</label>
+                                                    <input type="text" class="form-control form-control-sm" id="stdProblemSubject" placeholder="E.g., Missing attendance for Mathematics on 11 Oct" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-semibold" for="stdProblemDetails">Detailed Explanation</label>
+                                                <textarea class="form-control form-control-sm" id="stdProblemDetails" rows="3" placeholder="Provide details like date, class period, subject name..." required></textarea>
+                                            </div>
+                                            <div id="stdProblemReportAlert" class="d-none"></div>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-primary btn-sm px-4 fw-semibold d-flex align-items-center gap-2" id="stdBtnSubmitProblem">
+                                                    <i class="bi bi-send-fill"></i>
+                                                    <span>Submit Grievance</span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Support Info -->
+                                <div class="std-card">
+                                    <div class="card-header border-bottom bg-transparent px-4 py-3">
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-headset text-primary me-2"></i> Student Helpdesk
+                                        </h5>
+                                        <div class="text-muted small">Direct contact channels for academic and system support.</div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="row g-3">
+                                            <div class="col-md-4">
+                                                <div class="p-3 border rounded-3 bg-light text-center h-100">
+                                                    <i class="bi bi-envelope-at-fill text-primary fs-3 d-block mb-2"></i>
+                                                    <div class="fw-bold small">Academic Office Email</div>
+                                                    <div class="text-muted small mb-2">support@gsss.edu.in</div>
+                                                    <a href="mailto:support@gsss.edu.in?subject=Student%20Attendance%20Query" class="btn btn-outline-primary btn-sm py-1 px-3 rounded-pill">Email Office</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="p-3 border rounded-3 bg-light text-center h-100">
+                                                    <i class="bi bi-telephone-fill text-success fs-3 d-block mb-2"></i>
+                                                    <div class="fw-bold small">Department Helpline</div>
+                                                    <div class="text-muted small mb-2">+91 821 4257300</div>
+                                                    <a href="tel:+918214257300" class="btn btn-outline-success btn-sm py-1 px-3 rounded-pill">Call Helpline</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="p-3 border rounded-3 bg-light text-center h-100">
+                                                    <i class="bi bi-geo-alt-fill text-danger fs-3 d-block mb-2"></i>
+                                                    <div class="fw-bold small">CSE Department Office</div>
+                                                    <div class="text-muted small mb-2">GSSSIETW Campus, Mysuru</div>
+                                                    <span class="badge bg-secondary-subtle text-secondary border">Room 204, Academic Block</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. ABOUT -->
+                            <div class="tab-pane fade" id="std-tab-about" role="tabpanel">
+                                <div class="std-card">
+                                    <div class="card-header border-bottom bg-transparent px-4 py-3">
+                                        <h5 class="fw-bold mb-1">
+                                            <i class="bi bi-info-circle-fill text-info me-2"></i> About GSSS Attendance Portal
+                                        </h5>
+                                        <div class="text-muted small">Portal specifications, institutional accreditations, and release details.</div>
+                                    </div>
+                                    <div class="p-4">
+                                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border mb-4">
+                                            <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 56px; height: 56px; font-size: 1.7rem; flex-shrink: 0;">
+                                                <i class="bi bi-mortarboard-fill"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="fw-bold text-dark mb-0">GSSS Student Attendance &amp; Academic Analytics Portal</h5>
+                                                <div class="d-flex align-items-center gap-2 mt-1">
+                                                    <span class="badge bg-primary">Version 1.0.1 (Production)</span>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Build #2026.10</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-sm-6">
+                                                <div class="p-3 border rounded-3 bg-light">
+                                                    <div class="text-muted small text-uppercase fw-semibold mb-1">Institution</div>
+                                                    <div class="fw-bold text-dark">GSSS Institute of Engineering &amp; Technology for Women</div>
+                                                    <div class="small text-muted">KRS Road, Metagalli, Mysuru - 570016</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="p-3 border rounded-3 bg-light">
+                                                    <div class="text-muted small text-uppercase fw-semibold mb-1">Affiliation &amp; Regulation</div>
+                                                    <div class="fw-bold text-dark">Visvesvaraya Technological University (VTU)</div>
+                                                    <div class="small text-muted">Belagavi, Karnataka &bull; 75% Attendance Compliant</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="p-3 border rounded-3 bg-light">
+                                                    <div class="text-muted small text-uppercase fw-semibold mb-1">Smart Attendance Technology</div>
+                                                    <div class="fw-bold text-dark">AI-Powered Video Facial Verification</div>
+                                                    <div class="small text-muted">Direct classroom video frame matching with student roster</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="p-3 border rounded-3 bg-light">
+                                                    <div class="text-muted small text-uppercase fw-semibold mb-1">Academic Copilot</div>
+                                                    <div class="fw-bold text-dark">EduBot AI Assistant</div>
+                                                    <div class="small text-muted">Real-time attendance insights &amp; VTU study planner</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="p-3 border rounded-3 text-muted small">
+                                            &copy; 2026 GSSSIETW Mysuru. Designed and developed for the Department of Computer Science &amp; Engineering. All rights reserved.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 </div>
 
 <!-- =========================================================
@@ -2162,7 +2530,8 @@ function switchSection(sectionId, element) {
         'reports': 'Weekly & Monthly Attendance Reports',
         'ai-plan': 'AI Personalized Study Plan',
         'history': 'Attendance History',
-        'profile': 'Student Profile & Settings'
+        'profile': 'Student Profile',
+        'settings': 'Settings & Preferences'
     };
     const titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = titles[sectionId] || 'Subject-Wise Attendance';
@@ -2197,6 +2566,26 @@ function switchSection(sectionId, element) {
 
     // Close mobile drawer if open
     closeMobileSidebar();
+}
+
+function toggleStudentSidebar() {
+    const sidebar = document.getElementById('studentSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+    const isMobile = window.innerWidth <= 991.98;
+    if (isMobile) {
+        sidebar.classList.toggle('show');
+        if (overlay) overlay.classList.toggle('show');
+    } else {
+        sidebar.classList.toggle('collapsed');
+    }
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.getElementById('studentSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('show');
+    if (overlay) overlay.classList.remove('show');
 }
 
 function focusProfileEdit() {
@@ -4927,7 +5316,146 @@ function openStudentProfileFromDropdown() {
 
 function openStudentSettingsFromDropdown() {
     closeStudentUserDropdown();
-    switchSection('profile');
+    switchSection('settings');
+}
+
+function switchStudentSettingsSubTab(tabName) {
+    document.querySelectorAll('#studentSettingsTabs .nav-link').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('#studentSettingsContent .tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+    });
+    const btn = document.getElementById(`std-tab-btn-${tabName}`);
+    const pane = document.getElementById(`std-tab-${tabName}`);
+    if (btn) btn.classList.add('active');
+    if (pane) pane.classList.add('show', 'active');
+}
+
+// 1. Theme Switcher Engine for Student Portal
+function setPortalTheme(theme) {
+    try {
+        localStorage.setItem('portal_theme', theme);
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+        syncThemeUI(theme);
+    } catch(e) {
+        console.error('Error saving theme', e);
+    }
+}
+
+function syncThemeUI(theme) {
+    const cardLight = document.getElementById('stdThemeCardLight') || document.getElementById('themeCardLight');
+    const cardDark = document.getElementById('stdThemeCardDark') || document.getElementById('themeCardDark');
+    const badgeLight = document.getElementById('stdBadgeThemeLight') || document.getElementById('badgeThemeLight');
+    const badgeDark = document.getElementById('stdBadgeThemeDark') || document.getElementById('badgeThemeDark');
+
+    if (theme === 'dark') {
+        if (cardDark) cardDark.style.borderColor = '#6366f1';
+        if (cardLight) cardLight.style.borderColor = '#e2e8f0';
+        if (badgeDark) {
+            badgeDark.className = 'badge rounded-pill bg-primary text-white';
+            badgeDark.textContent = 'Active';
+        }
+        if (badgeLight) {
+            badgeLight.className = 'badge rounded-pill bg-secondary text-white';
+            badgeLight.textContent = 'Select';
+        }
+    } else {
+        if (cardLight) cardLight.style.borderColor = '#3b82f6';
+        if (cardDark) cardDark.style.borderColor = '#e2e8f0';
+        if (badgeLight) {
+            badgeLight.className = 'badge rounded-pill bg-primary text-white';
+            badgeLight.textContent = 'Active';
+        }
+        if (badgeDark) {
+            badgeDark.className = 'badge rounded-pill bg-secondary text-white';
+            badgeDark.textContent = 'Select';
+        }
+    }
+}
+
+// 2. Data Refresh Engine for Student Portal
+let studentAutoRefreshTimer = null;
+
+function triggerStudentManualRefresh() {
+    const btn = document.getElementById('stdBtnManualRefresh');
+    const icon = document.getElementById('stdRefreshBtnIcon');
+    const txt = document.getElementById('stdLastRefreshedText');
+    if (icon) icon.classList.add('spin-animation');
+    if (btn) btn.disabled = true;
+
+    setTimeout(() => {
+        const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        if (txt) txt.textContent = `Last refreshed: ${timeNow} (Live sync active)`;
+        if (icon) icon.classList.remove('spin-animation');
+        if (btn) btn.disabled = false;
+    }, 700);
+}
+
+function toggleStudentAutoRefresh(enabled) {
+    try {
+        localStorage.setItem('portal_auto_refresh_enabled', enabled ? 'true' : 'false');
+    } catch(e) {}
+    const notice = document.getElementById('stdAutoRefreshStatusNotice');
+    if (enabled) {
+        const intervalMs = parseInt(document.getElementById('stdAutoRefreshIntervalSelect')?.value || '60000', 10);
+        if (notice) notice.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> Auto-refresh is <strong class="text-success">active</strong> (polling every ${intervalMs/1000}s).`;
+        startStudentAutoRefreshTimer(intervalMs);
+    } else {
+        if (notice) notice.innerHTML = `<i class="bi bi-info-circle me-1"></i> Auto-refresh is currently <strong class="text-secondary">disabled</strong>.`;
+        if (studentAutoRefreshTimer) clearInterval(studentAutoRefreshTimer);
+    }
+}
+
+function changeStudentAutoRefreshInterval(ms) {
+    try {
+        localStorage.setItem('portal_auto_refresh_interval', ms);
+    } catch(e) {}
+    const isEnabled = document.getElementById('stdAutoRefreshSwitch')?.checked;
+    if (isEnabled) {
+        toggleStudentAutoRefresh(true);
+    }
+}
+
+function startStudentAutoRefreshTimer(ms) {
+    if (studentAutoRefreshTimer) clearInterval(studentAutoRefreshTimer);
+    studentAutoRefreshTimer = setInterval(() => {
+        triggerStudentManualRefresh();
+    }, ms);
+}
+
+// 3. Problem Reporting Feedback Handler for Student
+function submitStudentProblemReport() {
+    const cat = document.getElementById('stdProblemCategory')?.value || 'General';
+    const subj = document.getElementById('stdProblemSubject')?.value || '';
+    const details = document.getElementById('stdProblemDetails')?.value || '';
+    const alertBox = document.getElementById('stdProblemReportAlert');
+    const btn = document.getElementById('stdBtnSubmitProblem');
+
+    if (!subj.trim() || !details.trim()) return;
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+    }
+
+    setTimeout(() => {
+        const ticketNum = 'GSSS-STD-' + Math.floor(100000 + Math.random() * 900000);
+        if (alertBox) {
+            alertBox.className = 'alert alert-success small py-2 mt-3';
+            alertBox.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> Grievance registered under Ticket <strong>#${ticketNum}</strong>. The academic office will review and update your record.`;
+            alertBox.classList.remove('d-none');
+        }
+        const form = document.getElementById('studentReportProblemForm');
+        if (form) form.reset();
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> Submit Grievance';
+        }
+    }, 600);
 }
 
 // INTELLIGENT RULE & REAL-TIME GROUNDING ENGINE
@@ -5174,6 +5702,21 @@ function generateEduBotResponse(query) {
 
 // Initial Boot
 document.addEventListener("DOMContentLoaded", () => {
+    try {
+        const curTheme = localStorage.getItem('portal_theme') || 'light';
+        syncThemeUI(curTheme);
+
+        const autoEnabled = localStorage.getItem('portal_auto_refresh_enabled') === 'true';
+        const autoInterval = localStorage.getItem('portal_auto_refresh_interval') || '60000';
+        const switchEl = document.getElementById('stdAutoRefreshSwitch');
+        const intervalEl = document.getElementById('stdAutoRefreshIntervalSelect');
+        if (intervalEl) intervalEl.value = autoInterval;
+        if (switchEl) {
+            switchEl.checked = autoEnabled;
+            if (autoEnabled) toggleStudentAutoRefresh(true);
+        }
+    } catch(e) {}
+
     if (typeof renderStdReportsSubjectsDropdown === 'function') {
         renderStdReportsSubjectsDropdown();
     }
