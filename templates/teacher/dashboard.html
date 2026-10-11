@@ -106,10 +106,10 @@ Teacher Dashboard - GSSS Attendance Portal
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #8EC5FC, #E0C3FC);
-    color: #0f172a;
+    background: linear-gradient(135deg, #4F86F7, #9E67F0);
+    color: #ffffff;
     font-size: 1.25rem;
-    box-shadow: 0 6px 16px rgba(142, 197, 252, 0.35);
+    box-shadow: 0 6px 16px rgba(79, 134, 247, 0.35);
     flex-shrink: 0;
 }
 
@@ -1121,25 +1121,6 @@ Teacher Dashboard - GSSS Attendance Portal
                 <span>Teacher Profile</span>
             </button>
 
-            <a href="{{ url_for('auth.logout') }}" class="teacher-menu-link teacher-logout">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
-        </div>
-
-        <!-- SIDEBAR BOTTOM -->
-        <div class="teacher-sidebar-bottom">
-            <div class="teacher-user-card mb-0">
-                <div class="teacher-avatar">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-                <div>
-                    <div class="teacher-user-name">
-                        {{ name or session.get('name') or 'Teacher' }}
-                    </div>
-                    <div class="teacher-user-role">Faculty</div>
-                </div>
-            </div>
         </div>
     </aside>
 
@@ -1161,10 +1142,58 @@ Teacher Dashboard - GSSS Attendance Portal
                     </p>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <div class="teacher-date">
+            <div class="d-flex align-items-center gap-3">
+                <div class="teacher-date d-none d-md-flex">
                     <i class="bi bi-calendar3 text-primary"></i>
                     <span id="currentDate">Today</span>
+                </div>
+
+                <!-- TEACHER USER CARD & DROPDOWN (TOP BAR) -->
+                <div class="position-relative" id="teacherDropdownContainer">
+                    <div class="teacher-user-card mb-0 cursor-pointer shadow-sm border d-flex align-items-center gap-2" 
+                         id="teacherUserDropdownToggle" 
+                         onclick="toggleTeacherUserDropdown(event)" 
+                         role="button" 
+                         tabindex="0"
+                         title="Click for Profile, Settings & Logout"
+                         style="cursor: pointer; transition: all 0.2s ease; background: #ffffff; padding: 6px 12px; border-radius: 14px;">
+                        <div class="teacher-avatar" style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #3B5BDB, #7048E8); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="text-start d-none d-sm-block me-1">
+                            <div class="teacher-user-name fw-bold text-dark small lh-1 mb-1">
+                                {{ name or session.get('name') or 'Prof. Priya Sharma' }}
+                            </div>
+                            <div class="teacher-user-role text-muted" style="font-size: 0.72rem; line-height: 1;">Faculty</div>
+                        </div>
+                        <i class="bi bi-chevron-down text-muted small ms-1" id="teacherDropdownChevron"></i>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="teacher-user-dropdown-menu shadow-lg border rounded-3 bg-white d-none" 
+                         id="teacherUserDropdownMenu" 
+                         style="position: absolute; right: 0; top: calc(100% + 8px); width: 250px; z-index: 1050; padding: 8px; border-color: #E2E8F0 !important;">
+                        <div class="p-2 border-bottom mb-2 bg-light rounded-2">
+                            <div class="fw-bold text-dark small">{{ name or session.get('name') or 'Prof. Priya Sharma' }}</div>
+                            <div class="text-muted" style="font-size: 0.72rem;">Faculty Member</div>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1" style="font-size: 0.65rem;">
+                                <i class="bi bi-shield-check me-1"></i>Verified Faculty
+                            </span>
+                        </div>
+                        <button type="button" class="dropdown-item w-100 text-start border-0 bg-transparent py-2 px-3 rounded-2 d-flex align-items-center gap-2 small fw-semibold text-dark user-menu-item" onclick="openTeacherProfileFromDropdown()">
+                            <i class="bi bi-pencil-square text-primary fs-6"></i>
+                            <span>Edit Profile</span>
+                        </button>
+                        <button type="button" class="dropdown-item w-100 text-start border-0 bg-transparent py-2 px-3 rounded-2 d-flex align-items-center gap-2 small fw-semibold text-dark user-menu-item" onclick="openTeacherSettingsFromDropdown()">
+                            <i class="bi bi-gear text-secondary fs-6"></i>
+                            <span>Settings</span>
+                        </button>
+                        <hr class="my-1 border-light">
+                        <a href="{{ url_for('auth.logout') }}" class="dropdown-item w-100 text-start border-0 bg-transparent py-2 px-3 rounded-2 d-flex align-items-center gap-2 small fw-semibold text-danger user-menu-item">
+                            <i class="bi bi-box-arrow-right text-danger fs-6"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1911,7 +1940,7 @@ Teacher Dashboard - GSSS Attendance Portal
                                     <option value="pie">1. Pie Chart (Present vs Absent)</option>
                                     <option value="bar">2. Bar Graph (Students Per Class)</option>
                                     <option value="histogram">3. Histogram (Attendance Spread)</option>
-                                    <option value="line">4. Line Graph (Attendance Trend)</option>
+                                    <option value="comparison">4. Comparison Bar Graph (Present vs Absent per Class)</option>
                                     <option value="doughnut">5. Doughnut Chart (Safe vs Shortage)</option>
                                 </select>
                             </div>
@@ -1995,8 +2024,8 @@ Teacher Dashboard - GSSS Attendance Portal
                             <button type="button" class="btn btn-outline-warning btn-sm rounded-pill px-3 fw-semibold" onclick="onSelectAnalyticsGraph('histogram')">
                                 <i class="bi bi-bar-chart-steps me-1"></i> 3. Histogram
                             </button>
-                            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold" onclick="onSelectAnalyticsGraph('line')">
-                                <i class="bi bi-graph-up me-1"></i> 4. Line Graph
+                            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold" onclick="onSelectAnalyticsGraph('comparison')">
+                                <i class="bi bi-bar-chart-line-fill me-1"></i> 4. Present vs Absent Bars
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold" onclick="onSelectAnalyticsGraph('doughnut')">
                                 <i class="bi bi-circle-half me-1"></i> 5. Doughnut Chart
@@ -2035,6 +2064,7 @@ Teacher Dashboard - GSSS Attendance Portal
                                     <div class="teacher-card-subtitle text-muted small mt-1" id="activeGraphSubtitle">
                                         Visual percentage of total students present vs absent for this subject.
                                     </div>
+                                </div>
                             </div>
 
                             <div class="teacher-card-body p-3">
@@ -2067,12 +2097,12 @@ Teacher Dashboard - GSSS Attendance Portal
                                         </div>
                                     </div>
 
-                                    <!-- Graph Card 4: Line Graph -->
+                                    <!-- Graph Card 4: Comparison Bar Graph -->
                                     <div class="col-lg col-md-4 col-6">
-                                        <div class="p-2 border rounded-3 text-center graph-choice-card cursor-pointer" id="graphCard_line" onclick="switchAnalyticsGraph('line')" style="cursor: pointer; transition: all 0.2s ease;">
-                                            <div class="text-success fs-4 mb-1"><i class="bi bi-graph-up"></i></div>
-                                            <div class="fw-bold small text-dark">4. Line Graph</div>
-                                            <div class="text-muted" style="font-size: 0.72rem;">Trend Over Dates</div>
+                                        <div class="p-2 border rounded-3 text-center graph-choice-card cursor-pointer" id="graphCard_comparison" onclick="switchAnalyticsGraph('comparison')" style="cursor: pointer; transition: all 0.2s ease;">
+                                            <div class="text-success fs-4 mb-1"><i class="bi bi-bar-chart-line-fill"></i></div>
+                                            <div class="fw-bold small text-dark">4. Present vs Absent</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">Comparison Bars</div>
                                         </div>
                                     </div>
 
@@ -2086,9 +2116,11 @@ Teacher Dashboard - GSSS Attendance Portal
                                     </div>
                                 </div>
 
-                                <!-- MAIN GRAPH CANVAS -->
-                                <div class="chart-wrapper p-3 bg-light-subtle rounded-3 border" style="min-height: 420px; position: relative;">
-                                    <canvas id="analyticsMainChart"></canvas>
+                                <!-- MAIN GRAPH CANVAS WITH ALIGNMENT CONTAINER -->
+                                <div class="chart-wrapper p-3 bg-white rounded-3 border shadow-sm d-flex align-items-center justify-content-center" style="min-height: 420px; height: 420px; position: relative; width: 100%;">
+                                    <div id="analyticsCanvasWrapper" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <canvas id="analyticsMainChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4488,7 +4520,7 @@ function switchAnalyticsGraph(type) {
     currentAnalyticsGraphType = type || 'pie';
 
     // Update active highlight on the 5 graph cards
-    const cardIds = ['pie', 'bar', 'histogram', 'line', 'doughnut'];
+    const cardIds = ['pie', 'bar', 'histogram', 'comparison', 'doughnut'];
     cardIds.forEach(id => {
         const el = document.getElementById(`graphCard_${id}`);
         if (el) {
@@ -4684,6 +4716,17 @@ function renderActiveAnalyticsChart(data) {
 
     const graphType = currentAnalyticsGraphType || 'pie';
 
+    const canvasWrap = document.getElementById('analyticsCanvasWrapper');
+    if (canvasWrap) {
+        if (graphType === 'pie' || graphType === 'doughnut') {
+            canvasWrap.style.maxWidth = '440px';
+            canvasWrap.style.margin = '0 auto';
+        } else {
+            canvasWrap.style.maxWidth = '100%';
+            canvasWrap.style.margin = '0';
+        }
+    }
+
     if (graphType === 'pie') {
         // 1. PIE CHART: Present vs Absent
         if (titleEl) titleEl.innerHTML = '<i class="bi bi-pie-chart-fill text-primary me-2"></i> 1. Pie Chart - Present vs Absent';
@@ -4830,40 +4873,49 @@ function renderActiveAnalyticsChart(data) {
             }
         });
 
-    } else if (graphType === 'line') {
-        // 4. LINE GRAPH: Attendance Trend Over Time
-        if (titleEl) titleEl.innerHTML = '<i class="bi bi-graph-up text-success me-2"></i> 4. Line Graph - Attendance Trend Over Time';
-        if (subTitleEl) subTitleEl.textContent = `Continuous line showing attendance trend across lecture dates.`;
-        if (insightEl) insightEl.innerHTML = `<i class="bi bi-graph-up-arrow text-success me-1"></i> <strong>Trend Line:</strong> Follow the line to see if student attendance is rising or dropping across consecutive classes.`;
+    } else if (graphType === 'comparison') {
+        // 4. COMPARISON BAR GRAPH: Present vs Absent per Class
+        if (titleEl) titleEl.innerHTML = '<i class="bi bi-bar-chart-line-fill text-success me-2"></i> 4. Present vs Absent Comparison Bars';
+        if (subTitleEl) subTitleEl.textContent = `Clear side-by-side comparison of students present (Green) vs absent (Red) for each lecture session.`;
+        if (insightEl) insightEl.innerHTML = `<i class="bi bi-check2-circle text-success me-1"></i> <strong>Session Breakdown:</strong> Compare green bars (Present) and red bars (Absent) across every held lecture date.`;
         if (badgeMetric) badgeMetric.textContent = `${data.totalSessions} Sessions Tracked`;
 
         analyticsMainChartInstance = new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: data.trendLabels.length ? data.trendLabels : ['No Sessions Recorded'],
-                datasets: [{
-                    label: 'Students Present',
-                    data: data.trendCounts.length ? data.trendCounts : [0],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                    fill: true,
-                    tension: 0.35,
-                    pointBackgroundColor: '#059669',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }]
+                datasets: [
+                    {
+                        label: 'Present',
+                        data: data.trendCounts.length ? data.trendCounts : [0],
+                        backgroundColor: '#10b981',
+                        borderRadius: 5,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.75
+                    },
+                    {
+                        label: 'Absent',
+                        data: (data.absentCounts && data.absentCounts.length) ? data.absentCounts : [0],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 5,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.75
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    legend: { 
+                        display: true, 
+                        position: 'top',
+                        labels: { boxWidth: 16, font: { family: 'Poppins', size: 12, weight: '600' } }
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(item) {
-                                return ` Present: ${item.raw} / ${data.totalStudents} students`;
+                                return ` ${item.dataset.label}: ${item.raw} students`;
                             }
                         }
                     }
@@ -4873,7 +4925,7 @@ function renderActiveAnalyticsChart(data) {
                         beginAtZero: true,
                         max: Math.max(data.totalStudents || 10, ...(data.trendCounts.length ? data.trendCounts : [10])) + 2,
                         ticks: { font: { family: 'Poppins' }, precision: 0 },
-                        title: { display: true, text: 'Students Present', font: { family: 'Poppins', size: 12 } }
+                        title: { display: true, text: 'Number of Students', font: { family: 'Poppins', size: 12 } }
                     },
                     x: {
                         grid: { display: false },
@@ -5821,5 +5873,54 @@ document.addEventListener("DOMContentLoaded", function() {
         if (repTxt) repTxt.textContent = repLabel;
     }
 });
+
+/* =========================================================
+   TEACHER HEADER PROFILE DROPDOWN (EDIT PROFILE, SETTINGS, LOGOUT)
+   ========================================================= */
+function toggleTeacherUserDropdown(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('teacherUserDropdownMenu');
+    const chevron = document.getElementById('teacherDropdownChevron');
+    if (!menu) return;
+    const isClosed = menu.classList.contains('d-none');
+    if (isClosed) {
+        menu.classList.remove('d-none');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+    } else {
+        menu.classList.add('d-none');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+function closeTeacherUserDropdown() {
+    const menu = document.getElementById('teacherUserDropdownMenu');
+    const chevron = document.getElementById('teacherDropdownChevron');
+    if (menu && !menu.classList.contains('d-none')) {
+        menu.classList.add('d-none');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const container = document.getElementById('teacherDropdownContainer');
+    if (container && !container.contains(e.target)) {
+        closeTeacherUserDropdown();
+    }
+});
+
+function openTeacherProfileFromDropdown() {
+    closeTeacherUserDropdown();
+    const modalEl = document.getElementById('editProfileModal');
+    if (modalEl && typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+}
+
+function openTeacherSettingsFromDropdown() {
+    closeTeacherUserDropdown();
+    const btn = document.querySelector('.teacher-menu-link[data-section="profileSection"]');
+    if (btn) btn.click();
+}
 </script>
 {% endblock %}

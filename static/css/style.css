@@ -3,17 +3,17 @@
    ========================================================= */
 
 :root {
-    --primary: #8EC5FC;
-    --secondary: #E0C3FC;
+    --primary: #4F86F7;
+    --secondary: #9E67F0;
     --background: #F8FAFC;
     --card: #FFFFFF;
-    --accent: #B8F2E6;
-    --warning: #FFE5B4;
-    --danger: #FFD6D6;
-    --text: #374151;
-    --dark: #111827;
-    --muted: #6B7280;
-    --border: rgba(55, 65, 81, 0.12);
+    --accent: #06B6D4;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --text: #1E293B;
+    --dark: #0F172A;
+    --muted: #64748B;
+    --border: rgba(55, 65, 81, 0.16);
 }
 
 

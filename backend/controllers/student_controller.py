@@ -15,6 +15,9 @@ import math
 import json
 import base64
 import logging
+import urllib.request
+import urllib.error
+import re
 from datetime import datetime, date, timedelta
 
 from flask import Blueprint, render_template, session, jsonify, request, redirect, url_for, flash
@@ -828,3 +831,284 @@ def update_profile():
             return jsonify({"success": False, "message": msg}), 500
         flash(msg, "danger")
         return redirect(url_for("student.dashboard"))
+
+
+# ============================================================
+# 9. AI STUDY PLANNER & COPILOT CHATBOT (OPENAI POWERED)
+# ============================================================
+
+def call_openai_chat(messages, max_tokens=1000, temperature=0.7):
+    """
+    Sends request to OpenAI Chat Completions API using OPENAI_API_KEY.
+    Returns response text string, or None if error/quota exceeded.
+    """
+    api_key = getattr(Config, "OPENAI_API_KEY", "") or os.environ.get("OPENAI_API_KEY", "")
+    if not api_key:
+        return None
+
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key.strip()}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "gpt-4o-mini",
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": temperature
+    }
+
+    try:
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as e:
+        logger.warning("OpenAI API HTTP Error %s: %s", e.code, e.reason)
+        return None
+    except Exception as e:
+        logger.warning("OpenAI API call failed: %s", e)
+        return None
+
+
+def generate_academic_study_plan_fallback(subject, branch, semester):
+    """
+    High-quality structured syllabus plan fallback when OpenAI quota is exhausted.
+    Clean academic structure with no placement readiness.
+    """
+    sub = (subject or "Core Engineering Subject").strip()
+    br = (branch or "Engineering").strip()
+    sem = str(semester or "Current").strip()
+
+    return {
+        "summary": f"Targeted syllabus roadmap and conceptual mastery framework for {sub} ({br}, Semester {sem}). Designed to systematically build core analytical intuition, master high-yield topics, and ensure top scores in semester examinations.",
+        "phases": [
+            {
+                "name": f"Phase 1: Foundations & Core Mathematical / Theoretical Principles",
+                "bullets": [
+                    f"Fundamental definitions, terminology, and scope of {sub}",
+                    "Underlying mathematical representations, schemas, and state architectures",
+                    "Introductory problem sets, governing theorems, and foundational exercises"
+                ]
+            },
+            {
+                "name": f"Phase 2: Algorithmic Logic & Systematic Implementation",
+                "bullets": [
+                    "Step-by-step breakdown of standard workflows and core algorithms",
+                    "Practical parameter tuning, computational complexity, and execution pipelines",
+                    "Mid-term examination core analytical problems and step-by-step derivations"
+                ]
+            },
+            {
+                "name": f"Phase 3: Advanced Architectures & Real-World Case Studies",
+                "bullets": [
+                    "Complex system design scenarios and fault-tolerant mechanisms",
+                    "Comparative trade-off analysis between standard methodologies",
+                    "Practical laboratory integration and real-world simulation drills"
+                ]
+            },
+            {
+                "name": f"Phase 4: Synthesis, Previous Year VTU Papers & Final Exam Mastery",
+                "bullets": [
+                    "High-yield derivation revision, formula memory sheets, and architecture diagrams",
+                    "Solution analysis of past 5 years university examination question banks",
+                    "Full-syllabus timed mock revisions focusing on 100% question accuracy"
+                ]
+            }
+        ],
+        "importantConcepts": [
+            f"Fundamental Architecture & Operating Models of {sub}",
+            "Core Analytical Formulations and Governing Theorems",
+            "State Machine / Pipeline Execution Strategies",
+            "Computational Efficiency & Performance Optimization",
+            "Error Detection, Handling, and Fault-Tolerance",
+            "University High-Weightage Derivations & Diagrams"
+        ]
+    }
+
+
+@student_bp.route("/ai-study-plan", methods=["POST"])
+@login_required(role="student")
+def generate_ai_study_plan_api():
+    """
+    Generates a personalized AI study plan using OpenAI API.
+    Gracefully falls back to high-yield curriculum engine if quota limit is reached.
+    """
+    data = request.get_json(silent=True) or {}
+    branch = data.get("branch", "").strip()
+    semester = data.get("semester", "").strip()
+    subject = data.get("subject", "").strip()
+
+    if not subject:
+        return jsonify({"success": False, "message": "Subject is required to generate study plan."}), 400
+
+    prompt = f"""You are a distinguished engineering professor. Create a highly structured, semester-level study plan for the course "{subject}" in Branch "{branch}", Semester "{semester}".
+Return ONLY a valid JSON object matching EXACTLY this structure:
+{{
+  "summary": "Concise 2-3 sentence overview of mastering this course and achieving top marks in examinations.",
+  "phases": [
+    {{"name": "Phase 1: Foundations & Core Principles", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}},
+    {{"name": "Phase 2: Core Algorithms & Practical Workflows", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}},
+    {{"name": "Phase 3: Advanced Architectures & Case Studies", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}},
+    {{"name": "Phase 4: University Exam Pattern & Final Revision", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}}
+  ],
+  "importantConcepts": ["High-yield Concept 1", "Concept 2", "Concept 3", "Concept 4", "Concept 5", "Concept 6"]
+}}
+CRITICAL: Do NOT include any placement, campus recruitment, interview, or job-readiness sections. Output ONLY valid JSON with no markdown backticks."""
+
+    messages = [
+        {"role": "system", "content": "You are a university engineering curriculum planner that outputs only raw JSON."},
+        {"role": "user", "content": prompt}
+    ]
+
+    ai_response = call_openai_chat(messages, max_tokens=1100, temperature=0.6)
+    plan = None
+
+    if ai_response:
+        try:
+            cleaned = ai_response.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+                cleaned = re.sub(r"\s*```$", "", cleaned)
+            plan = json.loads(cleaned)
+        except Exception as e:
+            logger.warning("Failed to parse OpenAI JSON output: %s", e)
+            plan = None
+
+    if not plan or not isinstance(plan, dict) or "phases" not in plan:
+        plan = generate_academic_study_plan_fallback(subject, branch, semester)
+        source = "academic_engine"
+    else:
+        source = "openai"
+
+    return jsonify({
+        "success": True,
+        "plan": plan,
+        "source": source,
+        "subject": subject,
+        "branch": branch,
+        "semester": semester
+    })
+
+
+@student_bp.route("/chat", methods=["POST"])
+@login_required(role="student")
+def student_chat_api():
+    """
+    Real-time AI academic assistant chat using OpenAI API.
+    Provides live attendance context and intelligent VTU guidance.
+    """
+    student_id = session.get("user_id")
+    data = request.get_json(silent=True) or {}
+    user_query = data.get("message", "").strip()
+
+    if not user_query:
+        return jsonify({"success": False, "reply": "Please ask a question."}), 400
+
+    # Fetch student live context
+    student = Student.find_by_id(student_id) or {}
+    sname = student.get("name") or session.get("name") or "Student"
+    susn = student.get("student_number") or student.get("usn") or "N/A"
+
+    # Query attendance stats
+    att_stats = run_query(
+        """
+        SELECT 
+            COUNT(*) as total_conducted,
+            SUM(CASE WHEN LOWER(status) = 'present' THEN 1 ELSE 0 END) as present_count
+        FROM attendance
+        WHERE student_id = %s
+        """,
+        (student_id,),
+        fetch_one=True
+    ) or {}
+
+    total_conducted = int(att_stats.get("total_conducted") or 0)
+    present_count = int(att_stats.get("present_count") or 0)
+    pct = round((present_count / total_conducted * 100), 1) if total_conducted > 0 else 0.0
+
+    # Query subject breakdown
+    subjects_raw = run_query(
+        """
+        SELECT 
+            s.subject_name,
+            COUNT(a.attendance_id) as total_classes,
+            SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) as present_classes
+        FROM attendance a
+        JOIN subjects s ON a.subject_id = s.subject_id
+        WHERE a.student_id = %s
+        GROUP BY s.subject_id, s.subject_name
+        """,
+        (student_id,),
+        fetch_all=True
+    ) or []
+
+    sub_summaries = []
+    shortage_subs = []
+    for row in subjects_raw:
+        s_name = row.get("subject_name") or "Subject"
+        t_cls = int(row.get("total_classes") or 0)
+        p_cls = int(row.get("present_classes") or 0)
+        s_pct = round((p_cls / t_cls * 100), 1) if t_cls > 0 else 0.0
+        sub_summaries.append(f"{s_name}: {s_pct}% ({p_cls}/{t_cls})")
+        if s_pct < 75.0 and t_cls > 0:
+            shortage_subs.append(f"{s_name} ({s_pct}%)")
+
+    context_str = f"Student: {sname} ({susn}). Overall Attendance: {pct}% ({present_count}/{total_conducted} lectures attended)."
+    if sub_summaries:
+        context_str += " Subjects: " + ", ".join(sub_summaries)
+    if shortage_subs:
+        context_str += ". ATTENDANCE SHORTAGE (<75%): " + ", ".join(shortage_subs)
+
+    system_prompt = f"""You are EduBot AI, an intelligent, empathetic academic assistant for GSSS Institute of Engineering & Technology.
+Student Context:
+{context_str}
+
+Rules:
+1. Answer the student's question clearly, concisely, and supportively.
+2. If asked about attendance or shortages, use the exact real-time attendance figures above.
+3. In VTU regulations, minimum required attendance to appear for semester examinations is 75% (condonation up to 65% with approved medical certificate).
+4. Format response in clean HTML with <strong>, <em>, and <ul>/<li> where appropriate (no markdown code blocks).
+5. Keep response friendly, motivating, and under 150 words."""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_query}
+    ]
+
+    ai_reply = call_openai_chat(messages, max_tokens=400, temperature=0.7)
+
+    if not ai_reply:
+        # Intelligent fallback matching student query
+        q_lower = user_query.lower()
+        if "attendance" in q_lower or "overall" in q_lower or "percentage" in q_lower or "status" in q_lower:
+            status_text = "Good Standing" if pct >= 75 else "Attendance Shortage Alert"
+            ai_reply = f"""Your overall attendance is currently <strong>{pct}%</strong> ({present_count} out of {total_conducted} conducted classes attended). 
+            <br>Academic Status: <strong>{status_text}</strong>. 
+            {"You meet the VTU 75% examination eligibility requirement! Keep up the consistency." if pct >= 75 else "Warning: Your attendance is below the mandatory 75% VTU threshold. Ensure you attend upcoming lectures to avoid detention."}"""
+        elif "shortage" in q_lower or "warning" in q_lower or "deficit" in q_lower:
+            if shortage_subs:
+                ai_reply = f"""You currently have attendance shortages in: <strong>{', '.join(shortage_subs)}</strong>. <br>Please attend all upcoming classes in these subjects to bring your average back above the mandatory 75% threshold."""
+            else:
+                ai_reply = f"""Great news, <strong>{sname}</strong>! You currently have <strong>no attendance shortages</strong>. All your enrolled subjects are at or above the required 75% threshold."""
+        elif "vtu" in q_lower or "rule" in q_lower or "exam" in q_lower:
+            ai_reply = """According to <strong>VTU Examination Regulations</strong>:
+            <ul>
+                <li>A minimum of <strong>75% attendance</strong> is mandatory in each theory and practical subject.</li>
+                <li>Students with <strong>65% to 74%</strong> can only be condoned by the Principal with genuine medical certificates and approval.</li>
+                <li>Students below 65% are strictly ineligible to sit for semester examinations.</li>
+            </ul>"""
+        elif "study" in q_lower or "plan" in q_lower or "subject" in q_lower:
+            ai_reply = f"""You can generate an active AI study plan by navigating to the <strong>AI Study Plan</strong> tab on your dashboard. Select your branch, semester, and course to get a complete 4-phase milestone curriculum!"""
+        else:
+            ai_reply = f"""Hello <strong>{sname}</strong>! I'm here to support your academics at GSSS. Your overall attendance is <strong>{pct}%</strong>. You can ask me about subject-wise breakdowns, exam rules, or click the <strong>AI Study Plan</strong> tab to prepare for your subjects."""
+
+    return jsonify({
+        "success": True,
+        "reply": ai_reply
+    })

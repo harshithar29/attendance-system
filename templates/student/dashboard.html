@@ -106,10 +106,10 @@ Student Dashboard - GSSS Attendance Portal
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #8EC5FC, #E0C3FC);
-    color: #0f172a;
+    background: linear-gradient(135deg, #4F86F7, #9E67F0);
+    color: #ffffff;
     font-size: 1.25rem;
-    box-shadow: 0 6px 16px rgba(142, 197, 252, 0.35);
+    box-shadow: 0 6px 16px rgba(79, 134, 247, 0.35);
     flex-shrink: 0;
 }
 
@@ -1168,33 +1168,6 @@ Student Dashboard - GSSS Attendance Portal
                 <span>Attendance History</span>
             </button>
 
-            <div class="menu-heading">Account</div>
-
-            <button class="student-menu-link" id="sidebarProfileBtn" onclick="switchSection('profile', this)">
-                <i class="bi bi-person-circle"></i>
-                <span>Student Profile</span>
-                <span class="badge bg-light text-muted border ms-auto" style="font-size: 0.7rem;">Edit</span>
-            </button>
-        </div>
-
-        <!-- Sidebar footer with student details and logout -->
-        <div class="student-sidebar-footer">
-            <div class="footer-student-info" style="cursor: pointer;" onclick="switchSection('profile', document.getElementById('sidebarProfileBtn'))" title="Click to view & edit student profile">
-                {% if student_photo %}
-                    <img src="{{ student_photo }}" class="footer-avatar" alt="{{ name }}">
-                {% else %}
-                    <div class="footer-avatar d-flex align-items-center justify-content-center fw-bold text-white" style="background: #6366F1; font-size: 0.75rem;">
-                        {{ initials }}
-                    </div>
-                {% endif %}
-                <div>
-                    <div class="footer-name" title="{{ name }}">{{ name }}</div>
-                    <div class="footer-usn">{{ usn }}</div>
-                </div>
-            </div>
-            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger py-1 px-2" title="Sign Out">
-                <i class="bi bi-box-arrow-right"></i>
-            </a>
         </div>
     </aside>
 
@@ -1203,7 +1176,7 @@ Student Dashboard - GSSS Attendance Portal
     ====================================================== -->
     <main class="student-content">
 
-        <!-- Top Bar with Profile Overview -->
+        <!-- Top Bar with Profile Overview & Dropdown -->
         <header class="student-topbar">
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-sm btn-light border d-lg-none" id="sidebarToggleBtn">
@@ -1215,19 +1188,54 @@ Student Dashboard - GSSS Attendance Portal
                 </div>
             </div>
 
-            <!-- Top right student session badge -->
-            <div class="d-flex align-items-center gap-3">
-                <div class="text-end d-none d-sm-block">
-                    <div class="fw-bold text-dark small">{{ name }}</div>
-                    <div class="text-muted" style="font-size: 0.72rem;">{{ usn }}</div>
-                </div>
-                {% if student_photo %}
-                    <img src="{{ student_photo }}" class="rounded-circle border" style="width: 38px; height: 38px; object-fit: cover;" alt="{{ name }}">
-                {% else %}
-                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 38px; height: 38px; background: #6366F1; font-size: 0.85rem;">
-                        {{ initials }}
+            <!-- Top right student session card & clickable profile dropdown -->
+            <div class="position-relative" id="studentDropdownContainer">
+                <div class="d-flex align-items-center gap-2 p-1 pe-2 rounded-pill border bg-white shadow-sm cursor-pointer" 
+                     id="studentUserDropdownToggle" 
+                     onclick="toggleStudentUserDropdown(event)" 
+                     role="button" 
+                     tabindex="0"
+                     title="Click for Profile, Settings & Logout"
+                     style="cursor: pointer; transition: all 0.2s ease;">
+                    {% if student_photo %}
+                        <img src="{{ student_photo }}" class="rounded-circle border" style="width: 38px; height: 38px; object-fit: cover;" alt="{{ name }}">
+                    {% else %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 38px; height: 38px; background: linear-gradient(135deg, #3B5BDB, #7048E8); font-size: 0.85rem;">
+                            {{ initials }}
+                        </div>
+                    {% endif %}
+                    <div class="text-start d-none d-sm-block me-1">
+                        <div class="fw-bold text-dark small lh-1 mb-1">{{ name }}</div>
+                        <div class="text-muted" style="font-size: 0.72rem; line-height: 1;">{{ usn }}</div>
                     </div>
-                {% endif %}
+                    <i class="bi bi-chevron-down text-muted small ms-1" id="studentDropdownChevron"></i>
+                </div>
+
+                <!-- Dropdown Menu -->
+                <div class="student-user-dropdown-menu shadow-lg border rounded-3 bg-white d-none" 
+                     id="studentUserDropdownMenu" 
+                     style="position: absolute; right: 0; top: calc(100% + 8px); width: 250px; z-index: 1050; padding: 8px; border-color: #E2E8F0 !important;">
+                    <div class="p-2 border-bottom mb-2 bg-light rounded-2">
+                        <div class="fw-bold text-dark small">{{ name }}</div>
+                        <div class="text-muted font-monospace" style="font-size: 0.72rem;">{{ usn }}</div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle mt-1" style="font-size: 0.65rem;">
+                            <i class="bi bi-patch-check-fill me-1"></i>Verified Student
+                        </span>
+                    </div>
+                    <button type="button" class="dropdown-item w-100 text-start border-0 bg-transparent py-2 px-3 rounded-2 d-flex align-items-center gap-2 small fw-semibold text-dark user-menu-item" onclick="openStudentProfileFromDropdown()">
+                        <i class="bi bi-person-gear text-primary fs-6"></i>
+                        <span>Edit Profile</span>
+                    </button>
+                    <button type="button" class="dropdown-item w-100 text-start border-0 bg-transparent py-2 px-3 rounded-2 d-flex align-items-center gap-2 small fw-semibold text-dark user-menu-item" onclick="openStudentSettingsFromDropdown()">
+                        <i class="bi bi-gear text-secondary fs-6"></i>
+                        <span>Settings</span>
+                    </button>
+                    <hr class="my-1 border-light">
+                    <a href="{{ url_for('auth.logout') }}" class="dropdown-item w-100 text-start border-0 bg-transparent py-2 px-3 rounded-2 d-flex align-items-center gap-2 small fw-semibold text-danger user-menu-item">
+                        <i class="bi bi-box-arrow-right text-danger fs-6"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -3288,7 +3296,7 @@ function onAiSubjectChange(val) {
     }
 }
 
-function generateAiStudyPlanFromInput() {
+async function generateAiStudyPlanFromInput() {
     const targetSubject = getActiveAiSubject();
     if (!targetSubject) {
         showAiPlanAlert('Please select a branch, semester & subject or type a custom subject name.', 'warning');
@@ -3302,20 +3310,42 @@ function generateAiStudyPlanFromInput() {
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generating...';
     }
 
+    const branchSelect = document.getElementById('aiPlanBranchSelect');
+    const selectedBranch = (branchSelect?.value || '').trim();
+    const semSelect = document.getElementById('aiPlanSemSelect');
+    const selectedSem = (semSelect?.value || '7').trim();
+
     const container = document.getElementById('aiPlanOutputContainer');
     if (container) {
         container.innerHTML = `
             <div class="card p-5 border-0 shadow-sm bg-white rounded-3 text-center my-3">
                 <div class="spinner-border text-primary mx-auto mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
                 <h6 class="fw-bold text-dark mb-1">Synthesizing ${escapeHtml(cleanSubjectTitle(targetSubject))} Study Roadmap...</h6>
-                <p class="text-muted small mb-0">Structuring phased curriculum, core concepts, and placement interview topics.</p>
+                <p class="text-muted small mb-0">Structuring phased curriculum milestones and high-yield examination concepts with OpenAI.</p>
             </div>
         `;
     }
 
-    setTimeout(() => {
+    try {
+        const resp = await fetch('/student/ai-study-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                branch: selectedBranch,
+                semester: selectedSem,
+                subject: targetSubject
+            })
+        });
+        const data = await resp.json();
         currentAiPlanState.regenIndex = 0;
+        if (data && data.success && data.plan) {
+            renderAiStudyPlan(targetSubject, false, data.plan);
+        } else {
+            renderAiStudyPlan(targetSubject, false);
+        }
+    } catch (err) {
         renderAiStudyPlan(targetSubject, false);
+    } finally {
         if (btn) {
             btn.disabled = false;
             btn.innerHTML = origHtml || '<i class="bi bi-stars me-1"></i> Generate';
@@ -3323,10 +3353,10 @@ function generateAiStudyPlanFromInput() {
         if (container) {
             container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-    }, 280);
+    }
 }
 
-function regenerateCurrentAiPlan() {
+async function regenerateCurrentAiPlan() {
     const targetSubject = getActiveAiSubject();
     if (!targetSubject) {
         showAiPlanAlert('Please select a branch, semester & subject or enter a custom subject name first.', 'warning');
@@ -3340,20 +3370,42 @@ function regenerateCurrentAiPlan() {
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Recalibrating...';
     }
 
+    const branchSelect = document.getElementById('aiPlanBranchSelect');
+    const selectedBranch = (branchSelect?.value || '').trim();
+    const semSelect = document.getElementById('aiPlanSemSelect');
+    const selectedSem = (semSelect?.value || '7').trim();
+
     const container = document.getElementById('aiPlanOutputContainer');
     if (container) {
         container.innerHTML = `
             <div class="card p-5 border-0 shadow-sm bg-white rounded-3 text-center my-3">
                 <div class="spinner-border text-primary mx-auto mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
                 <h6 class="fw-bold text-dark mb-1">Recalibrating ${escapeHtml(cleanSubjectTitle(targetSubject))} Study Roadmap...</h6>
-                <p class="text-muted small mb-0">Refining phase milestones, core focus areas, and interview prep questions.</p>
+                <p class="text-muted small mb-0">Refining phase milestones and examination prep priorities with OpenAI.</p>
             </div>
         `;
     }
 
-    setTimeout(() => {
+    try {
+        const resp = await fetch('/student/ai-study-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                branch: selectedBranch,
+                semester: selectedSem,
+                subject: targetSubject
+            })
+        });
+        const data = await resp.json();
         currentAiPlanState.regenIndex = (currentAiPlanState.regenIndex || 0) + 1;
+        if (data && data.success && data.plan) {
+            renderAiStudyPlan(targetSubject, true, data.plan);
+        } else {
+            renderAiStudyPlan(targetSubject, true);
+        }
+    } catch (err) {
         renderAiStudyPlan(targetSubject, true);
+    } finally {
         if (btn) {
             btn.disabled = false;
             btn.innerHTML = origHtml || '<i class="bi bi-arrow-repeat me-1"></i> Regenerate';
@@ -3361,7 +3413,7 @@ function regenerateCurrentAiPlan() {
         if (container) {
             container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-    }, 300);
+    }
 }
 
 // =========================================================
@@ -4449,7 +4501,7 @@ function generateDynamicSubjectPlan(rawSubject, branch = '', semester = '7') {
 // =========================================================
 // RENDER CLEAN, STUDENT-FRIENDLY AI STUDY PLAN ROADMAP
 // =========================================================
-function renderAiStudyPlan(subjectName, isRegenerate = false) {
+function renderAiStudyPlan(subjectName, isRegenerate = false, customPlan = null) {
     const container = document.getElementById('aiPlanOutputContainer');
     if (!container) return;
 
@@ -4458,19 +4510,34 @@ function renderAiStudyPlan(subjectName, isRegenerate = false) {
     const semSelect = document.getElementById('aiPlanSemSelect');
     const selectedSem = (semSelect?.value || '7').trim();
 
-    // Dynamically generate the full subject-specific roadmap
-    const plan = generateDynamicSubjectPlan(subjectName, selectedBranch, selectedSem);
     currentAiPlanState.activeSubject = subjectName;
     currentAiPlanState.branch = selectedBranch;
     currentAiPlanState.semester = selectedSem;
+
+    // Use custom OpenAI plan if available, else dynamic academic fallback
+    let planTitle = cleanSubjectTitle(subjectName);
+    let planSummary = "";
+    let planPhases = [];
+    let planConcepts = [];
+
+    if (customPlan && customPlan.phases) {
+        planSummary = customPlan.summary || `Comprehensive AI-generated syllabus mastery plan for ${planTitle}.`;
+        planPhases = customPlan.phases || [];
+        planConcepts = customPlan.importantConcepts || [];
+    } else {
+        const generated = generateDynamicSubjectPlan(subjectName, selectedBranch, selectedSem);
+        planSummary = generated.subtitle || `Syllabus mastery framework for ${planTitle}.`;
+        planPhases = generated.phases || [];
+        planConcepts = generated.importantConcepts || [];
+    }
 
     let planHtml = `
         <div class="card p-4 border-0 shadow-sm bg-white rounded-3">
             <!-- 1. Header: [Subject] Study Plan + Short Subtitle -->
             <div class="mb-4 pb-3 border-bottom">
                 <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1">
-                        <i class="bi bi-stars me-1"></i> AI Study Roadmap
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fw-semibold">
+                        <i class="bi bi-stars me-1"></i> OpenAI Study Roadmap
                     </span>
                     ${selectedBranch ? `
                         <span class="badge bg-light text-muted border">
@@ -4482,26 +4549,26 @@ function renderAiStudyPlan(subjectName, isRegenerate = false) {
                     </span>
                     ${isRegenerate ? '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-arrow-repeat me-1"></i> Recalibrated Plan</span>' : ''}
                 </div>
-                <h3 class="fw-bold text-dark mb-1">${escapeHtml(plan.title)}</h3>
-                <p class="text-muted small mb-0">${escapeHtml(plan.subtitle)}</p>
+                <h3 class="fw-bold text-dark mb-1">${escapeHtml(planTitle)}</h3>
+                <p class="text-muted small mb-0">${escapeHtml(planSummary)}</p>
             </div>
 
-            <!-- 2. 5–6 Phases (Fundamentals → Advanced/Practical Topics) -->
+            <!-- 2. Structured Learning Phases (Fundamentals → Advanced/Practical Topics) -->
             <div class="mb-4">
                 <h6 class="fw-bold text-dark mb-3">
-                    <i class="bi bi-diagram-3 text-primary me-2"></i> Structured Learning Phases (Fundamentals &rarr; Advanced &rarr; Practical Mastery)
+                    <i class="bi bi-diagram-3 text-primary me-2"></i> Structured Learning Phases (Fundamentals &rarr; Advanced &rarr; Examination Mastery)
                 </h6>
                 <div class="row g-3">
-                    ${plan.phases.map((p, idx) => `
-                        <div class="col-md-6 col-lg-4">
+                    ${planPhases.map((p, idx) => `
+                        <div class="col-md-6 col-lg-3">
                             <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column shadow-sm">
                                 <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                                     <span class="badge bg-primary text-white px-2 py-1 small">Phase ${idx + 1}</span>
                                     <span class="badge bg-white text-primary border small"><i class="bi bi-flag me-1"></i>Milestone ${idx + 1}</span>
                                 </div>
-                                <h6 class="fw-bold text-dark mb-2" style="font-size: 0.95rem;">${escapeHtml(p.name.replace(/^Phase \d+:\s*/, ''))}</h6>
+                                <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem;">${escapeHtml((p.name || `Phase ${idx + 1}`).replace(/^Phase \d+:\s*/, ''))}</h6>
                                 <ul class="small text-muted mb-0 ps-3 flex-grow-1" style="line-height: 1.55;">
-                                    ${p.bullets.map(b => `<li class="mb-1">${escapeHtml(b)}</li>`).join('')}
+                                    ${(p.bullets || []).map(b => `<li class="mb-1">${escapeHtml(b)}</li>`).join('')}
                                 </ul>
                             </div>
                         </div>
@@ -4513,13 +4580,13 @@ function renderAiStudyPlan(subjectName, isRegenerate = false) {
             <div class="mb-4 p-3 bg-light rounded-3 border">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                     <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-lightbulb text-warning me-2"></i> Important Concepts to Focus On
+                        <i class="bi bi-lightbulb text-warning me-2"></i> High-Yield Concepts &amp; Examination Priorities
                     </h6>
-                    <span class="badge bg-white text-primary border small">High-Yield Exam &amp; Practical Concepts</span>
+                    <span class="badge bg-white text-primary border small">Top Examination Topics</span>
                 </div>
-                <p class="text-muted small mb-3">Priority core topics essential for full marks in examinations and solid technical understanding:</p>
+                <p class="text-muted small mb-3">Priority core concepts essential for scoring top marks and solid academic understanding:</p>
                 <div class="row g-2">
-                    ${plan.importantConcepts.map((c, idx) => `
+                    ${planConcepts.map((c, idx) => `
                         <div class="col-md-6">
                             <div class="p-2 px-3 bg-white rounded-2 border d-flex align-items-center gap-2">
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.75rem;">#${idx + 1}</span>
@@ -4530,59 +4597,12 @@ function renderAiStudyPlan(subjectName, isRegenerate = false) {
                 </div>
             </div>
 
-            <!-- 4. Placement Readiness (Interview & Practical Topics) -->
-            <div class="p-3 bg-white rounded-3 border shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                    <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-briefcase text-success me-2"></i> Placement Readiness &amp; Technical Interviews
-                    </h6>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle small">Campus Placement Focus</span>
-                </div>
-                <p class="text-muted small mb-3">Subject-specific questions, practical scenarios, and essential industry tooling asked in recruitment drives:</p>
-
-                <div class="row g-3">
-                    <!-- Common Technical Interview Questions -->
-                    <div class="col-lg-6">
-                        <div class="p-3 bg-light rounded-3 border h-100">
-                            <div class="fw-bold text-dark small mb-2">
-                                <i class="bi bi-question-circle text-primary me-1"></i> High-Frequency Interview Questions:
-                            </div>
-                            <ul class="small text-muted mb-0 ps-3" style="line-height: 1.6;">
-                                ${plan.interviewQuestions.map(q => `<li class="mb-2"><strong>${escapeHtml(q)}</strong></li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Practical Scenarios & Industry Tools -->
-                    <div class="col-lg-6">
-                        <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column gap-3">
-                            <div>
-                                <div class="fw-bold text-dark small mb-2">
-                                    <i class="bi bi-code-slash text-primary me-1"></i> Practical / System Design Scenarios:
-                                </div>
-                                <ul class="small text-muted mb-0 ps-3" style="line-height: 1.5;">
-                                    ${plan.practicalScenarios.map(sc => `<li class="mb-1">${escapeHtml(sc)}</li>`).join('')}
-                                </ul>
-                            </div>
-                            <div>
-                                <div class="fw-bold text-dark small mb-2">
-                                    <i class="bi bi-tools text-primary me-1"></i> Key Industry Tools &amp; Libraries:
-                                </div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    ${plan.industryTools.map(tl => `<span class="badge bg-white text-dark border px-2 py-1 small">${escapeHtml(tl)}</span>`).join('')}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bottom Action Row -->
-                <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span class="text-muted small">Want to refresh topics or regenerate this roadmap?</span>
-                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold px-3" onclick="regenerateCurrentAiPlan()">
-                        <i class="bi bi-arrow-repeat me-1"></i> Regenerate Study Plan
-                    </button>
-                </div>
+            <!-- Bottom Action Row (Regenerate) -->
+            <div class="p-3 bg-white rounded-3 border shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="text-muted small">Want to refresh concepts or recalibrate with OpenAI?</span>
+                <button type="button" class="btn btn-sm btn-outline-primary fw-semibold px-3" onclick="regenerateCurrentAiPlan()">
+                    <i class="bi bi-arrow-repeat me-1"></i> Regenerate Study Plan
+                </button>
             </div>
         </div>
     `;
@@ -4841,11 +4861,73 @@ function processUserMessage(rawQuery) {
     appendUserMessage(rawQuery);
     showTypingIndicator();
 
-    setTimeout(() => {
+    fetch('/student/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: rawQuery })
+    })
+    .then(r => r.json())
+    .then(data => {
         hideTypingIndicator();
-        const responseHtml = generateEduBotResponse(rawQuery);
-        appendBotMessage(responseHtml);
-    }, 450);
+        if (data && data.success && data.reply) {
+            appendBotMessage(data.reply);
+        } else {
+            const fallback = generateEduBotResponse(rawQuery);
+            appendBotMessage(fallback);
+        }
+    })
+    .catch(() => {
+        hideTypingIndicator();
+        const fallback = generateEduBotResponse(rawQuery);
+        appendBotMessage(fallback);
+    });
+}
+
+/* =========================================================
+   STUDENT HEADER PROFILE DROPDOWN (EDIT PROFILE, SETTINGS, LOGOUT)
+   ========================================================= */
+function toggleStudentUserDropdown(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('studentUserDropdownMenu');
+    const chevron = document.getElementById('studentDropdownChevron');
+    if (!menu) return;
+    const isClosed = menu.classList.contains('d-none');
+    if (isClosed) {
+        menu.classList.remove('d-none');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+    } else {
+        menu.classList.add('d-none');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+function closeStudentUserDropdown() {
+    const menu = document.getElementById('studentUserDropdownMenu');
+    const chevron = document.getElementById('studentDropdownChevron');
+    if (menu && !menu.classList.contains('d-none')) {
+        menu.classList.add('d-none');
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+document.addEventListener('click', function(e) {
+    const container = document.getElementById('studentDropdownContainer');
+    if (container && !container.contains(e.target)) {
+        closeStudentUserDropdown();
+    }
+});
+
+function openStudentProfileFromDropdown() {
+    closeStudentUserDropdown();
+    switchSection('profile');
+    setTimeout(() => {
+        if (typeof focusProfileEdit === 'function') focusProfileEdit();
+    }, 150);
+}
+
+function openStudentSettingsFromDropdown() {
+    closeStudentUserDropdown();
+    switchSection('profile');
 }
 
 // INTELLIGENT RULE & REAL-TIME GROUNDING ENGINE
