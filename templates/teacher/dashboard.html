@@ -755,10 +755,13 @@ Teacher Dashboard - GSSS Attendance Portal
     .teacher-sidebar.open {
         transform: translateX(0) !important;
     }
-}
+
+    .sidebar-toggle-btn-header {
+        display: none !important;
+    }
 
     .mobile-sidebar-button {
-        display: flex;
+        display: flex !important;
     }
 
     .teacher-content {
@@ -1375,7 +1378,7 @@ Teacher Dashboard - GSSS Attendance Portal
                                     <i class="bi bi-file-earmark-play me-1 text-primary"></i> Classroom Video
                                 </label>
                                 <input type="file" name="video" id="video" class="form-control teacher-form-control"
-                                    accept=".mp4,.avi,.mov,.mkv,.webm,video/mp4,video/avi,video/quicktime,video/x-matroska,video/webm"
+                                    accept="video/*,.mp4,.avi,.mov,.mkv,.webm,video/mp4,video/avi,video/quicktime,video/x-matroska,video/webm"
                                     required onchange="checkUploadForm()">
                             </div>
                         </div>
@@ -6082,18 +6085,10 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Mobile Drawer Toggle
-    if (mobileButton && sidebar) {
-        mobileButton.addEventListener("click", function() {
-            sidebar.classList.toggle("open");
-            if (backdrop) backdrop.classList.toggle("active");
-        });
-    }
-
-    if (backdrop && sidebar) {
+    // Mobile Backdrop Tap to Close
+    if (backdrop) {
         backdrop.addEventListener("click", function() {
-            sidebar.classList.remove("open");
-            backdrop.classList.remove("active");
+            closeTeacherSidebar();
         });
     }
 

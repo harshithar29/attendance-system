@@ -3193,20 +3193,8 @@ const sidebar = document.getElementById('studentSidebar');
 const overlay = document.getElementById('sidebarOverlay');
 const toggleBtn = document.getElementById('sidebarToggleBtn');
 
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-        if (sidebar) sidebar.classList.add('show');
-        if (overlay) overlay.classList.add('show');
-    });
-}
-
 if (overlay) {
-    overlay.addEventListener('click', closeMobileSidebar);
-}
-
-function closeMobileSidebar() {
-    if (sidebar) sidebar.classList.remove('show');
-    if (overlay) overlay.classList.remove('show');
+    overlay.addEventListener('click', closeStudentSidebar);
 }
 
 // =========================================================
