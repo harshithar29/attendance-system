@@ -12,5 +12,7 @@ dataset/
 face_embeddings/
 extracted_frames/
 reports/
+*.bak
+*.exe
 
 !database/attendance.db

@@ -438,8 +438,16 @@ def sync_student_embeddings(excel_path=None, dataset_dir=None, force_refresh=Fal
 def train_student_face_dataset(dataset_dir=None, force_retrain=False, **kwargs):
     """
     Main dataset training function.
-    Directly connects uploads/dataset/<USN>/ with MySQL students table.
+    Directly connects uploads/dataset/<USN>/ with MySQL students table
+    and quality-aware FaceEnrollment gallery.
     """
+    try:
+        from backend.ai_modules.face_enrollment import FaceEnrollment
+        enrollment = FaceEnrollment()
+        enrollment.enroll_all()
+    except Exception as e:
+        logger.warning("Quality-aware enrollment step notice: %s", e)
+
     res = sync_student_embeddings(
         dataset_dir=dataset_dir,
         force_refresh=force_retrain
@@ -452,3 +460,27 @@ def train_student_face_dataset(dataset_dir=None, force_retrain=False, **kwargs):
         "new_embeddings_generated": res["new_embeddings_generated"],
         "reused_embeddings": res["reused_embeddings"]
     }
+
+
+def recognize_faces_in_frame(frame):
+    """
+    Recognize detected faces in a frame using FaceRecognitionService.
+    """
+    try:
+        from backend.ai_modules.face_recognition import FaceRecognitionService
+        return FaceRecognitionService.recognize_faces(frame)
+    except Exception as err:
+        logger.warning("FaceRecognitionService error: %s", err)
+        return []
+
+
+def recognize_single_face_in_frame(frame):
+    """
+    Recognize single dominant face in a frame using FaceRecognitionService.
+    """
+    try:
+        from backend.ai_modules.face_recognition import FaceRecognitionService
+        return FaceRecognitionService.recognize_single_face(frame)
+    except Exception as err:
+        logger.warning("FaceRecognitionService error: %s", err)
+        return None

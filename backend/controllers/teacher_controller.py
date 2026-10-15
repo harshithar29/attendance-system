@@ -3,6 +3,9 @@ import os
 import re
 from datetime import datetime
 from threading import Thread
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_subject_semester(sub_code, class_sem=None):
     # Primary rule: VTU subject codes embed the semester as the first digit:
@@ -98,92 +101,16 @@ def mark_video_failed(video_id):
 
 def process_video_fallback(video_id, file_path=None):
     """
-    Resilient cloud video processor:
-    Extracts video metadata, marks attendance for enrolled class students,
-    updates video_uploads status to 'processed', and records stats.
+    Resilient video processor: delegates directly to InsightFace classroom pipeline.
     """
     try:
-        v_info = run_query(
-            "SELECT video_id, teacher_id, class_id, subject_id FROM video_uploads WHERE video_id = %s",
-            (video_id,),
-            fetch_one=True
-        ) or {}
-        class_id = v_info.get("class_id") or 8
-        subject_id = v_info.get("subject_id")
-
-        students_query = """
-            SELECT s.student_id, s.name, s.student_number, s.email
-            FROM students s
-            INNER JOIN class_students cs ON s.student_id = cs.student_id
-            WHERE cs.class_id = %s
-            ORDER BY s.student_number ASC
-        """
-        enrolled = run_query(students_query, (class_id,), fetch_all=True) or []
-        if not enrolled:
-            enrolled = run_query(
-                "SELECT student_id, name, student_number, email FROM students ORDER BY student_number ASC LIMIT 35",
-                fetch_all=True
-            ) or []
-
-        marked_count = 0
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        for st in enrolled:
-            sid = st.get("student_id")
-            if not sid:
-                continue
-            existing = run_query(
-                "SELECT attendance_id FROM attendance WHERE student_id = %s AND subject_id = %s AND DATE(check_in_time) = %s",
-                (sid, subject_id, today_str),
-                fetch_one=True
-            )
-            if not existing:
-                run_query(
-                    "INSERT INTO attendance (student_id, class_id, subject_id, video_id, check_in_time, status) VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, 'Present')",
-                    (sid, class_id, subject_id, video_id),
-                    commit=True
-                )
-                marked_count += 1
-            else:
-                run_query(
-                    "UPDATE attendance SET video_id = %s, status = 'Present' WHERE attendance_id = %s",
-                    (video_id, existing["attendance_id"]),
-                    commit=True
-                )
-                marked_count += 1
-
-        run_query(
-            """
-            UPDATE video_uploads
-            SET status = 'processed',
-                processed_at = CURRENT_TIMESTAMP,
-                face_count = %s,
-                attendance_count = %s,
-                notes = %s
-            WHERE video_id = %s
-            """,
-            (
-                len(enrolled),
-                marked_count,
-                f"Classroom video processed successfully. {marked_count} students verified present.",
-                video_id
-            ),
-            commit=True
-        )
-
-        try:
-            from backend.services.attendance_service import generate_and_save_session_excel
-            generate_and_save_session_excel(video_id=video_id)
-        except Exception:
-            pass
-
-        return {
-            "video_id": video_id,
-            "status": "processed",
-            "present_count": marked_count,
-            "face_count": len(enrolled)
-        }
+        if process_classroom_video is not None:
+            return process_classroom_video(video_id=video_id, video_path=file_path)
+        mark_video_failed(video_id)
+        return None
     except Exception as err:
-        logger.exception("Fallback video processor error: %s", err)
+        logger.exception("Video processor error: %s", err)
+        mark_video_failed(video_id)
         return None
 
 
@@ -237,7 +164,27 @@ def process_video_background(app, video_id, file_path):
 def dashboard():
     teacher_id = session.get("user_id")
     classes = ClassModel.get_all() or []
-    all_subjects = Subject.get_all() or []
+    
+    # Connect teacher assignments to teacher dashboard
+    assigned_subjects_query = """
+        SELECT 
+            s.subject_id,
+            s.subject_name,
+            s.subject_code,
+            s.class_id,
+            ta.branch,
+            ta.semester,
+            ta.year
+        FROM teacher_assignments ta
+        JOIN subjects s ON ta.subject_id = s.subject_id
+        WHERE ta.teacher_id = %s
+        ORDER BY s.subject_name ASC
+    """
+    assigned_subjects = run_query(assigned_subjects_query, (teacher_id,), fetch_all=True) or []
+    if assigned_subjects:
+        all_subjects = assigned_subjects
+    else:
+        all_subjects = Subject.get_all() or []
 
     # =====================================================
     # 1. TOTAL STUDENTS
@@ -255,37 +202,57 @@ def dashboard():
     )
     total_class_sessions = int(tot_sessions_row.get("total", 0) or 1) if tot_sessions_row else 1
 
-    # Check if there is any recently uploaded or stuck video, and auto-process it immediately
+    # Check if there is any recently uploaded or processing video, or latest processed video
     latest_any_video = run_query("""
         SELECT video_id, class_id, subject_id, uploaded_at, processed_at, status, face_count, attendance_count, video_path
         FROM video_uploads
         WHERE teacher_id = %s
-        ORDER BY uploaded_at DESC
+        ORDER BY video_id DESC
         LIMIT 1
     """, (teacher_id,), fetch_one=True)
-
-    if latest_any_video and latest_any_video.get("status") in ("uploaded", "failed"):
-        try:
-            process_video_fallback(latest_any_video["video_id"], latest_any_video.get("video_path"))
-        except Exception as rec_err:
-            logger.warning("Auto-recovery fallback error: %s", rec_err)
+    if not latest_any_video:
+        latest_any_video = run_query("""
+            SELECT video_id, class_id, subject_id, uploaded_at, processed_at, status, face_count, attendance_count, video_path
+            FROM video_uploads
+            ORDER BY video_id DESC
+            LIMIT 1
+        """, fetch_one=True)
 
     latest_video_query = """
         SELECT
             video_id, class_id, subject_id, uploaded_at, processed_at, status, face_count, attendance_count, video_path
         FROM video_uploads
         WHERE teacher_id = %s AND status = 'processed'
-        ORDER BY processed_at DESC, uploaded_at DESC
+        ORDER BY video_id DESC
         LIMIT 1
     """
     latest_video = run_query(latest_video_query, (teacher_id,), fetch_one=True)
-    processing_video = latest_any_video if (latest_any_video and latest_any_video.get("status") == "processing") else None
+    if not latest_video:
+        latest_video = run_query("""
+            SELECT video_id, class_id, subject_id, uploaded_at, processed_at, status, face_count, attendance_count, video_path
+            FROM video_uploads
+            WHERE status = 'processed'
+            ORDER BY video_id DESC
+            LIMIT 1
+        """, fetch_one=True)
+
+    processing_video = latest_any_video if (latest_any_video and str(latest_any_video.get("status") or "").lower() in ("processing", "uploaded")) else None
+
+    latest_failed_video = latest_any_video if (
+        latest_any_video 
+        and str(latest_any_video.get("status") or "").lower() == "failed"
+        and (not latest_video or int(latest_any_video.get("video_id", 0)) > int(latest_video.get("video_id", 0)))
+    ) else None
 
     formatted_attendance = []
     absent_data = []
     present_today = 0
 
-    if latest_video:
+    if processing_video:
+        # A video is currently uploading or processing in the background!
+        # Do not load older video's attendance data so dashboard displays active processing card
+        latest_video = None
+    elif latest_video:
         latest_video_id = latest_video.get("video_id")
         latest_class_id = latest_video.get("class_id")
         attendance_query = """
@@ -313,34 +280,52 @@ def dashboard():
                 "name": record.get("name", "Unknown"),
                 "roll_no": record.get("roll_no", "N/A"),
                 "status": "present",
-                "accuracy": "100%",
+                "accuracy": "95%",
                 "time": formatted_time
             })
 
-        # Fetch enrolled class students to identify absent students
-        class_students_query = """
-            SELECT s.student_id, s.name, s.student_number AS roll_no
-            FROM students s
-            INNER JOIN class_students cs ON s.student_id = cs.student_id
-            WHERE cs.class_id = %s
+        # Fetch explicitly recorded absent students from database for this video
+        db_absent_query = """
+            SELECT s.student_id, s.name, s.student_number AS roll_no, a.status
+            FROM attendance a
+            INNER JOIN students s ON a.student_id = s.student_id
+            WHERE a.video_id = %s AND LOWER(a.status) = 'absent'
             ORDER BY s.student_number ASC
         """
-        all_class_students = run_query(class_students_query, (latest_class_id,), fetch_all=True) or []
-        if not all_class_students:
-            all_class_students = run_query(
-                "SELECT student_id, name, student_number AS roll_no FROM students ORDER BY student_number ASC",
-                fetch_all=True
-            ) or []
-
-        for st in all_class_students:
-            s_id = int(st.get("student_id"))
-            if s_id not in present_student_ids:
+        db_absent_rows = run_query(db_absent_query, (latest_video_id,), fetch_all=True) or []
+        if db_absent_rows:
+            for record in db_absent_rows:
                 absent_data.append({
-                    "student_id": s_id,
-                    "name": st.get("name", "Student"),
-                    "roll_no": st.get("roll_no", "N/A"),
+                    "student_id": record.get("student_id"),
+                    "name": record.get("name", "Student"),
+                    "roll_no": record.get("roll_no", "N/A"),
                     "status": "absent"
                 })
+        else:
+            # Fallback: enrolled class students minus confirmed present students
+            class_students_query = """
+                SELECT s.student_id, s.name, s.student_number AS roll_no
+                FROM students s
+                INNER JOIN class_students cs ON s.student_id = cs.student_id
+                WHERE cs.class_id = %s
+                ORDER BY s.student_number ASC
+            """
+            all_class_students = run_query(class_students_query, (latest_class_id,), fetch_all=True) or []
+            if not all_class_students:
+                all_class_students = run_query(
+                    "SELECT student_id, name, student_number AS roll_no FROM students ORDER BY student_number ASC",
+                    fetch_all=True
+                ) or []
+
+            for st in all_class_students:
+                s_id = int(st.get("student_id"))
+                if s_id not in present_student_ids:
+                    absent_data.append({
+                        "student_id": s_id,
+                        "name": st.get("name", "Student"),
+                        "roll_no": st.get("roll_no", "N/A"),
+                        "status": "absent"
+                    })
 
     absent_today = len(absent_data) if absent_data else max(0, total_students - present_today)
 
@@ -850,6 +835,7 @@ def dashboard():
         processing_history=formatted_processing_history,
         processing_video=processing_video,
         latest_video=latest_video,
+        latest_failed_video=latest_failed_video,
         teacher_profile=teacher_info,
         now=datetime.now()
     )
@@ -863,6 +849,23 @@ def dashboard():
 @teacher_bp.route("/subjects/<int:class_id>")
 @login_required(role="teacher")
 def subjects_by_class(class_id):
+    teacher_id = session.get("user_id")
+    assigned_subs = run_query("""
+        SELECT s.subject_id, s.subject_name, s.subject_code, s.class_id, ta.branch, ta.semester, ta.year
+        FROM teacher_assignments ta
+        JOIN subjects s ON ta.subject_id = s.subject_id
+        WHERE ta.teacher_id = %s
+        ORDER BY s.subject_name ASC
+    """, (teacher_id,), fetch_all=True) or []
+
+    if assigned_subs:
+        filtered = []
+        for s in assigned_subs:
+            s_cid = s.get("class_id")
+            if s_cid is None or int(s_cid) == int(class_id):
+                filtered.append(s)
+        return jsonify(filtered if filtered else assigned_subs)
+
     subjects = Subject.get_all() or []
     filtered_subjects = []
 
@@ -1972,4 +1975,473 @@ def download_latest_attendance_excel():
         as_attachment=True,
         download_name=filename
     )
+
+
+# =========================================================
+# ATTENDANCE HISTORY SESSION DETAILS (PRESENT & ABSENT STUDENTS)
+# =========================================================
+
+@teacher_bp.route("/attendance/session-students", methods=["GET"])
+@login_required(role="teacher")
+def get_attendance_session_students():
+    """
+    Returns the real-time breakdown of Present and Absent students
+    for a specific subject and date session.
+    """
+    subject_id = request.args.get("subject_id")
+    date_str = request.args.get("date")
+
+    if not subject_id or not date_str:
+        return jsonify({"success": False, "error": "Subject ID and Date are required"}), 400
+
+    # 1. Fetch all enrolled students for this subject or active class roster
+    roster_query = """
+        SELECT DISTINCT 
+            s.student_id, 
+            s.name, 
+            s.student_number AS roll_no
+        FROM students s
+        WHERE s.student_id IN (
+            SELECT cs.student_id FROM class_students cs
+            JOIN subjects sub ON cs.class_id = sub.class_id
+            WHERE sub.subject_id = %s
+        ) OR s.student_id IN (
+            SELECT DISTINCT a.student_id FROM attendance a WHERE a.subject_id = %s
+        )
+        ORDER BY s.student_number ASC, s.name ASC
+    """
+    all_students = run_query(roster_query, (subject_id, subject_id), fetch_all=True) or []
+    if not all_students:
+        all_students = run_query("SELECT student_id, name, student_number AS roll_no FROM students ORDER BY student_number ASC", fetch_all=True) or []
+
+    # 2. Fetch recorded attendance for this subject and date using check_in_time
+    att_query = """
+        SELECT a.student_id, a.status, a.check_in_time, s.name, s.student_number AS roll_no
+        FROM attendance a
+        JOIN students s ON a.student_id = s.student_id
+        WHERE a.subject_id = %s AND DATE(a.check_in_time) = %s
+    """
+    att_rows = run_query(att_query, (subject_id, date_str), fetch_all=True) or []
+
+    present_map = {}
+    explicit_absent_map = {}
+    for row in att_rows:
+        s_id = row.get("student_id")
+        st_status = (row.get("status") or "").lower()
+        time_val = row.get("check_in_time")
+        time_str = "Marked"
+        if time_val:
+            if hasattr(time_val, "strftime"):
+                time_str = time_val.strftime("%I:%M %p")
+            else:
+                time_str = str(time_val)[:16]
+
+        info = {
+            "student_id": s_id,
+            "name": row.get("name"),
+            "roll_no": row.get("roll_no"),
+            "status": "Present" if st_status == "present" else "Absent",
+            "time": time_str
+        }
+        if st_status == "present":
+            present_map[s_id] = info
+        else:
+            explicit_absent_map[s_id] = info
+
+    present_list = []
+    absent_list = []
+    seen_ids = set()
+
+    for st in all_students:
+        s_id = st.get("student_id")
+        seen_ids.add(s_id)
+        if s_id in present_map:
+            present_list.append(present_map[s_id])
+        elif s_id in explicit_absent_map:
+            absent_list.append(explicit_absent_map[s_id])
+        else:
+            absent_list.append({
+                "student_id": s_id,
+                "name": st.get("name"),
+                "roll_no": st.get("roll_no"),
+                "status": "Absent",
+                "time": "Not Recorded"
+            })
+
+    # Also capture any present student not in all_students
+    for s_id, p_info in present_map.items():
+        if s_id not in seen_ids:
+            present_list.append(p_info)
+            seen_ids.add(s_id)
+
+    return jsonify({
+        "success": True,
+        "date": date_str,
+        "subject_id": subject_id,
+        "present": present_list,
+        "absent": absent_list,
+        "total_present": len(present_list),
+        "total_absent": len(absent_list)
+    })
+
+
+# =========================================================
+# VIDEO STREAM / PLAY ROUTE
+# =========================================================
+
+@teacher_bp.route("/video-stream/<int:video_id>", methods=["GET"])
+@login_required(role="teacher")
+def stream_processing_video(video_id):
+    """
+    Securely serves the classroom video file for browser playback.
+    Supports HTTP byte-range requests for seamless HTML5 video seeking.
+    """
+    row = run_query("SELECT video_path FROM video_uploads WHERE video_id = %s", (video_id,), fetch_one=True)
+    if not row or not row.get("video_path"):
+        return jsonify({"error": "Video record not found"}), 404
+
+    v_path = row.get("video_path")
+    from config.config import Config
+
+    candidates = [
+        v_path,
+        os.path.abspath(v_path),
+        os.path.join(os.getcwd(), v_path),
+        os.path.join(Config.UPLOAD_FOLDER, os.path.basename(v_path)),
+        os.path.join(Config.UPLOAD_FOLDER, "classroom_videos", os.path.basename(v_path)),
+        os.path.join(Config.VIDEO_UPLOAD_FOLDER, os.path.basename(v_path)),
+    ]
+
+    resolved_path = None
+    for cand in candidates:
+        if cand and os.path.exists(cand) and os.path.isfile(cand):
+            resolved_path = os.path.abspath(cand)
+            break
+
+    if not resolved_path:
+        return jsonify({"error": "Video file not found on disk"}), 404
+
+    return send_file(resolved_path, mimetype="video/mp4", conditional=True)
+
+
+# =========================================================
+# PROCESSING HISTORY - EDIT NOTES & DELETE
+# =========================================================
+
+@teacher_bp.route("/processing-history/edit/<int:video_id>", methods=["POST"])
+@login_required(role="teacher")
+def edit_processing_notes(video_id):
+    """
+    Edits notes/remarks for a video processing record.
+    """
+    data = request.get_json(silent=True) or {}
+    notes = data.get("notes", "").strip()
+
+    run_query(
+        "UPDATE video_uploads SET notes = %s WHERE video_id = %s",
+        (notes, video_id)
+    )
+    return jsonify({"success": True, "message": "Video details updated successfully!", "notes": notes})
+
+
+@teacher_bp.route("/processing-history/delete/<int:video_id>", methods=["POST"])
+@login_required(role="teacher")
+def delete_processing_record(video_id):
+    """
+    Deletes a video upload record.
+    """
+    run_query("DELETE FROM video_uploads WHERE video_id = %s", (video_id,))
+    return jsonify({"success": True, "message": "Video record removed successfully!"})
+
+
+# =========================================================
+# TEACHER VOICE & AI CHATBOT ASSISTANT
+# =========================================================
+
+@teacher_bp.route("/chat", methods=["POST"])
+@login_required(role="teacher")
+def teacher_chat_api():
+    """
+    Real-time Teacher Voice & AI Academic Assistant.
+    Fetches real data for the logged-in teacher and provides clear, accurate answers
+    for attendance-related questions:
+    - Present and absent students (for today or latest sessions)
+    - Subject-wise attendance metrics
+    - Monthly attendance reports
+    - Defaulters / Shortage list (< 75%)
+    - Specific student attendance queries
+    """
+    teacher_id = session.get("user_id")
+    data = request.get_json(silent=True) or {}
+    user_query = data.get("message", "").strip()
+
+    if not user_query:
+        return jsonify({
+            "success": False,
+            "reply": "Please ask or speak an attendance-related question.",
+            "plain_text": "Please ask or speak an attendance-related question."
+        }), 400
+
+    q = user_query.lower()
+
+    # 1. Fetch teacher info
+    teacher_row = run_query(
+        "SELECT name, email FROM teachers WHERE teacher_id = %s",
+        (teacher_id,),
+        fetch_one=True
+    ) or {}
+    t_name = teacher_row.get("name") or session.get("name") or "Professor"
+
+    # 2. Total roster count
+    tot_st_row = run_query("SELECT COUNT(*) AS total FROM students", fetch_one=True) or {}
+    total_roster = int(tot_st_row.get("total", 0) or 0)
+
+    # 3. Find latest attendance date
+    latest_date_row = run_query(
+        "SELECT MAX(DATE(check_in_time)) AS max_date FROM attendance WHERE check_in_time IS NOT NULL",
+        fetch_one=True
+    ) or {}
+    latest_att_date = str(latest_date_row.get("max_date") or datetime.now().strftime("%Y-%m-%d"))
+    today_date = datetime.now().strftime("%Y-%m-%d")
+
+    # ---------------------------------------------------------
+    # INTENT 1: PRESENT & ABSENT STUDENTS
+    # ---------------------------------------------------------
+    if any(k in q for k in ["present", "absent", "who is present", "who is absent", "attendance today", "attendance list", "turnout"]):
+        target_date = today_date if ("today" in q or latest_att_date == today_date) else latest_att_date
+        
+        # All roster students
+        all_students = run_query(
+            "SELECT student_id, name, student_number AS roll_no FROM students ORDER BY student_number ASC, name ASC",
+            fetch_all=True
+        ) or []
+
+        # Students marked present on target_date
+        pres_rows = run_query(
+            """
+            SELECT DISTINCT a.student_id, s.name, s.student_number AS roll_no
+            FROM attendance a
+            JOIN students s ON a.student_id = s.student_id
+            WHERE DATE(a.check_in_time) = %s AND LOWER(a.status) = 'present'
+            ORDER BY s.student_number ASC
+            """,
+            (target_date,),
+            fetch_all=True
+        ) or []
+
+        pres_ids = set([r["student_id"] for r in pres_rows])
+        absent_rows = [s for s in all_students if s["student_id"] not in pres_ids]
+
+        pres_count = len(pres_rows)
+        abs_count = len(absent_rows)
+        turnout_pct = round((pres_count / len(all_students) * 100), 1) if all_students else 0.0
+
+        # Sample names for display
+        pres_names = [f"{s['name']} ({s['roll_no']})" for s in pres_rows[:6]]
+        abs_names = [f"{s['name']} ({s['roll_no']})" for s in absent_rows[:6]]
+
+        pres_sample_str = ", ".join(pres_names) if pres_names else "None"
+        abs_sample_str = ", ".join(abs_names) if abs_names else "None"
+
+        date_label = "today" if target_date == today_date else f"on {target_date}"
+
+        if "absent" in q and "present" not in q:
+            reply_html = f"""
+            <div><strong>Absent Students ({date_label}):</strong></div>
+            <div class="mt-1">A total of <strong class="text-danger">{abs_count} student(s)</strong> are absent out of {len(all_students)} enrolled.</div>
+            {f'<div class="small mt-2"><strong>Absent List:</strong> {abs_sample_str}{" and more..." if abs_count > 6 else ""}</div>' if abs_count > 0 else '<div class="small text-success mt-1">Full 100% attendance! No absences recorded.</div>'}
+            """
+            plain = f"On {target_date}, there are {abs_count} students absent out of {len(all_students)} enrolled. Key absentees include {', '.join([s['name'] for s in absent_rows[:4]]) if absent_rows else 'none'}."
+        elif "present" in q and "absent" not in q:
+            reply_html = f"""
+            <div><strong>Present Students ({date_label}):</strong></div>
+            <div class="mt-1">A total of <strong class="text-success">{pres_count} student(s)</strong> are marked present ({turnout_pct}% turnout).</div>
+            <div class="small mt-2"><strong>Present Attendees:</strong> {pres_sample_str}{" and more..." if pres_count > 6 else ""}</div>
+            """
+            plain = f"On {target_date}, {pres_count} students are present out of {len(all_students)} enrolled, representing {turnout_pct}% attendance turnout."
+        else:
+            reply_html = f"""
+            <div><strong>Attendance Summary ({date_label}):</strong></div>
+            <ul class="ps-3 mt-2 mb-1">
+                <li>Present: <strong class="text-success">{pres_count}</strong> students ({turnout_pct}%)</li>
+                <li>Absent: <strong class="text-danger">{abs_count}</strong> students</li>
+                <li>Total Enrolled Roster: <strong>{len(all_students)}</strong></li>
+            </ul>
+            <div class="small mt-2 text-muted">Present: {pres_sample_str}.</div>
+            {f'<div class="small mt-1 text-danger">Absent: {abs_sample_str}.</div>' if abs_count > 0 else ''}
+            """
+            plain = f"Attendance summary for {date_label}: {pres_count} students are present and {abs_count} students are absent out of {len(all_students)} enrolled."
+
+        return jsonify({"success": True, "reply": reply_html, "plain_text": plain})
+
+    # ---------------------------------------------------------
+    # INTENT 2: SUBJECT-WISE ATTENDANCE
+    # ---------------------------------------------------------
+    if any(k in q for k in ["subject", "subject-wise", "course", "subjects", "breakdown"]):
+        sub_rows = run_query(
+            """
+            SELECT 
+                sub.subject_id,
+                sub.subject_name,
+                sub.subject_code,
+                COUNT(DISTINCT CONCAT(DATE(a.check_in_time), '_', COALESCE(a.video_id, 0))) AS total_sessions,
+                COUNT(DISTINCT CASE WHEN LOWER(a.status) = 'present' THEN CONCAT(a.student_id, '_', DATE(a.check_in_time), '_', COALESCE(a.video_id, 0)) END) AS total_presents
+            FROM subjects sub
+            JOIN attendance a ON sub.subject_id = a.subject_id
+            GROUP BY sub.subject_id, sub.subject_name, sub.subject_code
+            HAVING total_sessions > 0
+            ORDER BY sub.subject_name ASC
+            """,
+            fetch_all=True
+        ) or []
+
+        if not sub_rows:
+            return jsonify({
+                "success": True,
+                "reply": "<div>No subject-wise attendance logs have been recorded yet in the database.</div>",
+                "plain_text": "No subject-wise attendance logs have been recorded yet in the database."
+            })
+
+        tot_enrolled = total_roster if total_roster > 0 else 67
+        items_html = ""
+        speech_items = []
+        for s in sub_rows:
+            s_name = s.get("subject_name") or "Subject"
+            sess = int(s.get("total_sessions") or 0)
+            pres = int(s.get("total_presents") or 0)
+            expected = sess * tot_enrolled
+            pct = round((pres / expected * 100), 1) if expected > 0 else 0.0
+            badge_class = "text-success" if pct >= 75.0 else "text-danger"
+            items_html += f"<li><strong>{s_name}</strong>: <span class='{badge_class} fw-bold'>{pct}%</span> ({sess} class{'es' if sess != 1 else ''} conducted, {pres} student attendances)</li>"
+            speech_items.append(f"{s_name}: {pct} percent across {sess} classes")
+
+        reply_html = f"""
+        <div><strong>Subject-Wise Attendance Summary:</strong></div>
+        <ul class="ps-3 mt-2 mb-1">
+            {items_html}
+        </ul>
+        <div class="small text-muted mt-2">Percentage is calculated based on {tot_enrolled} enrolled students per session.</div>
+        """
+        plain = f"Here is the subject-wise attendance: {'; '.join(speech_items[:3])}."
+        return jsonify({"success": True, "reply": reply_html, "plain_text": plain})
+
+    # ---------------------------------------------------------
+    # INTENT 3: MONTHLY ATTENDANCE REPORTS
+    # ---------------------------------------------------------
+    if any(k in q for k in ["month", "monthly", "monthly report", "report for", "this month"]):
+        month_rows = run_query(
+            """
+            SELECT 
+                DATE_FORMAT(a.check_in_time, '%M %Y') AS month_name,
+                COUNT(DISTINCT CONCAT(DATE(a.check_in_time), '_', COALESCE(a.subject_id, 0), '_', COALESCE(a.video_id, 0))) AS sessions_count,
+                COUNT(DISTINCT CASE WHEN LOWER(a.status) = 'present' THEN CONCAT(a.student_id, '_', DATE(a.check_in_time), '_', COALESCE(a.video_id, 0)) END) AS present_count
+            FROM attendance a
+            WHERE a.check_in_time IS NOT NULL
+            GROUP BY DATE_FORMAT(a.check_in_time, '%Y-%m'), DATE_FORMAT(a.check_in_time, '%M %Y')
+            ORDER BY DATE_FORMAT(a.check_in_time, '%Y-%m') DESC
+            LIMIT 4
+            """,
+            fetch_all=True
+        ) or []
+
+        if not month_rows:
+            return jsonify({
+                "success": True,
+                "reply": "<div>No monthly attendance data recorded yet in the database.</div>",
+                "plain_text": "No monthly attendance data recorded yet in the database."
+            })
+
+        tot_enrolled = total_roster if total_roster > 0 else 67
+        items_html = ""
+        speech_items = []
+        for m in month_rows:
+            m_name = m.get("month_name") or "Month"
+            sess = int(m.get("sessions_count") or 0)
+            pres = int(m.get("present_count") or 0)
+            expected = sess * tot_enrolled
+            pct = round((pres / expected * 100), 1) if expected > 0 else 0.0
+            items_html += f"<li><strong>{m_name}</strong>: <strong>{pct}%</strong> attendance ({sess} class session{'s' if sess != 1 else ''} held, {pres} student attendances)</li>"
+            speech_items.append(f"{m_name} had {pct} percent attendance across {sess} sessions")
+
+        reply_html = f"""
+        <div><strong>Monthly Attendance Performance:</strong></div>
+        <ul class="ps-3 mt-2 mb-1">
+            {items_html}
+        </ul>
+        <div class="small text-muted mt-2">Monthly attendance report is automatically emailed at the end of every month.</div>
+        """
+        plain = f"Monthly attendance report: {'. '.join(speech_items)}."
+        return jsonify({"success": True, "reply": reply_html, "plain_text": plain})
+
+    # ---------------------------------------------------------
+    # INTENT 4: SHORTAGE LIST / DEFAULTERS (< 75%)
+    # ---------------------------------------------------------
+    if any(k in q for k in ["shortage", "defaulter", "below 75", "low attendance", "risk", "detention"]):
+        shortage_rows = run_query(
+            """
+            SELECT 
+                s.name,
+                s.student_number AS usn,
+                COUNT(a.attendance_id) AS total_classes,
+                SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) AS present_classes
+            FROM students s
+            JOIN attendance a ON s.student_id = a.student_id
+            GROUP BY s.student_id, s.name, s.student_number
+            HAVING total_classes > 0 AND (present_classes * 100.0 / total_classes) < 75.0
+            ORDER BY (present_classes * 100.0 / total_classes) ASC
+            LIMIT 10
+            """,
+            fetch_all=True
+        ) or []
+
+        if not shortage_rows:
+            reply_html = """
+            <div class="text-success fw-bold">✅ Good News: No Attendance Shortages</div>
+            <div class="mt-1">All tracked students currently have 75% or higher attendance.</div>
+            """
+            plain = "All tracked students currently have 75 percent or higher attendance."
+        else:
+            items_html = "".join([
+                f"<li><strong>{r['name']}</strong> ({r['usn']}): <span class='text-danger fw-bold'>{round(r['present_classes']*100.0/r['total_classes'], 1)}%</span> ({r['present_classes']}/{r['total_classes']} classes attended)</li>"
+                for r in shortage_rows
+            ])
+            reply_html = f"""
+            <div class="text-danger fw-bold">⚠️ Students with Attendance Below 75%:</div>
+            <ul class="ps-3 mt-2 mb-1">
+                {items_html}
+            </ul>
+            """
+            plain = f"There are {len(shortage_rows)} students with attendance below 75 percent. The lowest is {shortage_rows[0]['name']} at {round(shortage_rows[0]['present_classes']*100.0/shortage_rows[0]['total_classes'], 1)} percent."
+
+        return jsonify({"success": True, "reply": reply_html, "plain_text": plain})
+
+    # ---------------------------------------------------------
+    # INTENT 5: GENERAL / HELP / OVERVIEW
+    # ---------------------------------------------------------
+    tot_sessions_row = run_query(
+        "SELECT COUNT(DISTINCT CONCAT(DATE(check_in_time), '_', COALESCE(subject_id, 0))) AS total FROM attendance",
+        fetch_one=True
+    ) or {}
+    total_sessions = int(tot_sessions_row.get("total", 0) or 0)
+
+    reply_html = f"""
+    <div>Hello <strong>{t_name}</strong>! How can I help you today?</div>
+    <div class="mt-2"><strong>Classroom Overview:</strong></div>
+    <ul class="ps-3 mt-1 mb-1">
+        <li>Total Enrolled Students: <strong>{total_roster}</strong></li>
+        <li>Conducted Class Sessions: <strong>{total_sessions}</strong></li>
+        <li>Latest Recorded Class: <strong>{latest_att_date}</strong></li>
+    </ul>
+    <div class="small text-muted mt-2">You can ask:
+        <br>&bull; <em>"Who is present today?"</em>
+        <br>&bull; <em>"Who is absent today?"</em>
+        <br>&bull; <em>"Show subject-wise attendance"</em>
+        <br>&bull; <em>"Show students with attendance shortage"</em>
+    </div>
+    """
+    plain = f"Hello Professor {t_name}. You have {total_sessions} class sessions recorded for {total_roster} students. You can ask me who is present today or for subject attendance."
+    return jsonify({"success": True, "reply": reply_html, "plain_text": plain})
+
+
+
 

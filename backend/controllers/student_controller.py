@@ -275,10 +275,20 @@ def dashboard():
                 status_tier = "healthy"
                 classes_needed = 0
 
+        sub_sem = 7
+        m = re.search(r'\d', str(sub_code or ''))
+        if m:
+            val = int(m.group(0))
+            if 1 <= val <= 8:
+                sub_sem = val
+        sub_year = (sub_sem + 1) // 2
+
         subject_attendance.append({
             "subject_id": sub_id,
             "subject_name": sub_name,
             "subject_code": sub_code,
+            "semester": sub_sem,
+            "year": sub_year,
             "attended": attended_count,
             "total": total_classes,
             "percentage": pct,
@@ -529,18 +539,28 @@ def dashboard():
                 except Exception:
                     rec_map = {}
 
-            if not rec_map:
-                continue
-
             st_data = rec_map.get(str(student_id)) or rec_map.get(str(curr_student_usn))
-            if not st_data:
-                continue
+            if not st_data and curr_student_usn:
+                for k, v in rec_map.items():
+                    if str(k).strip().upper() == str(curr_student_usn).strip().upper():
+                        st_data = v
+                        break
+                    if isinstance(v, dict) and str(v.get("usn") or "").strip().upper() == str(curr_student_usn).strip().upper():
+                        st_data = v
+                        break
 
-            st_att = int(st_data.get("attended") or 0)
-            st_tot = int(st_data.get("total") or r.get("total_classes") or 1)
-            st_pct = float(st_data.get("percentage") or 0.0)
-            st_stat = st_data.get("status") or ("Regular" if st_pct >= 75.0 else "Shortage")
-            st_needed = int(st_data.get("classes_needed") or (max(1, math.ceil(3 * st_tot - 4 * st_att)) if st_pct < 75.0 else 0))
+            if st_data:
+                st_att = int(st_data.get("attended") or 0)
+                st_tot = int(st_data.get("total") or r.get("total_classes") or 1)
+                st_pct = float(st_data.get("percentage") or 0.0)
+                st_stat = st_data.get("status") or ("Regular" if st_pct >= 75.0 else "Shortage")
+                st_needed = int(st_data.get("classes_needed") or (max(1, math.ceil(3 * st_tot - 4 * st_att)) if st_pct < 75.0 else 0))
+            else:
+                st_att = int(present_count or 0)
+                st_tot = int(r.get("total_classes") or total_conducted or 1)
+                st_pct = round((st_att / st_tot * 100), 1) if st_tot > 0 else 100.0
+                st_stat = "Regular" if st_pct >= 75.0 else "Shortage"
+                st_needed = max(1, math.ceil(3 * st_tot - 4 * st_att)) if st_pct < 75.0 else 0
 
             c_at = r.get("created_at")
             time_display = c_at.strftime("%d %b %Y, %I:%M %p") if hasattr(c_at, "strftime") else str(c_at or "Recently")
@@ -728,6 +748,9 @@ def dashboard():
         # Enhanced properties
         usn=usn,
         class_display=class_display,
+        student_branch=br,
+        student_semester=sem,
+        student_year=(int(sem) + 1) // 2 if str(sem).isdigit() else 4,
         student_email=student_email,
         student_photo=student_photo,
         initials=initials,
@@ -876,59 +899,309 @@ def call_openai_chat(messages, max_tokens=1000, temperature=0.7):
         return None
 
 
-def generate_academic_study_plan_fallback(subject, branch, semester):
+def generate_academic_study_plan_fallback(subject, branch=None, semester=None, iteration=0):
     """
-    High-quality structured syllabus plan fallback when OpenAI quota is exhausted.
-    Clean academic structure with no placement readiness.
+    Intelligent subject-specific curriculum generator for ANY subject entered by the student.
+    Dynamically crafts clear topics, daily tasks, revision activities, and exam preparation guidance.
+    Uses iteration offset to guarantee diverse, non-repeating modules on every regeneration.
     """
-    sub = (subject or "Core Engineering Subject").strip()
+    sub_raw = (subject or "General Engineering Course").strip()
+    sub_title = sub_raw.title()
+    s_lower = sub_raw.lower()
     br = (branch or "Engineering").strip()
-    sem = str(semester or "Current").strip()
+    sem = str(semester or "7").strip()
+    iter_num = int(iteration or 0)
+
+    # Pre-built academic modules for common subjects & domains
+    domain_knowledge = {
+        "operating system": {
+            "variants": [
+                {
+                    "topics": [
+                        {"title": "Process Management & CPU Scheduling", "description": "Process states, PCB, IPC message passing, and CPU scheduling algorithms (FCFS, SJF, Round Robin, Multi-level queues)."},
+                        {"title": "Process Synchronization & Concurrency", "description": "Critical section problem, Peterson's algorithm, counting and binary semaphores, and classic synchronization problems."},
+                        {"title": "Memory Management & Paging", "description": "Logical vs physical address translation, paging tables, TLB hits/misses, and segmentation models."},
+                        {"title": "Virtual Memory & Page Replacement", "description": "Demand paging, page fault handling, FIFO, LRU, Optimal page replacement, and thrashing prevention."}
+                    ],
+                    "dailyTasks": [
+                        {"day": "Day 1 - 2", "task": "Study Process Lifecycle & CPU Scheduling: Solve 4 numerical problems on FCFS, SJF, and Round Robin Gantt charts."},
+                        {"day": "Day 3 - 4", "task": "Master Synchronization: Work out Peterson's solution and semaphore implementations for Producer-Consumer."},
+                        {"day": "Day 5 - 6", "task": "Deep Dive into Paging: Calculate effective memory access times and simulate LRU/FIFO page faults on reference strings."},
+                        {"day": "Day 7", "task": "Full Revision & Exam Drill: Solve 5 high-weightage 10-mark questions and draw clean OS architecture diagrams."}
+                    ]
+                },
+                {
+                    "topics": [
+                        {"title": "Deadlock Characterization & Prevention", "description": "Four Coffman deadlock conditions, Resource Allocation Graphs, and Deadlock Prevention strategies."},
+                        {"title": "Banker's Algorithm & Deadlock Avoidance", "description": "Safety algorithm, Resource-Request algorithm, safe states vs unsafe states, and recovery strategies."},
+                        {"title": "File System Interface & Directory Structure", "description": "File concepts, access methods (sequential, direct), directory structures, and file mounting."},
+                        {"title": "Disk Scheduling & Mass-Storage Structure", "description": "Magnetic disks, SSD characteristics, and disk scheduling algorithms (FCFS, SSTF, SCAN, C-SCAN, LOOK)."}
+                    ],
+                    "dailyTasks": [
+                        {"day": "Day 1 - 2", "task": "Deadlock Dynamics: Draw Resource Allocation Graphs and evaluate cycle conditions for single vs multiple resource instances."},
+                        {"day": "Day 3 - 4", "task": "Banker's Algorithm Matrix Drills: Work through 3 comprehensive numerical problems with allocation, max, and need matrices."},
+                        {"day": "Day 5 - 6", "task": "Storage Allocation: Compare Contiguous, Linked, and Indexed file allocation methods with disk seek times."},
+                        {"day": "Day 7", "task": "Full Revision: Calculate total head movements for SSTF and SCAN on a sample disk cylinder sequence."}
+                    ]
+                }
+            ],
+            "revisionActivities": [
+                [
+                    "Active Recall: Draw the 5-state process transition model and explain each state change from memory.",
+                    "Gantt Chart Drills: Solve 3 scheduling problems comparing average turnaround time and waiting time.",
+                    "Memory Translation: Trace a 2-level paging address translation with TLB from hex address.",
+                    "Summary Memory Sheet: Summarize Disk Scheduling vs CPU Scheduling formulas on a single cheat sheet."
+                ],
+                [
+                    "Banker's Algorithm Walkthrough: Trace safety verification on paper with a 5-process, 3-resource type matrix.",
+                    "Deadlock Detection Drill: Explain the difference between Deadlock Prevention and Deadlock Avoidance in bullet points.",
+                    "Disk Head Movement Chart: Calculate seek distance for FCFS vs SSTF vs SCAN on 200-cylinder disks.",
+                    "Inverted Page Table: Explain how hashed and inverted page tables save physical frame memory."
+                ]
+            ],
+            "examGuidance": [
+                "Always draw clear, labeled Gantt charts and state tables for scheduling and Banker's algorithm problems.",
+                "State conditions for deadlock clearly (Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait) with real-world examples.",
+                "Allocate 15-18 minutes per 10-mark question; write crisp points rather than long unbroken paragraphs.",
+                "Begin your examination with numerical questions (Scheduling/Banker's) to secure full marks early."
+            ]
+        },
+        "network": {
+            "variants": [
+                {
+                    "topics": [
+                        {"title": "Network Models & Physical Layer", "description": "OSI 7-Layer model, TCP/IP architecture, transmission media, framing, and error detection (CRC, Hamming code)."},
+                        {"title": "Data Link Layer & MAC Protocols", "description": "Flow control (Stop-and-Wait, Sliding Window, Go-Back-N, Selective Repeat) and multiple access protocols (CSMA/CD, ALOHA)."},
+                        {"title": "Network Layer & Routing Protocols", "description": "IPv4/IPv6 addressing, subnetting, CIDR, Distance Vector Routing (Bellman-Ford), and Link State Routing (Dijkstra)."},
+                        {"title": "Transport & Application Layers", "description": "TCP 3-way handshake, TCP vs UDP, congestion control (Leaky Bucket, Token Bucket), DNS, HTTP, and socket basics."}
+                    ],
+                    "dailyTasks": [
+                        {"day": "Day 1 - 2", "task": "Master OSI vs TCP/IP: Write down layer-by-layer responsibilities and solve 4 CRC error detection polynomial problems."},
+                        {"day": "Day 3 - 4", "task": "Subnetting & Routing: Practice IP address allocation, CIDR slash notations, and Dijkstra's algorithm paths."},
+                        {"day": "Day 5 - 6", "task": "Transport Layer Protocols: Draw TCP segment header, explain 3-way handshake, and compare Go-Back-N with Selective Repeat."},
+                        {"day": "Day 7", "task": "Final Revision: Review past 3 years university question papers and practice drawing clean protocol timing diagrams."}
+                    ]
+                },
+                {
+                    "topics": [
+                        {"title": "Data Link Control & Error Correction", "description": "Hamming code 7-bit generation and single-bit error correction, HDLC, and Point-to-Point protocol."},
+                        {"title": "Internetworking & Routing Algorithms", "description": "Hierarchical routing, BGP inter-domain routing, OSPF link-state database, and IPv4 packet fragmentation."},
+                        {"title": "TCP Congestion Control & Flow Mechanics", "description": "TCP Slow Start, Congestion Avoidance, Fast Retransmit, Fast Recovery, and TCP timer management."},
+                        {"title": "Application Layer & Network Security", "description": "Domain Name System (DNS) resolution hierarchy, SMTP/IMAP email architecture, TLS 1.3 handshake, and firewalls."}
+                    ],
+                    "dailyTasks": [
+                        {"day": "Day 1 - 2", "task": "Hamming Code Drill: Calculate parity bit positions (P1, P2, P4) and verify error syndrome detection."},
+                        {"day": "Day 3 - 4", "task": "IP Fragmentation: Break down a 4000-byte datagram across MTU=1500 links, computing Offset and More Fragments flags."},
+                        {"day": "Day 5 - 6", "task": "Congestion Window Tracing: Plot TCP CWND growth across Slow Start and Congestion Avoidance rounds upon packet loss."},
+                        {"day": "Day 7", "task": "DNS & Security Review: Trace recursive vs iterative DNS queries and write steps of TLS certificate validation."}
+                    ]
+                }
+            ],
+            "revisionActivities": [
+                [
+                    "Layer Recall: List the PDU (Packet Data Unit) name and protocols operating at every layer of OSI.",
+                    "Subnetting Sprint: Solve 5 quick subnet mask, network address, and broadcast address numericals.",
+                    "Protocol Contrast: Prepare a side-by-side comparison chart between TCP and UDP.",
+                    "Routing Simulation: Trace Bellman-Ford count-to-infinity problem on a 4-node topology."
+                ],
+                [
+                    "Header Layout Memory: Sketch IPv4 header with all 14 fields and bit lengths from memory.",
+                    "Sliding Window Formula: Calculate channel utilization efficiency for Stop-and-Wait vs Go-Back-N.",
+                    "Leaky Bucket vs Token Bucket: Draw operational block diagrams and contrast burst handling capacity.",
+                    "Port Matching Drill: Test your memory on 10 standard application layer protocol ports."
+                ]
+            ],
+            "examGuidance": [
+                "Include neat layer diagrams and header formats with exact bit counts for TCP, UDP, and IPv4.",
+                "Show all intermediate steps and calculations for CRC polynomials and subnetting questions.",
+                "Highlight key differences between Distance Vector and Link State routing in a neat tabular format.",
+                "Review port numbers for common protocols (HTTP 80, DNS 53, SMTP 25, HTTPS 443) for quick 2-mark answers."
+            ]
+        },
+        "database": {
+            "variants": [
+                {
+                    "topics": [
+                        {"title": "ER Modeling & Relational Algebra", "description": "Entity-Relationship diagrams, cardinality ratios, weak entities, and relational algebra operations (Selection, Projection, Joins)."},
+                        {"title": "SQL & Advanced Queries", "description": "DDL, DML, complex joins, nested subqueries, views, triggers, and integrity constraints."},
+                        {"title": "Normalization & Functional Dependencies", "description": "Armstrong's axioms, closure sets, 1NF, 2NF, 3NF, BCNF decomposition, and dependency preservation."},
+                        {"title": "Transactions & Concurrency Control", "description": "ACID properties, serializability, two-phase locking (2PL), deadlocks, and recovery techniques (WAL, checkpointing)."}
+                    ],
+                    "dailyTasks": [
+                        {"day": "Day 1 - 2", "task": "ER Diagram to Relational Schema: Draw 2 complete ER diagrams and convert them into normalized tables with foreign keys."},
+                        {"day": "Day 3 - 4", "task": "SQL Query Practice: Write 10 complex queries involving GROUP BY, HAVING, INNER/LEFT joins, and correlated subqueries."},
+                        {"day": "Day 5 - 6", "task": "Normalization Mastery: Solve 4 normalization decomposition problems up to BCNF and test for lossless join."},
+                        {"day": "Day 7", "task": "Transactions & Past Papers: Review conflict serializability precedence graphs and solve 5 university 10-markers."}
+                    ]
+                },
+                {
+                    "topics": [
+                        {"title": "Extended ER & Relational Calculus", "description": "Generalization, Specialization, Aggregation, Tuple Relational Calculus (TRC), and Domain Relational Calculus (DRC)."},
+                        {"title": "Advanced Normal Forms & Minimal Covers", "description": "Canonical minimal cover computation, 4NF (multi-valued dependencies), and 5NF join dependencies."},
+                        {"title": "Indexing & Physical Storage", "description": "Primary vs secondary indexes, clustered indexing, B-Trees and B+ Trees insertion and search mechanics."},
+                        {"title": "Advanced Concurrency & Recovery Mechanisms", "description": "Strict 2PL, Timestamp ordering protocol, Thomas' write rule, ARIES recovery algorithm, and shadow paging."}
+                    ],
+                    "dailyTasks": [
+                        {"day": "Day 1 - 2", "task": "EER Specialization Drills: Model disjoint vs overlapping constraints and total vs partial participation."},
+                        {"day": "Day 3 - 4", "task": "Minimal Cover Algorithm: Compute canonical cover F_min for complex functional dependency sets."},
+                        {"day": "Day 5 - 6", "task": "B+ Tree Walkthrough: Trace node splitting and root elevation for a B+ tree of order 4 on 10 inserted keys."},
+                        {"day": "Day 7", "task": "ARIES Recovery Trace: Write out Analysis, Redo, and Undo passes for crash recovery log records."}
+                    ]
+                }
+            ],
+            "revisionActivities": [
+                [
+                    "Precedence Graph Drills: Determine if 3 sample transaction schedules are conflict serializable.",
+                    "Closure Calculation: Find the candidate keys of relational schemas given a set of functional dependencies.",
+                    "SQL Syntax Flashcards: Review syntax for CREATE TABLE, ALTER, TRIGGER, and cursor operations.",
+                    "ACID Explanation: Write concise definitions and real-world banking examples for Atomicity and Isolation."
+                ],
+                [
+                    "B+ Tree vs B Tree: Write 4 core differences regarding data storage in leaf vs internal nodes.",
+                    "Lossless Join Verification: Check if R1 cap R2 determines R1 or R2 using attribute closure.",
+                    "Lock Compatibility Matrix: Draw shared (S) vs exclusive (X) lock matrices and explain deadlock prevention via Wait-Die.",
+                    "Relational Algebra Translation: Translate 3 complex natural language requests into relational algebra expressions."
+                ]
+            ],
+            "examGuidance": [
+                "Use standard ER modeling notation (rectangles for entities, diamonds for relationships, ovals for attributes).",
+                "For normalization questions, always write the candidate keys, functional dependency violations, and decomposed relations clearly.",
+                "Write clean, properly indented SQL queries with clear keywords uppercase (SELECT, FROM, WHERE).",
+                "Explain ACID properties with practical transaction examples to score full marks in descriptive sections."
+            ]
+        }
+    }
+
+    # Match domain or build dynamic synthesis
+    matched = None
+    for key, spec in domain_knowledge.items():
+        if key in s_lower:
+            matched = spec
+            break
+
+    if matched:
+        variants = matched["variants"]
+        var_idx = iter_num % len(variants)
+        topics = variants[var_idx]["topics"]
+        daily_tasks = variants[var_idx]["dailyTasks"]
+        rev_acts = matched["revisionActivities"]
+        revision_activities = rev_acts[iter_num % len(rev_acts)]
+        exam_guidance = matched["examGuidance"]
+    else:
+        # Dynamic curriculum synthesis for ANY other subject with variation offset
+        kw = [w.capitalize() for w in re.findall(r"[A-Za-z]+", sub_raw) if len(w) > 2]
+        lead_kw = " ".join(kw[:3]) if kw else sub_title
+
+        if iter_num % 2 == 1:
+            topics = [
+                {
+                    "title": f"Applied Architecture & Modeling of {lead_kw}",
+                    "description": f"Subsystem interaction diagrams, mathematical governing relations, and state transition models of {sub_title}."
+                },
+                {
+                    "title": f"Algorithmic Derivations & Analytical Drills",
+                    "description": f"Standard numerical derivations, step-by-step problem sets, variable tracking, and parametric benchmarks in {sub_title}."
+                },
+                {
+                    "title": f"Optimization Strategies & System Trade-offs",
+                    "description": f"Performance bottlenecks, comparative assessment against alternative architectures, failure mitigation, and best practices."
+                },
+                {
+                    "title": f"Exam Paper Solutions & Model Answering",
+                    "description": f"Timed 10-mark university question walkthroughs, model diagrams, step-by-step point structure, and final revision summary."
+                }
+            ]
+            daily_tasks = [
+                {
+                    "day": "Day 1 - 2",
+                    "task": f"Architectural Modeling: Draw and label the complete core architecture diagram of {sub_title} with component interactions."
+                },
+                {
+                    "day": "Day 3 - 4",
+                    "task": f"Analytical Derivations: Practice 4 high-frequency numerical problems or governing equation proofs on paper."
+                },
+                {
+                    "day": "Day 5 - 6",
+                    "task": f"Trade-off Analysis: Create a comparison matrix contrasting alternative methodologies and mitigation techniques."
+                },
+                {
+                    "day": "Day 7",
+                    "task": f"Timed Mock Test: Complete a 60-minute sprint solving 4 previous semester examination questions with clean diagrams."
+                }
+            ]
+            revision_activities = [
+                f"Architecture Trace: Reconstruct the complete structural diagram of {sub_title} entirely from memory without notes.",
+                f"Formula Verification: Verify and calculate boundary conditions for the primary operational formulas of {sub_title}.",
+                "Teach-Back Review: Explain the 3 biggest design trade-offs of this course to a friend in plain, intuitive English.",
+                "Summary Cards: Write down 5 high-yield 2-mark definitions and units on index cards for quick review."
+            ]
+        else:
+            topics = [
+                {
+                    "title": f"Foundations & Principles of {lead_kw}",
+                    "description": f"Core definitions, governing principles, historical development, and prerequisite concepts of {sub_title}."
+                },
+                {
+                    "title": f"Core Mechanisms & Methodologies in {lead_kw}",
+                    "description": f"Fundamental mechanisms, step-by-step procedural logic, primary analytical formulas, and structural architectures."
+                },
+                {
+                    "title": f"Advanced Problem Solving & Applications",
+                    "description": f"Complex scenario analysis, trade-off evaluation, integration workflows, and industry-standard best practices in {sub_title}."
+                },
+                {
+                    "title": f"High-Yield University Modules & Synthesis",
+                    "description": f"Key examination topics, high-frequency numerical derivations, previous year question bank patterns, and final review."
+                }
+            ]
+            daily_tasks = [
+                {
+                    "day": "Day 1 - 2",
+                    "task": f"Foundational Review: Study fundamental terminology and scope of {sub_title}. Create a glossary of key terms and core concepts."
+                },
+                {
+                    "day": "Day 3 - 4",
+                    "task": f"Core Methodology Drill: Work through standard procedural workflows and practice 3-5 standard textbook problems step-by-step."
+                },
+                {
+                    "day": "Day 5 - 6",
+                    "task": f"Analytical Problem Sets: Solve complex case scenarios and create a 1-page summary sheet of all governing formulas and diagrams."
+                },
+                {
+                    "day": "Day 7",
+                    "task": f"Full Revision & Exam Sprint: Attempt previous semester examination questions under a 60-minute timed sprint."
+                }
+            ]
+            revision_activities = [
+                f"Active Recall: Write down the primary architecture and working principles of {sub_title} without referring to notes.",
+                "Summary Sheet: Prepare a single-page formula and block diagram summary sheet for quick pre-exam review.",
+                "Previous Exam Papers: Solve 5 high-frequency questions from previous university exams under timed conditions.",
+                f"Teach-Back Technique: Explain the toughest concept in {sub_title} out loud to a peer or in your own words."
+            ]
+
+        exam_guidance = [
+            "Structure answers with clear headings, neat block diagrams, and bullet points rather than dense paragraphs.",
+            "Highlight high-weightage derivations and clearly explain intermediate steps and assumptions.",
+            "Manage your time: Allocate 15-18 minutes per 10-mark question during the examination.",
+            "Begin with your strongest subject module to build examination confidence and secure early marks smoothly."
+        ]
+
+    # Compatible phases for backward compatibility
+    phases = [
+        {"name": f"Phase {i+1}: {t['title']}", "bullets": [t["description"], f"Practice key problems and analytical diagrams for {t['title']}."]}
+        for i, t in enumerate(topics)
+    ]
+    concepts = [t["title"] for t in topics]
 
     return {
-        "summary": f"Targeted syllabus roadmap and conceptual mastery framework for {sub} ({br}, Semester {sem}). Designed to systematically build core analytical intuition, master high-yield topics, and ensure top scores in semester examinations.",
-        "phases": [
-            {
-                "name": f"Phase 1: Foundations & Core Mathematical / Theoretical Principles",
-                "bullets": [
-                    f"Fundamental definitions, terminology, and scope of {sub}",
-                    "Underlying mathematical representations, schemas, and state architectures",
-                    "Introductory problem sets, governing theorems, and foundational exercises"
-                ]
-            },
-            {
-                "name": f"Phase 2: Algorithmic Logic & Systematic Implementation",
-                "bullets": [
-                    "Step-by-step breakdown of standard workflows and core algorithms",
-                    "Practical parameter tuning, computational complexity, and execution pipelines",
-                    "Mid-term examination core analytical problems and step-by-step derivations"
-                ]
-            },
-            {
-                "name": f"Phase 3: Advanced Architectures & Real-World Case Studies",
-                "bullets": [
-                    "Complex system design scenarios and fault-tolerant mechanisms",
-                    "Comparative trade-off analysis between standard methodologies",
-                    "Practical laboratory integration and real-world simulation drills"
-                ]
-            },
-            {
-                "name": f"Phase 4: Synthesis, Previous Year VTU Papers & Final Exam Mastery",
-                "bullets": [
-                    "High-yield derivation revision, formula memory sheets, and architecture diagrams",
-                    "Solution analysis of past 5 years university examination question banks",
-                    "Full-syllabus timed mock revisions focusing on 100% question accuracy"
-                ]
-            }
-        ],
-        "importantConcepts": [
-            f"Fundamental Architecture & Operating Models of {sub}",
-            "Core Analytical Formulations and Governing Theorems",
-            "State Machine / Pipeline Execution Strategies",
-            "Computational Efficiency & Performance Optimization",
-            "Error Detection, Handling, and Fault-Tolerance",
-            "University High-Weightage Derivations & Diagrams"
-        ]
+        "subject": sub_title,
+        "summary": f"Personalized study plan for {sub_title} ({br}, Semester {sem}). Designed to systematically master core topics, build strong exam confidence, and achieve top grades.",
+        "topics": topics,
+        "dailyTasks": daily_tasks,
+        "revisionActivities": revision_activities,
+        "examGuidance": exam_guidance,
+        "phases": phases,
+        "importantConcepts": concepts
     }
 
 
@@ -936,37 +1209,67 @@ def generate_academic_study_plan_fallback(subject, branch, semester):
 @login_required(role="student")
 def generate_ai_study_plan_api():
     """
-    Generates a personalized AI study plan using OpenAI API.
-    Gracefully falls back to high-yield curriculum engine if quota limit is reached.
+    Generates a personalized AI study plan using OpenAI API with dynamic fallback.
+    Accepts ANY subject name entered by the student.
+    Returns clear topics, daily tasks, revision activities, and exam preparation guidance.
     """
     data = request.get_json(silent=True) or {}
     branch = data.get("branch", "").strip()
     semester = data.get("semester", "").strip()
     subject = data.get("subject", "").strip()
+    iteration = int(data.get("iteration") or 0)
 
-    if not subject:
-        return jsonify({"success": False, "message": "Subject is required to generate study plan."}), 400
+    # Input validation: check for valid subject name
+    if not subject or len(re.findall(r"[A-Za-z0-9]", subject)) < 2:
+        return jsonify({
+            "success": False,
+            "message": "Please enter a valid subject name (e.g., Operating Systems, Python, Machine Learning) to generate your study plan."
+        }), 400
 
-    prompt = f"""You are a distinguished engineering professor. Create a highly structured, semester-level study plan for the course "{subject}" in Branch "{branch}", Semester "{semester}".
+    regen_clause = f" This is regeneration attempt #{iteration + 1}. Please provide a FRESH, alternative set of high-yield modules, distinct daily practice exercises, and different active recall drills to avoid repeating earlier plans." if iteration > 0 else ""
+
+    prompt = f"""You are an expert university professor and academic mentor. Create a personalized, student-friendly study plan for the course "{subject}".{regen_clause}
 Return ONLY a valid JSON object matching EXACTLY this structure:
 {{
-  "summary": "Concise 2-3 sentence overview of mastering this course and achieving top marks in examinations.",
-  "phases": [
-    {{"name": "Phase 1: Foundations & Core Principles", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}},
-    {{"name": "Phase 2: Core Algorithms & Practical Workflows", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}},
-    {{"name": "Phase 3: Advanced Architectures & Case Studies", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}},
-    {{"name": "Phase 4: University Exam Pattern & Final Revision", "bullets": ["detailed bullet 1", "detailed bullet 2", "detailed bullet 3"]}}
+  "subject": "{subject}",
+  "summary": "Clear, friendly 2-3 sentence overview explaining how to master this subject and achieve top marks.",
+  "topics": [
+    {{"title": "Specific Module/Topic 1 Name", "description": "Key concepts, core definitions, and formulas to master in this topic."}},
+    {{"title": "Specific Module/Topic 2 Name", "description": "Key concepts, algorithms, and practical workflows for this topic."}},
+    {{"title": "Specific Module/Topic 3 Name", "description": "Advanced mechanisms, design patterns, and analytical problem-solving."}},
+    {{"title": "Specific Module/Topic 4 Name", "description": "High-yield topics, common university questions, and application areas."}}
   ],
-  "importantConcepts": ["High-yield Concept 1", "Concept 2", "Concept 3", "Concept 4", "Concept 5", "Concept 6"]
+  "dailyTasks": [
+    {{"day": "Day 1 - 2", "task": "Foundations: Study core terminology, read Chapter 1-2, and practice 3 basic numerical/diagram problems."}},
+    {{"day": "Day 3 - 4", "task": "Core Principles: Deep dive into standard algorithms and mechanisms, solve previous question papers."}},
+    {{"day": "Day 5 - 6", "task": "Advanced Applications: Work through analytical case studies, compare methods, and create formula summary sheets."}},
+    {{"day": "Day 7", "task": "Full Revision: Conduct a 60-minute mock test on high-weightage topics and review mistakes."}}
+  ],
+  "revisionActivities": [
+    "Active Recall: Quiz yourself on key definitions and state diagrams without looking at notes.",
+    "Formula & Diagram Sheet: Create a 1-page summary sheet with all essential formulas and architecture diagrams.",
+    "Previous Exam Papers: Solve 5 high-frequency questions from previous university exams under timed conditions.",
+    "Teach-Back Technique: Explain the toughest concept out loud to a peer or in your own words to solidify intuition."
+  ],
+  "examGuidance": [
+    "Focus on high-weightage derivations and clearly labeled diagrams for 8-10 mark questions.",
+    "Write answers with clear step-by-step points and subheadings rather than long continuous paragraphs.",
+    "Time Management: Spend approximately 15-18 minutes per 10-mark question during the examination.",
+    "Prioritize your strongest module first in the exam to secure early confidence and top marks."
+  ]
 }}
-CRITICAL: Do NOT include any placement, campus recruitment, interview, or job-readiness sections. Output ONLY valid JSON with no markdown backticks."""
+CRITICAL RULES:
+- The topics, daily tasks, revision activities, and exam guidance MUST be tailored specifically to "{subject}".
+- Use simple, student-friendly language.
+- Do NOT include any placement, campus recruitment, or job interview sections.
+- Return ONLY valid JSON with no markdown formatting or backticks."""
 
     messages = [
-        {"role": "system", "content": "You are a university engineering curriculum planner that outputs only raw JSON."},
+        {"role": "system", "content": "You are a university academic study planner that outputs ONLY raw JSON."},
         {"role": "user", "content": prompt}
     ]
 
-    ai_response = call_openai_chat(messages, max_tokens=1100, temperature=0.6)
+    ai_response = call_openai_chat(messages, max_tokens=1200, temperature=0.7)
     plan = None
 
     if ai_response:
@@ -980,11 +1283,19 @@ CRITICAL: Do NOT include any placement, campus recruitment, interview, or job-re
             logger.warning("Failed to parse OpenAI JSON output: %s", e)
             plan = None
 
-    if not plan or not isinstance(plan, dict) or "phases" not in plan:
-        plan = generate_academic_study_plan_fallback(subject, branch, semester)
+    if not plan or not isinstance(plan, dict) or "topics" not in plan:
+        plan = generate_academic_study_plan_fallback(subject, branch, semester, iteration)
         source = "academic_engine"
     else:
         source = "openai"
+        # Ensure backward-compatible phases exist
+        if "phases" not in plan and "topics" in plan:
+            plan["phases"] = [
+                {"name": f"Phase {i+1}: {t.get('title', '')}", "bullets": [t.get('description', '')]}
+                for i, t in enumerate(plan["topics"])
+            ]
+        if "importantConcepts" not in plan and "topics" in plan:
+            plan["importantConcepts"] = [t.get("title", "") for t in plan["topics"]]
 
     return jsonify({
         "success": True,
@@ -992,7 +1303,8 @@ CRITICAL: Do NOT include any placement, campus recruitment, interview, or job-re
         "source": source,
         "subject": subject,
         "branch": branch,
-        "semester": semester
+        "semester": semester,
+        "iteration": iteration
     })
 
 
@@ -1000,22 +1312,26 @@ CRITICAL: Do NOT include any placement, campus recruitment, interview, or job-re
 @login_required(role="student")
 def student_chat_api():
     """
-    Real-time AI academic assistant chat using OpenAI API.
-    Provides live attendance context and intelligent VTU guidance.
+    Real-time AI academic assistant chat.
+    Answers queries dynamically based on the logged-in student's actual attendance records.
+    Answers subject-wise attendance, total classes, attended, absences, and attendance percentage.
+    Protects privacy by scoping strictly to the current logged-in student session.
     """
     student_id = session.get("user_id")
     data = request.get_json(silent=True) or {}
     user_query = data.get("message", "").strip()
 
     if not user_query:
-        return jsonify({"success": False, "reply": "Please ask a question."}), 400
+        return jsonify({"success": False, "reply": "Please ask a question about your attendance or academics."}), 400
 
-    # Fetch student live context
+    # 1. Fetch current student identity
     student = Student.find_by_id(student_id) or {}
     sname = student.get("name") or session.get("name") or "Student"
     susn = student.get("student_number") or student.get("usn") or "N/A"
+    sdept = student.get("department") or student.get("branch") or "Engineering"
+    ssem = student.get("semester") or "Current"
 
-    # Query attendance stats
+    # 2. Query overall attendance statistics
     att_stats = run_query(
         """
         SELECT 
@@ -1030,83 +1346,223 @@ def student_chat_api():
 
     total_conducted = int(att_stats.get("total_conducted") or 0)
     present_count = int(att_stats.get("present_count") or 0)
-    pct = round((present_count / total_conducted * 100), 1) if total_conducted > 0 else 0.0
+    absent_count = max(0, total_conducted - present_count)
+    pct = round((present_count / total_conducted * 100), 1) if total_conducted > 0 else 100.0
 
-    # Query subject breakdown
+    # 3. Query subject-wise breakdown for THIS student
     subjects_raw = run_query(
         """
         SELECT 
+            s.subject_id,
             s.subject_name,
+            s.subject_code,
             COUNT(a.attendance_id) as total_classes,
             SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) as present_classes
-        FROM attendance a
-        JOIN subjects s ON a.subject_id = s.subject_id
-        WHERE a.student_id = %s
-        GROUP BY s.subject_id, s.subject_name
+        FROM subjects s
+        LEFT JOIN attendance a ON s.subject_id = a.subject_id AND a.student_id = %s
+        WHERE s.subject_id IN (
+            SELECT DISTINCT subject_id FROM attendance WHERE student_id = %s
+        ) OR s.semester = %s
+        GROUP BY s.subject_id, s.subject_name, s.subject_code
+        ORDER BY s.subject_name ASC
         """,
-        (student_id,),
+        (student_id, student_id, student.get("semester", 7)),
         fetch_all=True
     ) or []
 
-    sub_summaries = []
+    subject_list = []
     shortage_subs = []
+    healthy_subs = []
+    min_sub = None
+    max_sub = None
+
     for row in subjects_raw:
         s_name = row.get("subject_name") or "Subject"
+        s_code = row.get("subject_code") or ""
         t_cls = int(row.get("total_classes") or 0)
         p_cls = int(row.get("present_classes") or 0)
-        s_pct = round((p_cls / t_cls * 100), 1) if t_cls > 0 else 0.0
-        sub_summaries.append(f"{s_name}: {s_pct}% ({p_cls}/{t_cls})")
+        a_cls = max(0, t_cls - p_cls)
+        s_pct = round((p_cls / t_cls * 100), 1) if t_cls > 0 else 100.0
+
+        item = {
+            "name": s_name,
+            "code": s_code,
+            "total": t_cls,
+            "present": p_cls,
+            "absent": a_cls,
+            "percentage": s_pct,
+            "needed_for_75": max(1, math.ceil(3 * t_cls - 4 * p_cls)) if s_pct < 75.0 else 0,
+            "safe_miss": max(0, math.floor((p_cls - 0.75 * t_cls) / 0.75)) if s_pct >= 75.0 and t_cls > 0 else 0
+        }
+        subject_list.append(item)
+
         if s_pct < 75.0 and t_cls > 0:
-            shortage_subs.append(f"{s_name} ({s_pct}%)")
+            shortage_subs.append(item)
+        elif t_cls > 0:
+            healthy_subs.append(item)
 
-    context_str = f"Student: {sname} ({susn}). Overall Attendance: {pct}% ({present_count}/{total_conducted} lectures attended)."
-    if sub_summaries:
-        context_str += " Subjects: " + ", ".join(sub_summaries)
-    if shortage_subs:
-        context_str += ". ATTENDANCE SHORTAGE (<75%): " + ", ".join(shortage_subs)
+        if t_cls > 0:
+            if min_sub is None or s_pct < min_sub["percentage"]:
+                min_sub = item
+            if max_sub is None or s_pct > max_sub["percentage"]:
+                max_sub = item
 
-    system_prompt = f"""You are EduBot AI, an intelligent, empathetic academic assistant for GSSS Institute of Engineering & Technology.
-Student Context:
+    # Build concise context string
+    sub_desc_list = [f"{s['name']}: {s['percentage']}% ({s['present']}/{s['total']} attended, {s['absent']} absent)" for s in subject_list]
+    context_str = f"Student: {sname} (USN: {susn}, Branch: {sdept}, Sem: {ssem}).\n"
+    context_str += f"Overall Attendance: {pct}% ({present_count} attended, {absent_count} absent out of {total_conducted} conducted classes).\n"
+    context_str += "Subjects Breakdown: " + ("; ".join(sub_desc_list) if sub_desc_list else "No subject attendance records found.")
+
+    system_prompt = f"""You are EduBot AI, a helpful, encouraging academic assistant at GSSS Institute of Engineering & Technology.
+Logged-in Student Live Records:
 {context_str}
 
 Rules:
-1. Answer the student's question clearly, concisely, and supportively.
-2. If asked about attendance or shortages, use the exact real-time attendance figures above.
-3. In VTU regulations, minimum required attendance to appear for semester examinations is 75% (condonation up to 65% with approved medical certificate).
+1. Base your answer strictly on the student's real attendance figures above. Never invent data or mention other students.
+2. In VTU regulations, minimum required attendance to appear for semester examinations is 75% (condonation up to 65% with approved medical certificate).
+3. If asked about a subject, give total classes, attended, absences, and attendance percentage.
 4. Format response in clean HTML with <strong>, <em>, and <ul>/<li> where appropriate (no markdown code blocks).
-5. Keep response friendly, motivating, and under 150 words."""
+5. Keep response friendly, motivating, and concise (under 130 words). If the requested information is unavailable, politely explain so."""
 
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_query}
     ]
 
-    ai_reply = call_openai_chat(messages, max_tokens=400, temperature=0.7)
+    ai_reply = call_openai_chat(messages, max_tokens=400, temperature=0.6)
 
+    # Dynamic intelligent fallback matching student question with exact database figures
     if not ai_reply:
-        # Intelligent fallback matching student query
-        q_lower = user_query.lower()
-        if "attendance" in q_lower or "overall" in q_lower or "percentage" in q_lower or "status" in q_lower:
-            status_text = "Good Standing" if pct >= 75 else "Attendance Shortage Alert"
-            ai_reply = f"""Your overall attendance is currently <strong>{pct}%</strong> ({present_count} out of {total_conducted} conducted classes attended). 
-            <br>Academic Status: <strong>{status_text}</strong>. 
-            {"You meet the VTU 75% examination eligibility requirement! Keep up the consistency." if pct >= 75 else "Warning: Your attendance is below the mandatory 75% VTU threshold. Ensure you attend upcoming lectures to avoid detention."}"""
-        elif "shortage" in q_lower or "warning" in q_lower or "deficit" in q_lower:
-            if shortage_subs:
-                ai_reply = f"""You currently have attendance shortages in: <strong>{', '.join(shortage_subs)}</strong>. <br>Please attend all upcoming classes in these subjects to bring your average back above the mandatory 75% threshold."""
+        q = user_query.lower().strip()
+
+        # A. Specific Subject Lookup
+        matched_sub = None
+        for s in subject_list:
+            s_name_l = s["name"].lower()
+            s_code_l = s["code"].lower() if s["code"] else ""
+            words = [w for w in re.findall(r"[a-z0-9]+", s_name_l) if len(w) > 2]
+            if (s_code_l and s_code_l in q) or (s_name_l in q):
+                matched_sub = s
+                break
+            for w in words:
+                if w in q:
+                    matched_sub = s
+                    break
+            if matched_sub:
+                break
+
+        if matched_sub:
+            s = matched_sub
+            status_text = '<span class="text-success fw-bold">Regular (&ge;75%)</span>' if s["percentage"] >= 75 else '<span class="text-danger fw-bold">Shortage Warning (&lt;75%)</span>'
+            advice = (
+                f"You need <strong>{s['needed_for_75']}</strong> consecutive classes to reach the mandatory 75% VTU threshold."
+                if s["percentage"] < 75.0 else
+                f"Your attendance is healthy! You can safely miss up to <strong>{s['safe_miss']}</strong> class(es) while staying &ge; 75%."
+            )
+            ai_reply = f"""<div><strong>{s['name']}</strong> {f'({s["code"]})' if s['code'] else ''} Attendance:</div>
+            <ul class="ps-3 mt-2 mb-1">
+                <li>Total Classes Conducted: <strong>{s['total']}</strong></li>
+                <li>Classes Attended: <strong>{s['present']}</strong></li>
+                <li>Classes Absent: <strong>{s['absent']}</strong></li>
+                <li>Attendance Percentage: <strong>{s['percentage']}%</strong> ({status_text})</li>
+            </ul>
+            <div class="small text-muted mt-1">{advice}</div>"""
+
+        # B. Absence / Missed classes
+        elif any(k in q for k in ["miss", "absent", "absences", "leave", "skipped"]):
+            if any(k in q for k in ["can i miss", "safe to miss", "bunk", "can i take"]):
+                if healthy_subs:
+                    safe_list = [f"<strong>{s['name']}</strong> (can miss {s['safe_miss']} class{'es' if s['safe_miss'] != 1 else ''})" for s in healthy_subs if s['safe_miss'] > 0]
+                    safe_msg = f"In subjects where you have buffer: {', '.join(safe_list)}." if safe_list else "Your attendance does not have a safe buffer to miss upcoming classes without risking shortage."
+                else:
+                    safe_msg = "You currently have no attendance buffer. It is strongly recommended to attend all upcoming classes."
+                ai_reply = f"""<div><strong>Attendance Buffer Analysis:</strong></div>
+                <div class="mt-1">{safe_msg}</div>
+                <div class="small text-muted mt-1"><em>Always maintain &ge; 75% across all courses to meet VTU examination rules.</em></div>"""
             else:
-                ai_reply = f"""Great news, <strong>{sname}</strong>! You currently have <strong>no attendance shortages</strong>. All your enrolled subjects are at or above the required 75% threshold."""
-        elif "vtu" in q_lower or "rule" in q_lower or "exam" in q_lower:
-            ai_reply = """According to <strong>VTU Examination Regulations</strong>:
-            <ul>
-                <li>A minimum of <strong>75% attendance</strong> is mandatory in each theory and practical subject.</li>
-                <li>Students with <strong>65% to 74%</strong> can only be condoned by the Principal with genuine medical certificates and approval.</li>
-                <li>Students below 65% are strictly ineligible to sit for semester examinations.</li>
+                top_absences = sorted(subject_list, key=lambda x: x["absent"], reverse=True)
+                abs_breakdown = ", ".join([f"{s['name']}: {s['absent']} absent" for s in top_absences[:4] if s['absent'] > 0])
+                ai_reply = f"""You have been absent for <strong>{absent_count} classes</strong> out of <strong>{total_conducted} conducted lectures</strong> (Overall Attendance: <strong>{pct}%</strong>).
+                {f'<br><br>Absences by subject: {abs_breakdown}.' if abs_breakdown else '<br><br>Excellent! You have 0 absences recorded.'}"""
+
+        # C. Attended / Present classes
+        elif any(k in q for k in ["how many class", "attended", "present count", "classes attended"]):
+            ai_reply = f"""You have attended <strong>{present_count} out of {total_conducted} conducted lectures</strong> across all enrolled subjects, giving you an overall attendance of <strong>{pct}%</strong>.
+            <div class="small text-muted mt-1">Status: <strong>{'Good Academic Standing (VTU Eligible)' if pct >= 75 else 'Attendance Shortage Alert (Below 75%)'}</strong>.</div>"""
+
+        # D. Shortage / Warning / Detention
+        elif any(k in q for k in ["shortage", "warning", "detention", "below 75", "deficit"]):
+            if shortage_subs:
+                items_html = "".join([f"<li><strong>{s['name']}</strong>: <span class='text-danger fw-bold'>{s['percentage']}%</span> ({s['present']}/{s['total']}) — Need <strong>{s['needed_for_75']}</strong> consecutive classes.</li>" for s in shortage_subs])
+                ai_reply = f"""<div class="text-danger fw-bold">⚠️ You have {len(shortage_subs)} subject shortage warning(s):</div>
+                <ul class="ps-3 mt-1 mb-1">{items_html}</ul>
+                <div class="small text-muted mt-1">Please attend all upcoming classes in these subjects to recover above the 75% threshold.</div>"""
+            else:
+                ai_reply = f"""Great news, <strong>{sname}</strong>! You currently have <strong>no attendance shortages</strong>. All your enrolled subjects are at or above the mandatory 75% VTU threshold (Overall: <strong>{pct}%</strong>). Keep up the great consistency!"""
+
+        # E. Best / Worst attendance subject
+        elif any(k in q for k in ["lowest", "worst", "minimum", "highest", "best", "maximum"]):
+            if min_sub and max_sub:
+                ai_reply = f"""<div><strong>Attendance Extremes:</strong></div>
+                <ul class="ps-3 mt-1 mb-1">
+                    <li>Highest Attendance: <strong>{max_sub['name']}</strong> at <span class="text-success fw-bold">{max_sub['percentage']}%</span> ({max_sub['present']}/{max_sub['total']}).</li>
+                    <li>Lowest Attendance: <strong>{min_sub['name']}</strong> at <span class="text-danger fw-bold">{min_sub['percentage']}%</span> ({min_sub['present']}/{min_sub['total']}).</li>
+                </ul>"""
+            else:
+                ai_reply = f"Your current overall attendance is <strong>{pct}%</strong>. No individual subject variances recorded yet."
+
+        # F. All subjects list / breakdown
+        elif any(k in q for k in ["all subject", "breakdown", "list", "subjects", "courses"]):
+            if subject_list:
+                rows_html = "".join([f"<li><strong>{s['name']}</strong>: <strong>{s['percentage']}%</strong> ({s['present']}/{s['total']} attended, {s['absent']} absent)</li>" for s in subject_list])
+                ai_reply = f"""<div><strong>Your Subject-Wise Attendance Breakdown:</strong></div>
+                <ul class="ps-3 mt-2 mb-1">{rows_html}</ul>
+                <div class="small text-muted mt-1">Aggregate: <strong>{pct}%</strong> ({present_count}/{total_conducted} total attended).</div>"""
+            else:
+                ai_reply = f"No subject-wise attendance logs are currently recorded for your profile. Your overall attendance is <strong>{pct}%</strong>."
+
+        # G. VTU Rules / Exam eligibility
+        elif any(k in q for k in ["vtu", "rule", "exam", "eligibility", "condonation", "medical", "allow"]):
+            status_text = "<span class='text-success fw-bold'>Eligible</span>" if pct >= 75 else "<span class='text-danger fw-bold'>Detention Risk</span>"
+            ai_reply = f"""<div><strong>VTU Attendance Guidelines (Clause 18OB):</strong></div>
+            <ul class="ps-3 mt-1 mb-1">
+                <li><strong>&ge; 75%</strong>: Fully eligible for Semester End Examinations (SEE).</li>
+                <li><strong>65% - 74.9%</strong>: Condonation permitted only on genuine medical grounds with Principal approval.</li>
+                <li><strong>&lt; 65%</strong>: Mandatory Course Detention. The student is not permitted to write exams.</li>
+            </ul>
+            <div class="small mt-1">Your overall aggregate is <strong>{pct}%</strong> ({status_text}).</div>"""
+
+        # H. Student profile / identity
+        elif any(k in q for k in ["who am i", "my name", "my usn", "my profile", "my branch", "my sem"]):
+            ai_reply = f"""<div><strong>Your Student Profile:</strong></div>
+            <ul class="ps-3 mt-1 mb-1">
+                <li>Name: <strong>{sname}</strong></li>
+                <li>USN: <strong>{susn}</strong></li>
+                <li>Branch &amp; Semester: <strong>{sdept}</strong>, Semester {ssem}</li>
+                <li>Conducted Lectures: <strong>{total_conducted}</strong> (Attended: <strong>{present_count}</strong>)</li>
+                <li>Current Aggregate: <strong>{pct}%</strong></li>
             </ul>"""
-        elif "study" in q_lower or "plan" in q_lower or "subject" in q_lower:
-            ai_reply = f"""You can generate an active AI study plan by navigating to the <strong>AI Study Plan</strong> tab on your dashboard. Select your branch, semester, and course to get a complete 4-phase milestone curriculum!"""
+
+        # I. Study Plan
+        elif any(k in q for k in ["study", "plan", "how to study", "prepare", "syllabus"]):
+            ai_reply = f"""You can generate a personalized roadmap by navigating to the <strong>AI Study Plan</strong> tab in the sidebar! 
+            Simply type any subject name to get structured topics, a day-by-day task routine, revision activities, and exam preparation guidance."""
+
+        # J. General polite greeting / fallback
+        elif any(k in q for k in ["hi", "hello", "hey", "good morning", "good afternoon", "help"]):
+            status_summary = "in good academic standing" if pct >= 75 else "facing attendance shortages"
+            ai_reply = f"""Hello <strong>{sname}</strong>! I am your EduBot academic copilot at GSSS. 
+            <br>Your overall attendance is currently <strong>{pct}%</strong> ({present_count}/{total_conducted} classes), and you are {status_summary}.
+            <div class="mt-2 small text-muted">You can ask me questions like:
+                <br>&bull; <em>"What is my attendance in Operating Systems?"</em>
+                <br>&bull; <em>"How many classes did I miss?"</em>
+                <br>&bull; <em>"Do I have any attendance shortages?"</em>
+                <br>&bull; <em>"Can I safely miss a class?"</em>
+            </div>"""
+
         else:
-            ai_reply = f"""Hello <strong>{sname}</strong>! I'm here to support your academics at GSSS. Your overall attendance is <strong>{pct}%</strong>. You can ask me about subject-wise breakdowns, exam rules, or click the <strong>AI Study Plan</strong> tab to prepare for your subjects."""
+            ai_reply = f"""I checked your attendance records, <strong>{sname}</strong>. Your overall attendance is <strong>{pct}%</strong> ({present_count} of {total_conducted} classes attended). 
+            <br>If you're asking about a specific subject, please mention its name (e.g. <em>"What is my attendance in {subject_list[0]['name'] if subject_list else 'Machine Learning'}?"</em>) or ask about shortages, missed classes, or VTU exam eligibility."""
 
     return jsonify({
         "success": True,

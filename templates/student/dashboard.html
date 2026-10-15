@@ -835,12 +835,27 @@ Student Dashboard - GSSS Attendance Portal
         grid-template-columns: 1fr;
     }
     .ai-chatbot-panel {
-        width: calc(100vw - 20px) !important;
-        right: 10px !important;
-        left: 10px !important;
-        bottom: 76px !important;
-        height: calc(100vh - 100px) !important;
-        border-radius: 16px !important;
+        width: calc(100vw - 24px) !important;
+        right: 12px !important;
+        left: 12px !important;
+        bottom: 12px !important;
+        height: 54vh !important;
+        min-height: 280px !important;
+        max-height: 85vh !important;
+        border-radius: 20px !important;
+        resize: vertical;
+        box-shadow: 0 12px 36px rgba(15, 23, 42, 0.28) !important;
+    }
+    .ai-chatbot-panel.minimized-mode {
+        height: 52px !important;
+        min-height: 52px !important;
+        overflow: hidden !important;
+        resize: none !important;
+    }
+    .ai-chatbot-panel.minimized-mode .ai-chatbot-messages,
+    .ai-chatbot-panel.minimized-mode .ai-chatbot-chips,
+    .ai-chatbot-panel.minimized-mode .ai-chatbot-input-area {
+        display: none !important;
     }
     .ai-chatbot-bubble {
         width: 50px !important;
@@ -1122,6 +1137,39 @@ Student Dashboard - GSSS Attendance Portal
     0%, 80%, 100% { transform: translateY(0); }
     40% { transform: translateY(-5px); }
 }
+
+/* =========================================================
+   CONSISTENT DROPDOWNS & FILTER CONTROLS ACROSS DASHBOARDS
+========================================================= */
+.filter-select, 
+.filter-input,
+.form-select {
+    height: 42px;
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    font-size: 0.84rem !important;
+    padding: 8px 14px !important;
+    width: 100%;
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    transition: all 0.2s ease-in-out;
+}
+
+.filter-select:focus, 
+.filter-input:focus,
+.form-select:focus {
+    border-color: #93c5fd !important;
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25) !important;
+    outline: none;
+}
+
+.filter-select:disabled,
+.form-select:disabled {
+    background-color: #f8fafc !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed;
+    border-color: #e2e8f0 !important;
+}
 </style>
 {% endblock %}
 
@@ -1191,11 +1239,11 @@ Student Dashboard - GSSS Attendance Portal
                 <span class="badge bg-primary-subtle text-primary ms-auto" style="font-size: 0.7rem;">AI</span>
             </button>
 
-            <button class="student-menu-link" onclick="switchSection('history', this)">
-                <i class="bi bi-clock-history"></i>
-                <span>Attendance History</span>
+            <button class="student-menu-link" onclick="switchSection('analytics', this)">
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Attendance Analytics</span>
+                <span class="badge bg-primary-subtle text-primary ms-auto" style="font-size: 0.7rem;">Charts</span>
             </button>
-
         </div>
     </aside>
 
@@ -1456,81 +1504,72 @@ Student Dashboard - GSSS Attendance Portal
                                 <i class="bi bi-stars text-primary me-2"></i> AI Subject Study Planner
                             </h5>
                             <div class="small text-muted">
-                                Select your Branch, Semester, and Subject to generate a customized phased roadmap, key focus concepts, and placement interview topics.
+                                Enter any subject name to generate a personalized study plan with clear topics, daily tasks, revision activities, and exam preparation guidance.
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fw-semibold">
-                                <i class="bi bi-mortarboard me-1"></i> Subject Roadmap
+                                <i class="bi bi-mortarboard me-1"></i> Personalized Roadmap
                             </span>
                         </div>
                     </div>
 
                     <!-- Subject Input & Parameters Toolbar -->
                     <div class="p-3 bg-light rounded-3 border mb-4">
-                        <div class="row g-2 align-items-end">
-                            <!-- 1. Select Branch -->
-                            <div class="col-lg-3 col-md-6">
-                                <label class="small fw-semibold text-dark mb-1" for="aiPlanBranchSelect">
-                                    <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch:
+                        <!-- Primary: Enter Any Subject Name -->
+                        <div class="row g-2 align-items-end mb-3">
+                            <div class="col-lg-8 col-md-7">
+                                <label class="small fw-semibold text-dark mb-1" for="aiCustomSubjectInput">
+                                    <i class="bi bi-journal-text me-1 text-primary"></i> Enter Any Subject Name:
                                 </label>
-                                <select class="form-select form-select-sm" id="aiPlanBranchSelect" onchange="onAiBranchChange()">
-                                    <option value="" selected>-- Select Branch --</option>
-                                    <option value="CSE (AIML)">CSE (AIML)</option>
-                                    <option value="CSE">CSE</option>
-                                    <option value="CSE (AIDS)">CSE (AIDS)</option>
-                                    <option value="ECE">ECE</option>
-                                    <option value="IS">IS</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control border-start-0 filter-input" id="aiCustomSubjectInput" placeholder="Enter any subject (e.g. Operating Systems, Cloud Computing, Python, Machine Learning)..." onkeydown="if(event.key === 'Enter'){ event.preventDefault(); generateAiStudyPlanFromInput(); }">
+                                </div>
                             </div>
-
-                            <!-- 2. Select Semester -->
-                            <div class="col-lg-3 col-md-6">
-                                <label class="small fw-semibold text-dark mb-1" for="aiPlanSemSelect">
-                                    <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester:
-                                </label>
-                                <select class="form-select form-select-sm" id="aiPlanSemSelect" onchange="onAiSemChange()">
-                                    <option value="" selected>-- Select Semester --</option>
-                                    <option value="1">1st Semester</option>
-                                    <option value="2">2nd Semester</option>
-                                    <option value="3">3rd Semester</option>
-                                    <option value="4">4th Semester</option>
-                                    <option value="5">5th Semester</option>
-                                    <option value="6">6th Semester</option>
-                                    <option value="7">7th Semester</option>
-                                    <option value="8">8th Semester</option>
-                                </select>
-                            </div>
-
-                            <!-- 3. Select Subject -->
-                            <div class="col-lg-3 col-md-6">
-                                <label class="small fw-semibold text-dark mb-1" for="aiPlanSubjectSelect">
-                                    <i class="bi bi-book me-1 text-primary"></i> Select Subject:
-                                </label>
-                                <select class="form-select form-select-sm" id="aiPlanSubjectSelect" onchange="onAiSubjectChange(this.value)" disabled>
-                                    <option value="" selected>-- First Select Semester --</option>
-                                </select>
-                            </div>
-
-                            <!-- 4. Action Buttons (Generate + Regenerate) -->
-                            <div class="col-lg-3 col-md-6 d-flex gap-2">
-                                <button type="button" class="btn btn-sm btn-primary fw-semibold flex-grow-1" id="btnGenerateAiPlan" onclick="generateAiStudyPlanFromInput()">
-                                    <i class="bi bi-stars me-1"></i> Generate
+                            <div class="col-lg-4 col-md-5 d-flex gap-2">
+                                <button type="button" class="btn btn-primary fw-semibold flex-grow-1 d-flex align-items-center justify-content-center gap-1 shadow-sm" id="btnGenerateAiPlan" onclick="generateAiStudyPlanFromInput()" style="height: 42px;">
+                                    <i class="bi bi-stars"></i> Generate Study Plan
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" id="btnRegenerateAiPlan" onclick="regenerateCurrentAiPlan()" title="Regenerate Plan with Fresh AI Recommendations">
-                                    <i class="bi bi-arrow-repeat me-1"></i> Regenerate
+                                <button type="button" class="btn btn-outline-primary fw-semibold d-flex align-items-center justify-content-center gap-1" id="btnRegenerateAiPlan" onclick="regenerateCurrentAiPlan()" title="Regenerate Plan with Fresh AI Recommendations" style="height: 42px;">
+                                    <i class="bi bi-arrow-repeat"></i> Regenerate
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Optional Custom Subject Input -->
-                        <div class="mt-2 pt-2 border-top">
+                        <!-- Optional: Quick Select from Curriculum / Registered Courses -->
+                        <div class="pt-2 border-top">
                             <div class="row g-2 align-items-center">
-                                <div class="col-md-7">
-                                    <input type="text" class="form-control form-control-sm" id="aiCustomSubjectInput" placeholder="Or type custom subject (e.g. Distributed Systems, Machine Learning...)" onkeydown="if(event.key === 'Enter'){ event.preventDefault(); generateAiStudyPlanFromInput(); }">
+                                <div class="col-md-4">
+                                    <label class="small text-muted mb-1" for="aiPlanBranchSelect">Branch (Optional):</label>
+                                    <select class="form-select form-select-sm filter-select" id="aiPlanBranchSelect" onchange="onAiBranchChange()">
+                                        <option value="" selected>-- Branch (Optional) --</option>
+                                        <option value="CSE (AIML)">CSE (AIML)</option>
+                                        <option value="CSE">CSE</option>
+                                        <option value="CSE (AIDS)">CSE (AIDS)</option>
+                                        <option value="ECE">ECE</option>
+                                        <option value="IS">IS</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-5">
-                                    <span class="text-muted small">Select your course above or enter custom topic to tailor your plan.</span>
+                                <div class="col-md-4">
+                                    <label class="small text-muted mb-1" for="aiPlanSemSelect">Semester (Optional):</label>
+                                    <select class="form-select form-select-sm filter-select" id="aiPlanSemSelect" onchange="onAiSemChange()">
+                                        <option value="" selected>-- Semester (Optional) --</option>
+                                        <option value="1">1st Semester</option>
+                                        <option value="2">2nd Semester</option>
+                                        <option value="3">3rd Semester</option>
+                                        <option value="4">4th Semester</option>
+                                        <option value="5">5th Semester</option>
+                                        <option value="6">6th Semester</option>
+                                        <option value="7">7th Semester</option>
+                                        <option value="8">8th Semester</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small text-muted mb-1" for="aiPlanSubjectSelect">Curriculum Course (Optional):</label>
+                                    <select class="form-select form-select-sm filter-select" id="aiPlanSubjectSelect" onchange="onAiSubjectChange(this.value)" disabled>
+                                        <option value="" selected>-- Pick from Syllabus --</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -1544,104 +1583,155 @@ Student Dashboard - GSSS Attendance Portal
             </section>
 
             <!-- ==================================================
-                 TAB 6: ATTENDANCE HISTORY VIEW (CASCADING FILTERS)
+                 TAB: ATTENDANCE ANALYTICS (GRAPHS & CHARTS)
             =================================================== -->
-            <section id="section-history" class="dashboard-section-view">
-                <div class="std-card p-4">
-                    <div class="section-heading mb-4">
-                        <div>
-                            <h5 class="fw-bold text-dark mb-1"><i class="bi bi-clock-history text-primary me-2"></i> Date-Wise Attendance History</h5>
-                            <div class="small text-muted">Select Branch, Year, Semester, and Subject to view session attendance history.</div>
-                        </div>
-                    </div>
+            <section id="section-analytics" class="dashboard-section-view pt-0" style="margin-top: -6px;">
+                <!-- Student Analytics Header -->
+                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                    <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart-line-fill text-primary"></i> Student Analytics
+                    </h4>
+                    <span class="badge bg-light text-secondary border px-3 py-1 rounded-pill small fw-normal">
+                        <i class="bi bi-database-check me-1 text-success"></i> Verified Records
+                    </span>
+                </div>
 
-                    <!-- Cascading Filters Toolbar -->
-                    <div class="p-3 bg-light rounded-3 border mb-4">
-                        <div class="row g-3 align-items-end">
-                            <div class="col-lg-3 col-md-6">
-                                <label class="filter-label small fw-semibold text-dark mb-1" for="stdHistBranchFilter">
-                                    <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch
+                <!-- CASCADING FILTERS CARD -->
+                <div class="card border border-light-subtle shadow-sm rounded-3 mb-3 bg-white">
+                    <div class="card-body p-2 px-3">
+                        <div class="row g-2 align-items-end">
+                            <!-- Branch Filter -->
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <label class="form-label fw-semibold text-secondary small mb-1">
+                                    <i class="bi bi-building me-1 text-primary"></i> Branch
                                 </label>
-                                <select class="filter-select form-select" id="stdHistBranchFilter" onchange="onStdHistBranchChange()">
-                                    <option value="" selected>-- Select Branch (None) --</option>
+                                <select id="studentAnalyticsBranch" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onStudentAnalyticsBranchChange()">
+                                    <option value="" selected>-- Select Branch --</option>
                                     <option value="CSE (AIML)">CSE (AIML)</option>
                                     <option value="CSE">CSE</option>
-                                    <option value="CSE (AIDS)">CSE (AIDS)</option>
                                     <option value="ECE">ECE</option>
-                                    <option value="IS">IS</option>
+                                    <option value="ISE">ISE</option>
+                                    <option value="MECH">MECH</option>
                                 </select>
                             </div>
-                            <div class="col-lg-3 col-md-6">
-                                <label class="filter-label small fw-semibold text-dark mb-1" for="stdHistYearFilter">
-                                    <i class="bi bi-calendar4-week me-1 text-primary"></i> Select Year
+
+                            <!-- Year Filter -->
+                            <div class="col-12 col-sm-6 col-md-2">
+                                <label class="form-label fw-semibold text-secondary small mb-1">
+                                    <i class="bi bi-calendar3 me-1 text-primary"></i> Year
                                 </label>
-                                <select class="filter-select form-select" id="stdHistYearFilter" onchange="onStdHistYearChange()">
-                                    <option value="" selected>-- Select Year (None) --</option>
+                                <select id="studentAnalyticsYear" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onStudentAnalyticsYearChange()">
+                                    <option value="" selected>-- Select Year --</option>
                                     <option value="1">1st Year</option>
                                     <option value="2">2nd Year</option>
                                     <option value="3">3rd Year</option>
                                     <option value="4">4th Year</option>
                                 </select>
                             </div>
-                            <div class="col-lg-3 col-md-6">
-                                <label class="filter-label small fw-semibold text-dark mb-1" for="stdHistSemFilter">
-                                    <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester
+
+                            <!-- Semester Filter -->
+                            <div class="col-12 col-sm-6 col-md-2">
+                                <label class="form-label fw-semibold text-secondary small mb-1">
+                                    <i class="bi bi-diagram-3 me-1 text-primary"></i> Semester
                                 </label>
-                                <select class="filter-select form-select" id="stdHistSemFilter" onchange="onStdHistSemChange()" disabled>
-                                    <option value="" selected>-- Select Semester (None) --</option>
+                                <select id="studentAnalyticsSemester" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onStudentAnalyticsSemesterChange()">
+                                    <option value="" selected>-- Select Semester --</option>
+                                    <option value="1">1st Semester</option>
+                                    <option value="2">2nd Semester</option>
+                                    <option value="3">3rd Semester</option>
+                                    <option value="4">4th Semester</option>
+                                    <option value="5">5th Semester</option>
+                                    <option value="6">6th Semester</option>
+                                    <option value="7">7th Semester</option>
+                                    <option value="8">8th Semester</option>
                                 </select>
                             </div>
-                            <div class="col-lg-3 col-md-6">
-                                <label class="filter-label small fw-semibold text-dark mb-1" for="stdHistSubjectFilter">
-                                    <i class="bi bi-book me-1 text-primary"></i> Select Subject
+
+                            <!-- Subject Filter -->
+                            <div class="col-12 col-sm-6 col-md-3">
+                                <label class="form-label fw-semibold text-secondary small mb-1">
+                                    <i class="bi bi-journal-bookmark me-1 text-primary"></i> Subject
                                 </label>
-                                <select class="filter-select form-select" id="stdHistSubjectFilter" onchange="onStdHistSubjectChange()" disabled>
-                                    <option value="" selected>-- Select Subject (None) --</option>
+                                <select id="studentAnalyticsSubject" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onStudentAnalyticsFilterChange()">
+                                    <option value="" selected>-- Select Subject --</option>
+                                    <option value="all">All Subjects</option>
+                                    {% for sub in subject_attendance %}
+                                    <option value="{{ sub.subject_name }}" data-code="{{ sub.subject_code }}" data-semester="{{ sub.semester }}" data-year="{{ sub.year }}" data-branch="{{ sub.branch or student_branch }}">{{ sub.subject_name }} ({{ sub.subject_code or 'N/A' }})</option>
+                                    {% endfor %}
                                 </select>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Prompt State: Before selection -->
-                    <div id="stdHistPromptState" class="text-center py-5 my-3 border rounded-3 bg-white shadow-sm">
-                        <div class="mb-3">
-                            <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle" style="width: 60px; height: 60px;">
-                                <i class="bi bi-calendar3 fs-3"></i>
-                            </span>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-1">Select Branch, Year, Semester &amp; Subject</h6>
-                        <p class="text-muted mx-auto mb-0 small" style="max-width: 480px;">
-                            Please choose your Branch, Year, Semester, and Subject from the dropdowns above to view date-wise class sessions and attendance.
-                        </p>
-                    </div>
-
-                    <!-- Table Wrap: Shown when all 4 are selected -->
-                    <div id="stdHistTableWrap" class="d-none">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 px-3 py-2 bg-light rounded-3 border">
-                            <div>
-                                <span class="badge bg-primary text-white me-1">Subject</span>
-                                <strong class="text-dark" id="stdHistActiveSubLabel">-</strong>
+                            <!-- Graph Selector -->
+                            <div class="col-12 col-sm-6 col-md-2">
+                                <label class="form-label fw-semibold text-secondary small mb-1">
+                                    <i class="bi bi-pie-chart me-1 text-primary"></i> Select Graph
+                                </label>
+                                <select id="studentAnalyticsGraphType" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onStudentAnalyticsFilterChange()">
+                                    <option value="" selected>-- Select Graph --</option>
+                                    <option value="bar">Bar Graph Only</option>
+                                    <option value="pie">Pie Chart Only</option>
+                                    <option value="both">Both (Bar &amp; Pie)</option>
+                                </select>
                             </div>
-                            <div>
-                                <span class="badge bg-white text-dark border shadow-sm px-3 py-1 fw-semibold" id="stdHistCountBadge">0 Records</span>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr class="text-muted small">
-                                        <th style="width: 50px;">#</th>
-                                        <th>Date</th>
-                                        <th>Subject</th>
-                                        <th>Time</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stdHistTableBody"></tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
+
+                <!-- SELECTION PROMPT PLACEHOLDER -->
+                <div id="studentAnalyticsPrompt" class="card border border-dashed rounded-3 p-5 text-center bg-white mb-4 shadow-sm" style="border-color: #cbd5e1;">
+                    <div class="stat-icon-wrap mx-auto mb-3" style="width: 56px; height: 56px; background: #eef2ff; color: #4f46e5; border-radius: 14px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-1">Select Criteria to Display Analytics</h5>
+                    <p class="text-muted small mx-auto mb-0" style="max-width: 440px;">
+                        Please select Branch, Year, Semester, Subject, and Graph Type above to view your personalized attendance analytics.
+                    </p>
+                </div>
+
+                <!-- GRAPHS CONTAINER: BAR GRAPH & PIE/DOUGHNUT CHART -->
+                <div id="studentAnalyticsGraphsContainer" class="row g-4 mb-4" style="display: none;">
+                    <!-- Left: Bar Graph -->
+                    <div class="col-12 col-lg-7" id="studentBarGraphCol">
+                        <div class="card border border-light-subtle shadow-sm rounded-3 bg-white h-100">
+                            <div class="card-header bg-transparent border-0 pt-3 px-4 pb-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0" id="studentBarGraphTitle">
+                                        <i class="bi bi-bar-chart-fill me-2" style="color: #4f46e5;"></i> Class Attendance Summary
+                                    </h5>
+                                    <span class="text-muted small" id="studentBarGraphSubtitle">Total sessions attended vs missed</span>
+                                </div>
+                                <span class="badge px-3 py-1 rounded-pill fw-semibold" style="background-color: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe;" id="studentBarGraphBadge">
+                                    Classes Count
+                                </span>
+                            </div>
+                            <div class="card-body p-4" style="min-height: 480px; position: relative;">
+                                <canvas id="studentAnalyticsBarCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Pie / Doughnut Chart -->
+                    <div class="col-12 col-lg-5" id="studentPieChartCol">
+                        <div class="card border border-light-subtle shadow-sm rounded-3 bg-white h-100">
+                            <div class="card-header bg-transparent border-0 pt-3 px-4 pb-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0" id="studentPieGraphTitle">
+                                        <i class="bi bi-pie-chart-fill me-2" style="color: #0d9488;"></i> Attendance Proportion
+                                    </h5>
+                                    <span class="text-muted small" id="studentPieGraphSubtitle">Personal turnout breakdown</span>
+                                </div>
+                                <span class="badge px-3 py-1 rounded-pill fw-semibold" style="background-color: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4;">
+                                    Pie / Doughnut
+                                </span>
+                            </div>
+                            <div class="card-body p-4 d-flex align-items-center justify-content-center" style="min-height: 480px; position: relative;">
+                                <canvas id="studentAnalyticsPieCanvas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
             </section>
 
             <!-- ==================================================
@@ -1684,10 +1774,11 @@ Student Dashboard - GSSS Attendance Portal
                                 </label>
                                 <select class="filter-select form-select form-select-sm" id="stdRepBranchFilter" onchange="onStdRepBranchChange()">
                                     <option value="" selected>-- All Branches --</option>
-                                    <option value="AIML">AIML</option>
+                                    <option value="CSE (AIML)">CSE (AIML)</option>
                                     <option value="CSE">CSE</option>
-                                    <option value="ISE">ISE</option>
+                                    <option value="CSE (AIDS)">CSE (AIDS)</option>
                                     <option value="ECE">ECE</option>
+                                    <option value="IS">IS</option>
                                 </select>
                             </div>
 
@@ -1726,7 +1817,7 @@ Student Dashboard - GSSS Attendance Portal
                             </div>
 
                             <!-- 5. Select Month / Week (Period) -->
-                            <div class="col-lg-2 col-md-4">
+                            <div class="col-lg-4 col-md-6">
                                 <label class="filter-label small fw-semibold text-dark mb-1" for="stdRepMonthFilter">
                                     <i class="bi bi-calendar-range me-1 text-primary"></i> Month / Week
                                 </label>
@@ -1739,69 +1830,25 @@ Student Dashboard - GSSS Attendance Portal
                                     {% endfor %}
                                 </select>
                             </div>
-
-                            <!-- 6. Select Teacher -->
-                            <div class="col-lg-2 col-md-4">
-                                <label class="filter-label small fw-semibold text-dark mb-1" for="stdRepTeacherFilter">
-                                    <i class="bi bi-person-workspace me-1 text-primary"></i> Select Teacher
-                                </label>
-                                <select class="filter-select form-select form-select-sm" id="stdRepTeacherFilter" onchange="renderStdReports()">
-                                    <option value="" selected>-- All Teachers --</option>
-                                    {% for t in all_teachers %}
-                                        <option value="{{ t.name }}">{{ t.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Prompt State: Shown when no Teacher is selected -->
-                    <div id="stdRepPromptState" class="text-center py-5 my-3 border rounded-3 bg-white shadow-sm">
-                        <div class="mb-3">
-                            <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle" style="width: 60px; height: 60px;">
-                                <i class="bi bi-person-workspace fs-3"></i>
-                            </span>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-1">Select a Teacher to View Attendance Report</h6>
-                        <p class="text-muted mx-auto mb-0 small" style="max-width: 480px;">
-                            Please choose your Branch, Year, Semester, and Teacher from the dropdowns above to display your verified subject attendance and official reports.
-                        </p>
-                    </div>
-
-                    <!-- Results Wrapper: Shown ONLY after selecting Teacher -->
-                    <div id="stdRepResultsWrap" class="d-none">
-                        <!-- 1. Selected Teacher Header Banner -->
-                        <div class="p-3 bg-white rounded-3 border shadow-sm mb-4">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="width: 42px; height: 42px; font-size: 1.1rem;">
-                                        <i class="bi bi-person-workspace"></i>
-                                    </div>
-                                    <div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <h6 class="fw-bold text-dark mb-0" id="stdRepActiveTeacherName">Teacher Name</h6>
-                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small">
-                                                <i class="bi bi-patch-check-fill me-1"></i> Verified Faculty
-                                            </span>
-                                        </div>
-                                        <span class="text-muted small" id="stdRepActiveTeacherEmail">faculty@institution.edu</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span class="badge bg-light text-dark border px-3 py-2 fw-semibold" id="stdRepActivePeriodBadge">
-                                        <i class="bi bi-calendar-check me-1 text-primary"></i> Attendance Report
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 2. Clean Subject-Wise Attendance Table -->
+                    <!-- Results Wrapper: Always shown cleanly with dynamic filters -->
+                    <div id="stdRepResultsWrap">
+                        <!-- 1. Clean Subject-Wise Attendance Table -->
                         <div class="mb-4" id="stdRepSubjectTableSection">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold text-dark mb-0">
-                                    <i class="bi bi-journal-check text-primary me-2"></i> Subject-Wise Attendance Record
-                                </h6>
-                                <span class="text-muted small" id="stdRepSubjectCountBadge"></span>
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-0">
+                                        <i class="bi bi-journal-check text-primary me-2"></i> Attendance Report &amp; Records
+                                    </h6>
+                                    <div class="text-muted small mt-1" id="stdRepSubjectCountBadge"></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary fw-semibold d-inline-flex align-items-center gap-1 shadow-sm" id="btnDownloadStdExcelReport" onclick="downloadStudentExcelReport()">
+                                        <i class="bi bi-file-earmark-excel-fill text-primary"></i> Download Excel Report (.xlsx)
+                                    </button>
+                                </div>
                             </div>
                             <div class="table-responsive bg-white rounded-3 border">
                                 <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
@@ -1813,8 +1860,6 @@ Student Dashboard - GSSS Attendance Portal
                                             <th>Attended</th>
                                             <th>Absent</th>
                                             <th>Total Classes</th>
-                                            <th>Attendance %</th>
-                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody id="stdRepSubjectTableBody">
@@ -1824,42 +1869,16 @@ Student Dashboard - GSSS Attendance Portal
                             </div>
                         </div>
 
-                        <!-- 3. Official Teacher Dispatched Notice / Remarks (if any) -->
+                        <!-- 2. Official Teacher Dispatched Notice / Remarks (if any) -->
                         <div class="mb-4" id="stdRepOfficialNoticeSection">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="fw-bold text-dark mb-0">
-                                    <i class="bi bi-chat-left-text text-primary me-2"></i> Official Dispatched Notice &amp; Faculty Remarks
+                                    <i class="bi bi-chat-left-text text-primary me-2"></i> Official Dispatched Notice &amp; Remarks
                                 </h6>
                                 <span class="badge bg-light text-muted border">Faculty Dispatch</span>
                             </div>
                             <div id="reportsCardsContainer">
                                 <!-- Populated dynamically if reports exist -->
-                            </div>
-                        </div>
-
-                        <!-- 4. Date-Wise Attendance Session Logs -->
-                        <div class="mt-4 pt-2 border-top" id="stdRepDatewiseSection">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="fw-bold text-dark mb-0">
-                                    <i class="bi bi-calendar3-range text-primary me-2"></i> Class Session Logs
-                                </h6>
-                                <span class="text-muted small" id="stdRepDatewiseCounter"></span>
-                            </div>
-                            <div class="table-responsive bg-white rounded-3 border">
-                                <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Subject Name</th>
-                                            <th>Subject Code</th>
-                                            <th>Branch / Sem</th>
-                                            <th>Attendance Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="stdRepDatewiseTableBody">
-                                        <!-- Populated dynamically -->
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
@@ -2456,8 +2475,11 @@ Student Dashboard - GSSS Attendance Portal
             </div>
         </div>
         <div class="d-flex align-items-center gap-1">
-            <button class="chatbot-close-btn" id="aiChatbotMinimizeBtn" title="Minimize Chat">
-                <i class="bi bi-dash-lg"></i>
+            <button type="button" class="chatbot-close-btn" id="aiChatbotSizeToggleBtn" onclick="toggleStudentChatHeight()" title="Toggle Compact / Full Height">
+                <i class="bi bi-arrows-angle-expand" id="studentSizeIcon"></i>
+            </button>
+            <button type="button" class="chatbot-close-btn" id="aiChatbotMinimizeBtn" title="Close Chat">
+                <i class="bi bi-x-lg"></i>
             </button>
         </div>
     </div>
@@ -2505,6 +2527,9 @@ Student Dashboard - GSSS Attendance Portal
     </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
 <!-- =========================================================
      JAVASCRIPT: INTERACTIVE SIDEBAR, TABS, CALENDAR & AI
 ========================================================= -->
@@ -2544,6 +2569,7 @@ function switchSection(sectionId, element) {
         'warnings': 'Attendance Warnings',
         'reports': 'Weekly & Monthly Attendance Reports',
         'ai-plan': 'AI Personalized Study Plan',
+        'analytics': 'Attendance Analytics & Visual Insights',
         'history': 'Attendance History',
         'profile': 'Student Profile',
         'settings': 'Settings & Preferences'
@@ -2551,6 +2577,9 @@ function switchSection(sectionId, element) {
     const titleEl = document.getElementById('pageTitle');
     if (titleEl) titleEl.textContent = titles[sectionId] || 'Subject-Wise Attendance';
 
+    if (sectionId === 'analytics') {
+        setTimeout(renderStudentAnalyticsCharts, 100);
+    }
     if (sectionId === 'reports') {
         renderStdReports();
     }
@@ -2805,57 +2834,9 @@ function renderStdReports() {
     const semVal = (document.getElementById('stdRepSemFilter')?.value || '').trim();
     const subVal = (document.getElementById('stdRepSubjectFilter')?.value || '').trim();
     const monthVal = (document.getElementById('stdRepMonthFilter')?.value || '').trim();
-    const teacherVal = (document.getElementById('stdRepTeacherFilter')?.value || '').trim();
 
-    const promptStateEl = document.getElementById('stdRepPromptState');
-    const resultsWrapEl = document.getElementById('stdRepResultsWrap');
-
-    // 1. Only show attendance report after selecting a teacher
-    if (!teacherVal) {
-        if (promptStateEl) promptStateEl.classList.remove('d-none');
-        if (resultsWrapEl) resultsWrapEl.classList.add('d-none');
-        return;
-    }
-
-    if (promptStateEl) promptStateEl.classList.add('d-none');
-    if (resultsWrapEl) resultsWrapEl.classList.remove('d-none');
-
-    // 2. Identify and display selected Teacher Profile Header
-    const teacherObj = (typeof allTeachersData !== 'undefined' && Array.isArray(allTeachersData))
-        ? allTeachersData.find(t => (t.name || '').trim().toLowerCase() === teacherVal.toLowerCase() || (t.email || '').trim().toLowerCase() === teacherVal.toLowerCase())
-        : null;
-
-    const teacherDisplayName = teacherObj ? teacherObj.name : teacherVal;
-    const teacherDisplayEmail = (teacherObj && teacherObj.email) ? teacherObj.email : 'Verified Faculty Member';
-
-    const teacherNameEl = document.getElementById('stdRepActiveTeacherName');
-    const teacherEmailEl = document.getElementById('stdRepActiveTeacherEmail');
-    const periodBadgeEl = document.getElementById('stdRepActivePeriodBadge');
-
-    if (teacherNameEl) teacherNameEl.textContent = teacherDisplayName;
-    if (teacherEmailEl) teacherEmailEl.textContent = teacherDisplayEmail;
-    if (periodBadgeEl) {
-        let pLabel = 'All Attendance Reports';
-        if (currentReportViewMode === 'weekly' || monthVal === 'weekly') pLabel = 'Weekly Report';
-        else if (currentReportViewMode === 'monthly' || monthVal === 'monthly') pLabel = 'Monthly Report';
-        else if (currentReportViewMode === 'datewise') pLabel = 'Date-Wise Sessions';
-        else if (monthVal) {
-            const opt = document.querySelector(`#stdRepMonthFilter option[value="${monthVal}"]`);
-            pLabel = opt ? opt.textContent : `${monthVal} Report`;
-        }
-        periodBadgeEl.innerHTML = `<i class="bi bi-calendar-check me-1 text-primary"></i> ${pLabel}`;
-    }
-
-    // 3. Filter attendance history logs for this specific teacher & filters
+    // 1. Filter attendance history logs based on selected filters
     let filteredHistory = (historyDataset || []).slice();
-
-    // Teacher matching filter
-    filteredHistory = filteredHistory.filter(h => {
-        const tn = (h.teacher_name || '').toLowerCase();
-        const te = (h.teacher_email || '').toLowerCase();
-        const tv = teacherVal.toLowerCase();
-        return tn.includes(tv) || tv.includes(tn) || te.includes(tv);
-    });
 
     if (branchVal) {
         filteredHistory = filteredHistory.filter(h => {
@@ -2910,7 +2891,7 @@ function renderStdReports() {
         }
     }
 
-    // 4. Compute Subject-Wise Attendance Record
+    // 2. Compute Subject-Wise Attendance Record
     const subjectMap = {};
     filteredHistory.forEach(h => {
         const sKey = String(h.subject_id || h.subject_name || '0');
@@ -2931,26 +2912,37 @@ function renderStdReports() {
         }
     });
 
-    // Also check published reports from this teacher to include any reported subjects
+    // Also incorporate enrolled subjects from student profile if history has no entries yet
+    if (Object.keys(subjectMap).length === 0 && Array.isArray(subjectAttendanceList) && subjectAttendanceList.length > 0) {
+        subjectAttendanceList.forEach(s => {
+            const sKey = String(s.subject_id || s.subject_name || '0');
+            subjectMap[sKey] = {
+                subject_id: s.subject_id,
+                subject_name: s.subject_name || 'Subject',
+                subject_code: s.subject_code || '',
+                total: s.total || s.total_classes || 0,
+                attended: s.attended || s.present_classes || 0,
+                branch: s.branch || branchVal || 'AIML',
+                semester: s.semester || semVal || 7
+            };
+        });
+    }
+
+    // Also check published reports to include any reported subjects
     (publishedReportsData || []).forEach(rep => {
-        const tn = (rep.teacher_name || '').toLowerCase();
-        const te = (rep.teacher_email || '').toLowerCase();
-        const tv = teacherVal.toLowerCase();
-        if (tn.includes(tv) || tv.includes(tn) || te.includes(tv)) {
-            const sName = rep.subject_name || '';
-            if (sName && sName.toLowerCase() !== 'all subjects') {
-                const sKey = sName;
-                if (!subjectMap[sKey]) {
-                    subjectMap[sKey] = {
-                        subject_id: '',
-                        subject_name: sName,
-                        subject_code: '',
-                        total: rep.total || 0,
-                        attended: rep.attended || 0,
-                        branch: rep.branch || 'AIML',
-                        semester: rep.semester || 7
-                    };
-                }
+        const sName = rep.subject_name || '';
+        if (sName && sName.toLowerCase() !== 'all subjects') {
+            const sKey = sName;
+            if (!subjectMap[sKey]) {
+                subjectMap[sKey] = {
+                    subject_id: '',
+                    subject_name: sName,
+                    subject_code: '',
+                    total: rep.total || 0,
+                    attended: rep.attended || 0,
+                    branch: rep.branch || 'AIML',
+                    semester: rep.semester || 7
+                };
             }
         }
     });
@@ -2960,20 +2952,40 @@ function renderStdReports() {
         subjectRowsList = subjectRowsList.filter(s => String(s.subject_id) === String(subVal));
     }
 
+    // Cache current evaluated list for Excel download
+    window.lastEvaluatedSubjectReports = subjectRowsList;
+
     // Render Subject Table Body
     const subTableBody = document.getElementById('stdRepSubjectTableBody');
     const subCountBadge = document.getElementById('stdRepSubjectCountBadge');
+
+    // Only display data after user selects branch, year, semester, subject, or period
+    const hasSelection = (branchVal !== '' || yearVal !== '' || semVal !== '' || subVal !== '' || monthVal !== '');
+
     if (subCountBadge) {
-        subCountBadge.textContent = `${subjectRowsList.length} Subject${subjectRowsList.length === 1 ? '' : 's'} Evaluated`;
+        if (!hasSelection) {
+            subCountBadge.textContent = 'Please select Branch, Year, Semester, or Subject above to view attendance';
+        } else {
+            subCountBadge.textContent = `${subjectRowsList.length} Subject${subjectRowsList.length === 1 ? '' : 's'} Evaluated`;
+        }
     }
 
     if (subTableBody) {
-        if (subjectRowsList.length === 0) {
+        if (!hasSelection) {
             subTableBody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center py-4 text-muted">
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-funnel display-6 d-block mb-2 text-primary" style="opacity: 0.7;"></i>
+                        <span class="fw-medium">Please select your Branch, Year, Semester, or Subject from the dropdown filters above to display real attendance records.</span>
+                    </td>
+                </tr>
+            `;
+        } else if (subjectRowsList.length === 0) {
+            subTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
                         <i class="bi bi-info-circle display-6 d-block mb-2 text-secondary"></i>
-                        No attendance sessions recorded for <strong>${escapeHtml(teacherDisplayName)}</strong> matching the selected filters.
+                        No attendance records matching the selected filters.
                     </td>
                 </tr>
             `;
@@ -2983,8 +2995,6 @@ function renderStdReports() {
                 const total = item.total || 0;
                 const attended = item.attended || 0;
                 const absent = Math.max(0, total - attended);
-                const pct = total > 0 ? ((attended / total) * 100).toFixed(1) : '100.0';
-                const isShortage = parseFloat(pct) < 75.0 && total > 0;
 
                 sHtml += `
                     <tr>
@@ -2994,23 +3004,9 @@ function renderStdReports() {
                             <div class="small text-muted">${item.branch || 'AIML'} &bull; Sem ${item.semester || 7}</div>
                         </td>
                         <td><span class="badge bg-light text-muted border font-monospace">${escapeHtml(item.subject_code || 'N/A')}</span></td>
-                        <td><span class="badge bg-success-subtle text-success fw-bold px-2 py-1">${attended}</span></td>
-                        <td><span class="badge bg-danger-subtle text-danger fw-bold px-2 py-1">${absent}</span></td>
+                        <td><span class="badge bg-light text-dark border fw-bold px-2 py-1">${attended}</span></td>
+                        <td><span class="badge bg-light text-dark border fw-bold px-2 py-1">${absent}</span></td>
                         <td class="fw-semibold text-dark">${total}</td>
-                        <td style="min-width: 140px;">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="fw-bold ${isShortage ? 'text-danger' : 'text-success'}">${pct}%</span>
-                                <div class="progress flex-grow-1" style="height: 6px;">
-                                    <div class="progress-bar ${isShortage ? 'bg-danger' : 'bg-success'}" style="width: ${Math.min(parseFloat(pct), 100)}%;"></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge ${isShortage ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle'} px-2 py-1">
-                                <i class="bi ${isShortage ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} me-1"></i>
-                                ${isShortage ? 'Shortage Alert' : 'Regular Attendance'}
-                            </span>
-                        </td>
                     </tr>
                 `;
             });
@@ -3018,14 +3014,9 @@ function renderStdReports() {
         }
     }
 
-    // 5. Render Official Teacher Dispatched Notices (filtered specifically for this teacher)
+    // 3. Render Official Dispatched Notices (Clean neutral styling)
     const facultyCardsContainer = document.getElementById('reportsCardsContainer');
-    let facultyReports = (publishedReportsData || []).filter(rep => {
-        const tn = (rep.teacher_name || '').toLowerCase();
-        const te = (rep.teacher_email || '').toLowerCase();
-        const tv = teacherVal.toLowerCase();
-        return tn.includes(tv) || tv.includes(tn) || te.includes(tv);
-    });
+    let facultyReports = (publishedReportsData || []).slice();
 
     if (currentReportViewMode === 'weekly') {
         facultyReports = facultyReports.filter(r => (r.report_type || '').toLowerCase() === 'weekly');
@@ -3074,29 +3065,34 @@ function renderStdReports() {
     }
 
     if (facultyCardsContainer) {
-        if (facultyReports.length === 0) {
+        if (!hasSelection) {
             facultyCardsContainer.innerHTML = `
                 <div class="p-3 bg-light rounded-3 border text-center text-muted small">
-                    <i class="bi bi-shield-check text-success me-1 fs-6"></i>
-                    No official shortage notices or warnings dispatched by <strong>${escapeHtml(teacherDisplayName)}</strong> for your attendance profile.
+                    <i class="bi bi-funnel me-1 fs-6 text-primary"></i>
+                    Select your Branch, Year, Semester, or Subject to display official notices.
+                </div>
+            `;
+        } else if (facultyReports.length === 0) {
+            facultyCardsContainer.innerHTML = `
+                <div class="p-3 bg-light rounded-3 border text-center text-muted small">
+                    <i class="bi bi-info-circle me-1 fs-6"></i>
+                    No official reports or notices published for your attendance profile under current filters.
                 </div>
             `;
         } else {
             let fHtml = '<div class="row g-3">';
             facultyReports.forEach(rep => {
                 const isShortage = (rep.status === 'Shortage' || rep.percentage < 75.0);
-                const badgeClass = isShortage ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-success-subtle text-success border border-success-subtle';
-                const statusIcon = isShortage ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill';
                 fHtml += `
                     <div class="col-md-6 student-report-card-item">
-                        <div class="p-3 border rounded-3 bg-white h-100 shadow-sm border-start border-4 ${isShortage ? 'border-danger' : 'border-success'}">
+                        <div class="p-3 border rounded-3 bg-white h-100 shadow-sm" style="border-color: #e2e8f0 !important;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <span class="badge ${isShortage ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-primary-subtle text-primary border border-primary-subtle'} px-2 py-1 small">
-                                        <i class="bi bi-calendar-check me-1"></i> ${(rep.report_type || 'Weekly').toUpperCase()} REPORT
+                                    <span class="badge bg-light text-dark border px-2 py-1 small">
+                                        <i class="bi bi-calendar-check me-1 text-primary"></i> ${(rep.report_type || 'Weekly').toUpperCase()} REPORT
                                     </span>
-                                    <span class="badge bg-light text-dark border ms-1 px-2 py-1 small">
-                                        <i class="bi bi-mortarboard me-1 text-primary"></i> ${rep.branch || 'Branch'} &bull; Sem ${rep.semester || 'All'}
+                                    <span class="badge bg-light text-muted border ms-1 px-2 py-1 small">
+                                        ${rep.branch || 'Branch'} &bull; Sem ${rep.semester || 'All'}
                                     </span>
                                 </div>
                                 <span class="text-muted small"><i class="bi bi-clock me-1"></i>${rep.created_at || ''}</span>
@@ -3110,27 +3106,27 @@ function renderStdReports() {
                             <div class="d-flex align-items-center gap-3 my-2 p-2 bg-light rounded-2 flex-wrap">
                                 <div>
                                     <span class="small text-muted d-block">Present</span>
-                                    <strong class="text-success fs-6">${rep.attended}</strong>
+                                    <strong class="text-dark fs-6">${rep.attended}</strong>
                                 </div>
                                 <div class="border-start ps-3">
                                     <span class="small text-muted d-block">Absent</span>
-                                    <strong class="text-danger fs-6">${Math.max(0, rep.total - rep.attended)}</strong>
+                                    <strong class="text-dark fs-6">${Math.max(0, rep.total - rep.attended)}</strong>
                                 </div>
                                 <div class="border-start ps-3">
                                     <span class="small text-muted d-block">Total Conducted</span>
                                     <strong class="text-dark fs-6">${rep.total}</strong>
                                 </div>
                                 <div class="border-start ps-3 ms-auto">
-                                    <span class="small text-muted d-block">Status</span>
-                                    <span class="badge ${badgeClass}">
-                                        <i class="bi ${statusIcon} me-1"></i> ${rep.status}
+                                    <span class="small text-muted d-block">Attendance</span>
+                                    <span class="badge bg-light text-dark border">
+                                        ${rep.percentage || (rep.total > 0 ? ((rep.attended / rep.total)*100).toFixed(1) : 100)}%
                                     </span>
                                 </div>
                             </div>
 
                             ${isShortage && rep.classes_needed > 0 ? `
-                                <div class="p-2 mb-2 bg-danger-subtle rounded-2 small text-danger fw-semibold">
-                                    <i class="bi bi-arrow-up-circle me-1"></i> Shortage Alert: Attend at least ${rep.classes_needed} more consecutive sessions to reach 75%.
+                                <div class="p-2 mb-2 bg-light rounded-2 small text-muted border">
+                                    <i class="bi bi-arrow-up-circle me-1 text-primary"></i> Recommended: Attend ${rep.classes_needed} more consecutive sessions to reach 75%.
                                 </div>
                             ` : ''}
 
@@ -3147,45 +3143,54 @@ function renderStdReports() {
             facultyCardsContainer.innerHTML = fHtml;
         }
     }
+}
 
-    // 6. Render Date-Wise Attendance Session Logs for this teacher
-    const datewiseTableBody = document.getElementById('stdRepDatewiseTableBody');
-    const datewiseCounter = document.getElementById('stdRepDatewiseCounter');
-
-    if (datewiseCounter) {
-        datewiseCounter.textContent = `${filteredHistory.length} Recorded Session${filteredHistory.length === 1 ? '' : 's'}`;
+/* =========================================================
+   STUDENT EXCEL ATTENDANCE REPORT DOWNLOAD (.XLSX)
+   Columns: USN, Student Name, Subject, Total Classes, Present, Absent, Attendance Percentage
+========================================================= */
+function downloadStudentExcelReport() {
+    const records = window.lastEvaluatedSubjectReports || [];
+    if (!records || records.length === 0) {
+        alert('No attendance records available for export matching your current filters.');
+        return;
     }
 
-    if (datewiseTableBody) {
-        if (filteredHistory.length === 0) {
-            datewiseTableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center py-4 text-muted">
-                        No individual attendance session records recorded under <strong>${escapeHtml(teacherDisplayName)}</strong> matching current filters.
-                    </td>
-                </tr>
-            `;
-        } else {
-            let rowHtml = '';
-            filteredHistory.forEach(item => {
-                const isPresent = String(item.status).toLowerCase() === 'present';
-                rowHtml += `
-                    <tr>
-                        <td class="fw-semibold text-dark">${item.display_date || item.date}</td>
-                        <td class="fw-medium text-dark">${escapeHtml(item.subject_name || 'Class Session')}</td>
-                        <td><span class="badge bg-light text-muted border font-monospace">${escapeHtml(item.subject_code || 'N/A')}</span></td>
-                        <td class="small text-muted">${item.branch || 'AIML'} &bull; Sem ${item.semester || 7}</td>
-                        <td>
-                            <span class="badge ${isPresent ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle'} px-2 py-1">
-                                <i class="bi ${isPresent ? 'bi-check-circle-fill' : 'bi-dash-circle-fill'} me-1"></i> ${item.status || 'Present'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            });
-            datewiseTableBody.innerHTML = rowHtml;
-        }
+    const stUsn = studentRealtimeData.usn || 'USN';
+    const stName = studentRealtimeData.name || 'Student';
+
+    // Strict columns: USN, Student Name, Subject, Total Classes, Present, Absent, Attendance Percentage
+    const exportData = records.map(item => {
+        const total = item.total || 0;
+        const present = item.attended || 0;
+        const absent = Math.max(0, total - present);
+        const percentage = total > 0 ? `${((present / total) * 100).toFixed(1)}%` : '100.0%';
+
+        return {
+            "USN": stUsn,
+            "Student Name": stName,
+            "Subject": item.subject_name || 'Subject',
+            "Total Classes": total,
+            "Present": present,
+            "Absent": absent,
+            "Attendance Percentage": percentage
+        };
+    });
+
+    if (typeof XLSX === 'undefined') {
+        alert('Spreadsheet export engine is initializing, please try again in a moment.');
+        return;
     }
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance Report");
+
+    const cleanUsn = String(stUsn).replace(/[^a-zA-Z0-9]/g, '_');
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const filename = `Attendance_Report_${cleanUsn}_${todayStr}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
 }
 
 // Mobile Sidebar Toggles
@@ -3603,21 +3608,13 @@ function showAiPlanAlert(msg, type = 'warning') {
             <div class="alert alert-${type} d-flex align-items-center gap-3 p-3 rounded-3 shadow-sm my-3 border">
                 <i class="bi bi-info-circle-fill fs-4 text-${type}"></i>
                 <div>
-                    <strong>Action Required:</strong> ${escapeHtml(msg)}
+                    <strong>Notice:</strong> ${escapeHtml(msg)}
                 </div>
             </div>
         `;
     }
-    const branchSelect = document.getElementById('aiPlanBranchSelect');
-    const semSelect = document.getElementById('aiPlanSemSelect');
-    const subSelect = document.getElementById('aiPlanSubjectSelect');
-    if (branchSelect && (!branchSelect.value || branchSelect.value === '')) {
-        branchSelect.focus();
-    } else if (semSelect && (!semSelect.value || semSelect.value === '')) {
-        semSelect.focus();
-    } else if (subSelect && !subSelect.disabled) {
-        subSelect.focus();
-    }
+    const customInput = document.getElementById('aiCustomSubjectInput');
+    if (customInput) customInput.focus();
 }
 
 function onAiBranchChange() {
@@ -3717,8 +3714,8 @@ function onAiSubjectChange(val) {
 
 async function generateAiStudyPlanFromInput() {
     const targetSubject = getActiveAiSubject();
-    if (!targetSubject) {
-        showAiPlanAlert('Please select a branch, semester & subject or type a custom subject name.', 'warning');
+    if (!targetSubject || targetSubject.trim().length < 2) {
+        showAiPlanAlert('Please enter any subject name (e.g., Operating Systems, Python, Machine Learning) to generate your personalized study plan.', 'warning');
         return;
     }
 
@@ -3740,7 +3737,7 @@ async function generateAiStudyPlanFromInput() {
             <div class="card p-5 border-0 shadow-sm bg-white rounded-3 text-center my-3">
                 <div class="spinner-border text-primary mx-auto mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
                 <h6 class="fw-bold text-dark mb-1">Synthesizing ${escapeHtml(cleanSubjectTitle(targetSubject))} Study Roadmap...</h6>
-                <p class="text-muted small mb-0">Structuring phased curriculum milestones and high-yield examination concepts with OpenAI.</p>
+                <p class="text-muted small mb-0">Structuring clear topics, daily tasks, revision activities, and exam preparation guidance with AI.</p>
             </div>
         `;
     }
@@ -3759,6 +3756,8 @@ async function generateAiStudyPlanFromInput() {
         currentAiPlanState.regenIndex = 0;
         if (data && data.success && data.plan) {
             renderAiStudyPlan(targetSubject, false, data.plan);
+        } else if (data && !data.success) {
+            showAiPlanAlert(data.message || 'Could not generate study plan for this subject. Please verify the subject name.', 'danger');
         } else {
             renderAiStudyPlan(targetSubject, false);
         }
@@ -3767,7 +3766,7 @@ async function generateAiStudyPlanFromInput() {
     } finally {
         if (btn) {
             btn.disabled = false;
-            btn.innerHTML = origHtml || '<i class="bi bi-stars me-1"></i> Generate';
+            btn.innerHTML = origHtml || '<i class="bi bi-stars me-1"></i> Generate Study Plan';
         }
         if (container) {
             container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -3777,8 +3776,8 @@ async function generateAiStudyPlanFromInput() {
 
 async function regenerateCurrentAiPlan() {
     const targetSubject = getActiveAiSubject();
-    if (!targetSubject) {
-        showAiPlanAlert('Please select a branch, semester & subject or enter a custom subject name first.', 'warning');
+    if (!targetSubject || targetSubject.trim().length < 2) {
+        showAiPlanAlert('Please enter any subject name first to generate or regenerate your study plan.', 'warning');
         return;
     }
 
@@ -3800,25 +3799,28 @@ async function regenerateCurrentAiPlan() {
             <div class="card p-5 border-0 shadow-sm bg-white rounded-3 text-center my-3">
                 <div class="spinner-border text-primary mx-auto mb-3" style="width: 2.5rem; height: 2.5rem;" role="status"></div>
                 <h6 class="fw-bold text-dark mb-1">Recalibrating ${escapeHtml(cleanSubjectTitle(targetSubject))} Study Roadmap...</h6>
-                <p class="text-muted small mb-0">Refining phase milestones and examination prep priorities with OpenAI.</p>
+                <p class="text-muted small mb-0">Refining topics, daily tasks, revision activities, and exam guidance.</p>
             </div>
         `;
     }
 
     try {
+        currentAiPlanState.regenIndex = (currentAiPlanState.regenIndex || 0) + 1;
         const resp = await fetch('/student/ai-study-plan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 branch: selectedBranch,
                 semester: selectedSem,
-                subject: targetSubject
+                subject: targetSubject,
+                iteration: currentAiPlanState.regenIndex
             })
         });
         const data = await resp.json();
-        currentAiPlanState.regenIndex = (currentAiPlanState.regenIndex || 0) + 1;
         if (data && data.success && data.plan) {
             renderAiStudyPlan(targetSubject, true, data.plan);
+        } else if (data && !data.success) {
+            showAiPlanAlert(data.message || 'Could not recalibrate study plan. Please verify the subject name.', 'danger');
         } else {
             renderAiStudyPlan(targetSubject, true);
         }
@@ -4933,83 +4935,159 @@ function renderAiStudyPlan(subjectName, isRegenerate = false, customPlan = null)
     currentAiPlanState.branch = selectedBranch;
     currentAiPlanState.semester = selectedSem;
 
-    // Use custom OpenAI plan if available, else dynamic academic fallback
     let planTitle = cleanSubjectTitle(subjectName);
     let planSummary = "";
-    let planPhases = [];
-    let planConcepts = [];
+    let topics = [];
+    let dailyTasks = [];
+    let revisionActivities = [];
+    let examGuidance = [];
 
-    if (customPlan && customPlan.phases) {
-        planSummary = customPlan.summary || `Comprehensive AI-generated syllabus mastery plan for ${planTitle}.`;
-        planPhases = customPlan.phases || [];
-        planConcepts = customPlan.importantConcepts || [];
-    } else {
-        const generated = generateDynamicSubjectPlan(subjectName, selectedBranch, selectedSem);
-        planSummary = generated.subtitle || `Syllabus mastery framework for ${planTitle}.`;
-        planPhases = generated.phases || [];
-        planConcepts = generated.importantConcepts || [];
+    if (customPlan) {
+        planSummary = customPlan.summary || `Personalized, student-friendly study roadmap for mastering ${planTitle}.`;
+        topics = customPlan.topics || [];
+        dailyTasks = customPlan.dailyTasks || [];
+        revisionActivities = customPlan.revisionActivities || [];
+        examGuidance = customPlan.examGuidance || [];
+
+        // Backward compatibility if backend returned phases
+        if (topics.length === 0 && customPlan.phases) {
+            topics = customPlan.phases.map((p, i) => ({
+                title: (p.name || `Topic ${i+1}`).replace(/^Phase \d+:\s*/, ''),
+                description: (p.bullets || []).join('; ')
+            }));
+        }
+    }
+
+    if (topics.length === 0) {
+        topics = [
+            { title: "Foundations & Core Principles", description: `Fundamental terminology, definitions, prerequisites, and foundational concepts of ${planTitle}.` },
+            { title: "Core Methodologies & Workflows", description: `Primary algorithmic workflows, analytical procedures, derivations, and formulas in ${planTitle}.` },
+            { title: "Advanced Mechanisms & Case Problems", description: `Subsystem architectures, optimization trade-offs, and practical design scenarios in ${planTitle}.` },
+            { title: "High-Yield University Modules & Synthesis", description: `Standard 10-mark examination problem types, previous year question trends, and final review.` }
+        ];
+    }
+
+    if (dailyTasks.length === 0) {
+        dailyTasks = [
+            { day: "Day 1 - 2", task: `Foundations: Review core definitions, terminology, and read textbook Chapter 1-2 for ${planTitle}.` },
+            { day: "Day 3 - 4", task: `Core Principles: Deep dive into standard algorithms and mechanisms, solve previous question papers.` },
+            { day: "Day 5 - 6", task: `Advanced Applications: Work through analytical case studies, compare methods, and create formula summary sheets.` },
+            { day: "Day 7", task: `Full Revision: Conduct a 60-minute mock test on high-weightage topics and review mistakes.` }
+        ];
+    }
+
+    if (revisionActivities.length === 0) {
+        revisionActivities = [
+            `Active Recall: Quiz yourself on key definitions and state diagrams of ${planTitle} without looking at notes.`,
+            `Formula & Diagram Sheet: Create a 1-page summary sheet with all essential formulas and architecture diagrams.`,
+            `Previous Exam Papers: Solve 5 high-frequency questions from previous university exams under timed conditions.`,
+            `Teach-Back Technique: Explain the toughest concept out loud to a peer or in your own words to solidify intuition.`
+        ];
+    }
+
+    if (examGuidance.length === 0) {
+        examGuidance = [
+            `Focus on high-weightage derivations and clearly labeled diagrams for 8-10 mark questions.`,
+            `Write answers with clear step-by-step points and subheadings rather than long continuous paragraphs.`,
+            `Time Management: Spend approximately 15-18 minutes per 10-mark question during the examination.`,
+            `Prioritize your strongest module first in the exam to secure early confidence and top marks.`
+        ];
     }
 
     let planHtml = `
         <div class="card p-4 border-0 shadow-sm bg-white rounded-3">
-            <!-- 1. Header: [Subject] Study Plan + Short Subtitle -->
+            <!-- 1. Header: [Subject] Study Plan -->
             <div class="mb-4 pb-3 border-bottom">
                 <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fw-semibold">
-                        <i class="bi bi-stars me-1"></i> OpenAI Study Roadmap
+                        <i class="bi bi-stars me-1"></i> AI Personalized Study Plan
                     </span>
                     ${selectedBranch ? `
                         <span class="badge bg-light text-muted border">
                             <i class="bi bi-diagram-3 me-1"></i> ${escapeHtml(selectedBranch)}
                         </span>
                     ` : ''}
-                    <span class="badge bg-light text-muted border">
-                        <i class="bi bi-mortarboard me-1"></i> Semester ${escapeHtml(selectedSem)}
-                    </span>
-                    ${isRegenerate ? '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-arrow-repeat me-1"></i> Recalibrated Plan</span>' : ''}
+                    ${selectedSem ? `
+                        <span class="badge bg-light text-muted border">
+                            <i class="bi bi-mortarboard me-1"></i> Semester ${escapeHtml(selectedSem)}
+                        </span>
+                    ` : ''}
+                    ${isRegenerate ? '<span class="badge bg-light text-primary border px-2 py-1"><i class="bi bi-arrow-repeat me-1"></i> Fresh Roadmap</span>' : ''}
                 </div>
                 <h3 class="fw-bold text-dark mb-1">${escapeHtml(planTitle)}</h3>
                 <p class="text-muted small mb-0">${escapeHtml(planSummary)}</p>
             </div>
 
-            <!-- 2. Structured Learning Phases (Fundamentals → Advanced/Practical Topics) -->
+            <!-- 2. Clear Topics & Modules -->
             <div class="mb-4">
                 <h6 class="fw-bold text-dark mb-3">
-                    <i class="bi bi-diagram-3 text-primary me-2"></i> Structured Learning Phases (Fundamentals &rarr; Advanced &rarr; Examination Mastery)
+                    <i class="bi bi-journal-bookmark-fill text-primary me-2"></i> 1. Clear Topics &amp; Modules
                 </h6>
                 <div class="row g-3">
-                    ${planPhases.map((p, idx) => `
-                        <div class="col-md-6 col-lg-3">
-                            <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column shadow-sm">
-                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                                    <span class="badge bg-primary text-white px-2 py-1 small">Phase ${idx + 1}</span>
-                                    <span class="badge bg-white text-primary border small"><i class="bi bi-flag me-1"></i>Milestone ${idx + 1}</span>
+                    ${topics.map((t, idx) => `
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3 border h-100 shadow-sm">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-primary text-white px-2 py-1 small">Topic ${idx + 1}</span>
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.94rem;">${escapeHtml(t.title || `Module ${idx + 1}`)}</h6>
                                 </div>
-                                <h6 class="fw-bold text-dark mb-2" style="font-size: 0.92rem;">${escapeHtml((p.name || `Phase ${idx + 1}`).replace(/^Phase \d+:\s*/, ''))}</h6>
-                                <ul class="small text-muted mb-0 ps-3 flex-grow-1" style="line-height: 1.55;">
-                                    ${(p.bullets || []).map(b => `<li class="mb-1">${escapeHtml(b)}</li>`).join('')}
-                                </ul>
+                                <p class="small text-muted mb-0" style="line-height: 1.55;">${escapeHtml(t.description || '')}</p>
                             </div>
                         </div>
                     `).join('')}
                 </div>
             </div>
 
-            <!-- 3. Important Concepts to Focus On -->
-            <div class="mb-4 p-3 bg-light rounded-3 border">
-                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-                    <h6 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-lightbulb text-warning me-2"></i> High-Yield Concepts &amp; Examination Priorities
-                    </h6>
-                    <span class="badge bg-white text-primary border small">Top Examination Topics</span>
+            <!-- 3. Daily Tasks & Routine -->
+            <div class="mb-4">
+                <h6 class="fw-bold text-dark mb-3">
+                    <i class="bi bi-calendar-check-fill text-primary me-2"></i> 2. Daily Tasks &amp; Study Routine
+                </h6>
+                <div class="row g-3">
+                    ${dailyTasks.map((d, idx) => `
+                        <div class="col-md-6 col-lg-3">
+                            <div class="p-3 bg-white rounded-3 border h-100 shadow-sm d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold small">${escapeHtml(d.day || `Day ${idx + 1}`)}</span>
+                                    <i class="bi bi-clock text-muted small"></i>
+                                </div>
+                                <p class="small text-dark mb-0 flex-grow-1" style="line-height: 1.55;">${escapeHtml(d.task || '')}</p>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
-                <p class="text-muted small mb-3">Priority core concepts essential for scoring top marks and solid academic understanding:</p>
+            </div>
+
+            <!-- 4. Revision Activities -->
+            <div class="mb-4 p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-dark mb-2">
+                    <i class="bi bi-arrow-repeat text-primary me-2"></i> 3. Revision Activities &amp; Active Recall
+                </h6>
+                <p class="text-muted small mb-3">Concrete revision drills to cement concepts and test your retention before exams:</p>
                 <div class="row g-2">
-                    ${planConcepts.map((c, idx) => `
+                    ${revisionActivities.map((act, idx) => `
                         <div class="col-md-6">
-                            <div class="p-2 px-3 bg-white rounded-2 border d-flex align-items-center gap-2">
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.75rem;">#${idx + 1}</span>
-                                <span class="small fw-semibold text-dark">${escapeHtml(c)}</span>
+                            <div class="p-2 px-3 bg-white rounded-2 border d-flex align-items-start gap-2 h-100">
+                                <i class="bi bi-check2-circle text-primary fs-5 mt-n1 flex-shrink-0"></i>
+                                <span class="small text-dark">${escapeHtml(act)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- 5. Exam Preparation Guidance -->
+            <div class="mb-4 p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-dark mb-2">
+                    <i class="bi bi-award text-primary me-2"></i> 4. Exam Preparation Guidance &amp; Scoring Tips
+                </h6>
+                <p class="text-muted small mb-3">Proven exam hall strategies to maximize marks and avoid common student pitfalls:</p>
+                <div class="row g-2">
+                    ${examGuidance.map((tip, idx) => `
+                        <div class="col-md-6">
+                            <div class="p-2 px-3 bg-white rounded-2 border d-flex align-items-start gap-2 h-100">
+                                <i class="bi bi-lightbulb text-primary fs-6 mt-1 flex-shrink-0"></i>
+                                <span class="small text-dark">${escapeHtml(tip)}</span>
                             </div>
                         </div>
                     `).join('')}
@@ -5018,7 +5096,7 @@ function renderAiStudyPlan(subjectName, isRegenerate = false, customPlan = null)
 
             <!-- Bottom Action Row (Regenerate) -->
             <div class="p-3 bg-white rounded-3 border shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span class="text-muted small">Want to refresh concepts or recalibrate with OpenAI?</span>
+                <span class="text-muted small">Want fresh topics or alternative revision strategies?</span>
                 <button type="button" class="btn btn-sm btn-outline-primary fw-semibold px-3" onclick="regenerateCurrentAiPlan()">
                     <i class="bi bi-arrow-repeat me-1"></i> Regenerate Study Plan
                 </button>
@@ -5189,6 +5267,21 @@ function closeChatbot() {
     isChatbotOpen = false;
     if (chatbotIconOpen) chatbotIconOpen.classList.remove("d-none");
     if (chatbotIconClose) chatbotIconClose.classList.add("d-none");
+}
+
+let isStudentChatExpanded = false;
+
+function toggleStudentChatHeight() {
+    if (!chatbotWindow) return;
+    isStudentChatExpanded = !isStudentChatExpanded;
+    const icon = document.getElementById("studentSizeIcon");
+    if (isStudentChatExpanded) {
+        chatbotWindow.style.setProperty("height", "78vh", "important");
+        if (icon) icon.className = "bi bi-arrows-angle-contract";
+    } else {
+        chatbotWindow.style.setProperty("height", "50vh", "important");
+        if (icon) icon.className = "bi bi-arrows-angle-expand";
+    }
 }
 
 if (chatbotLauncher) chatbotLauncher.addEventListener("click", toggleChatbot);
@@ -5537,6 +5630,7 @@ function generateEduBotResponse(query) {
         const pct = data.overallPercentage;
         const attended = data.presentCount;
         const total = data.totalConducted;
+        const absentCount = Math.max(0, total - attended);
         const isSafe = pct >= 75.0;
 
         let statusBanner = isSafe
@@ -5549,8 +5643,29 @@ function generateEduBotResponse(query) {
 
         return `
             <div><strong>Overall Attendance:</strong> <span class="fs-6 fw-bold ${isSafe ? 'text-success' : 'text-danger'}">${pct}%</span> ${statusBanner}</div>
-            <div class="mt-1">You have attended <strong>${attended}</strong> out of <strong>${total}</strong> conducted class sessions.</div>
+            <div class="mt-1">You have attended <strong>${attended}</strong> class sessions (<strong>${absentCount}</strong> absent) out of <strong>${total}</strong> conducted lectures.</div>
             <div class="mt-1 small text-muted">${advice}</div>
+        `;
+    }
+
+    // 3.5. ABSENCES & MISSED CLASSES
+    if (q.includes("absent") || q.includes("absences") || q.includes("missed") || q.includes("leave") || q.includes("skipped")) {
+        const total = data.totalConducted || 0;
+        const attended = data.presentCount || 0;
+        const absentCount = Math.max(0, total - attended);
+        const subjects = data.subjects || [];
+
+        let breakdownList = "";
+        const absSubs = subjects.filter(s => (s.total - s.attended) > 0);
+        if (absSubs.length > 0) {
+            breakdownList = `<ul class="ps-3 mt-1 mb-0">` + 
+                absSubs.map(s => `<li><strong>${escapeHtml(s.subject_name)}</strong>: <span class="text-danger fw-semibold">${s.total - s.attended}</span> absent (${s.attended}/${s.total} attended, ${s.percentage}%)</li>`).join("") +
+                `</ul>`;
+        }
+
+        return `
+            <div>You have been absent for <strong>${absentCount}</strong> class session(s) out of <strong>${total}</strong> conducted lectures (Overall: <strong>${data.overallPercentage}%</strong>).</div>
+            ${breakdownList ? '<div class="mt-2"><strong>Absences by Subject:</strong></div>' + breakdownList : '<div class="mt-1 text-success">Excellent! You have 0 absences recorded across all subjects.</div>'}
         `;
     }
 
@@ -5629,7 +5744,7 @@ function generateEduBotResponse(query) {
                 <div><strong>${escapeHtml(sub.subject_name)}</strong> ${sub.subject_code ? '(' + escapeHtml(sub.subject_code) + ')' : ''}</div>
                 <div class="mt-1">
                     Status: <span class="badge ${badgeClass}">${sub.pct_display}</span>
-                    <span class="ms-2">(${sub.attended} attended / ${sub.total} classes held)</span>
+                    <span class="ms-2">(${sub.attended} attended, ${sub.total - sub.attended} absent / ${sub.total} classes held)</span>
                 </div>
                 ${neededText}
             `;
@@ -5645,7 +5760,7 @@ function generateEduBotResponse(query) {
         subjects.forEach(sub => {
             const isLow = sub.percentage < 75.0;
             const badge = isLow ? `<span class="badge bg-danger">${sub.pct_display}</span>` : `<span class="badge bg-success">${sub.pct_display}</span>`;
-            listHtml += `<li><strong>${escapeHtml(sub.subject_name)}</strong>: ${badge} <span class="small text-muted">(${sub.attended}/${sub.total})</span></li>`;
+            listHtml += `<li><strong>${escapeHtml(sub.subject_name)}</strong>: ${badge} <span class="small text-muted">(${sub.attended} attended, ${sub.total - sub.attended} absent of ${sub.total})</span></li>`;
         });
         listHtml += `</ul>`;
         return listHtml;
@@ -5728,6 +5843,449 @@ function generateEduBotResponse(query) {
         </ul>
         <div class="small text-muted">Try clicking one of the quick buttons above or ask: <em>"What is my attendance in Mathematics?"</em></div>
     `;
+}
+
+/* =========================================================
+   STUDENT ATTENDANCE ANALYTICS (CHART.JS - ADMIN ALIGNED)
+========================================================= */
+let studentBarChartInstance = null;
+let studentPieChartInstance = null;
+
+function filterStudentAnalyticsSubjectDropdown(semVal, branchVal) {
+    const subSelect = document.getElementById("studentAnalyticsSubject");
+    if (!subSelect) return;
+
+    const currentVal = subSelect.value;
+    let currentStillValid = false;
+
+    for (let i = 0; i < subSelect.options.length; i++) {
+        const opt = subSelect.options[i];
+        const val = opt.value;
+        if (!val || val === "all") {
+            opt.hidden = false;
+            opt.style.display = "";
+            opt.disabled = false;
+            continue;
+        }
+
+        const optSem = (opt.getAttribute("data-semester") || "").trim();
+        const optBranch = (opt.getAttribute("data-branch") || "").trim().toUpperCase();
+        let show = true;
+
+        if (semVal && semVal !== "all" && optSem && optSem !== String(semVal)) {
+            show = false;
+        }
+        if (branchVal && branchVal !== "all" && optBranch) {
+            let bClean = branchVal.toUpperCase();
+            if (bClean === "AIML") bClean = "CSE (AIML)";
+            if (!optBranch.includes(bClean) && !bClean.includes(optBranch)) {
+                show = false;
+            }
+        }
+
+        if (show) {
+            opt.hidden = false;
+            opt.style.display = "";
+            opt.disabled = false;
+            if (val === currentVal) currentStillValid = true;
+        } else {
+            opt.hidden = true;
+            opt.style.display = "none";
+            opt.disabled = true;
+        }
+    }
+
+    if (currentVal && currentVal !== "all" && !currentStillValid) {
+        subSelect.value = "";
+    }
+}
+
+function onStudentAnalyticsBranchChange() {
+    const branchVal = (document.getElementById("studentAnalyticsBranch")?.value || "").trim();
+    const semVal = (document.getElementById("studentAnalyticsSemester")?.value || "").trim();
+    filterStudentAnalyticsSubjectDropdown(semVal, branchVal);
+    onStudentAnalyticsFilterChange();
+}
+
+function onStudentAnalyticsYearChange() {
+    const yr = (document.getElementById("studentAnalyticsYear")?.value || "").trim();
+    const semSelect = document.getElementById("studentAnalyticsSemester");
+    if (semSelect && yr && yr !== "all") {
+        const yNum = parseInt(yr, 10);
+        const sem1 = (yNum * 2) - 1;
+        const curSem = parseInt(semSelect.value, 10);
+        if (curSem !== (yNum * 2) && curSem !== sem1) {
+            semSelect.value = String(sem1);
+        }
+    }
+    const currentSem = semSelect ? semSelect.value : "";
+    const branchVal = (document.getElementById("studentAnalyticsBranch")?.value || "").trim();
+    filterStudentAnalyticsSubjectDropdown(currentSem, branchVal);
+    onStudentAnalyticsFilterChange();
+}
+
+function onStudentAnalyticsSemesterChange() {
+    const semVal = (document.getElementById("studentAnalyticsSemester")?.value || "").trim();
+    const yrSelect = document.getElementById("studentAnalyticsYear");
+    if (yrSelect && semVal && semVal !== "all") {
+        const sNum = parseInt(semVal, 10);
+        if (!isNaN(sNum)) {
+            yrSelect.value = String(Math.ceil(sNum / 2));
+        }
+    }
+    const branchVal = (document.getElementById("studentAnalyticsBranch")?.value || "").trim();
+    filterStudentAnalyticsSubjectDropdown(semVal, branchVal);
+    onStudentAnalyticsFilterChange();
+}
+
+function onStudentAnalyticsFilterChange() {
+    renderStudentAnalyticsCharts();
+}
+
+function toggleStudentGraphDisplay() {
+    const graphType = (document.getElementById("studentAnalyticsGraphType")?.value || "").trim();
+    const barCol = document.getElementById("studentBarGraphCol");
+    const pieCol = document.getElementById("studentPieChartCol");
+    const graphsEl = document.getElementById("studentAnalyticsGraphsContainer");
+
+    if (!barCol || !pieCol || !graphsEl) return;
+
+    if (graphType === "bar") {
+        barCol.className = "col-12";
+        barCol.style.display = "block";
+        pieCol.style.display = "none";
+        graphsEl.style.display = "";
+    } else if (graphType === "pie") {
+        pieCol.className = "col-12";
+        pieCol.style.display = "block";
+        barCol.style.display = "none";
+        graphsEl.style.display = "";
+    } else if (graphType === "both") {
+        barCol.className = "col-12 col-lg-7";
+        barCol.style.display = "block";
+        pieCol.className = "col-12 col-lg-5";
+        pieCol.style.display = "block";
+        graphsEl.style.display = "";
+    } else {
+        graphsEl.style.display = "none";
+    }
+
+    if (studentBarChartInstance) studentBarChartInstance.resize();
+    if (studentPieChartInstance) studentPieChartInstance.resize();
+}
+
+function renderStudentAnalyticsCharts() {
+    if (typeof Chart === 'undefined') return;
+
+    const branch = (document.getElementById("studentAnalyticsBranch")?.value || "").trim().toUpperCase();
+    const year = (document.getElementById("studentAnalyticsYear")?.value || "").trim();
+    const sem = (document.getElementById("studentAnalyticsSemester")?.value || "").trim();
+    const sub = (document.getElementById("studentAnalyticsSubject")?.value || "").trim();
+    const graphType = (document.getElementById("studentAnalyticsGraphType")?.value || "").trim();
+
+    const promptEl = document.getElementById("studentAnalyticsPrompt");
+    const graphsEl = document.getElementById("studentAnalyticsGraphsContainer");
+
+    const hasSelection = Boolean(branch || year || sem || sub || graphType);
+
+    if (!hasSelection || !graphType) {
+        if (promptEl) promptEl.style.display = "";
+        if (graphsEl) graphsEl.style.display = "none";
+        return;
+    }
+
+    if (promptEl) promptEl.style.display = "none";
+    if (graphsEl) graphsEl.style.display = "";
+    toggleStudentGraphDisplay();
+
+    // Filter student's subject attendance data strictly from subjectAttendanceList
+    let filteredSubjects = [];
+    if (typeof subjectAttendanceList !== 'undefined' && Array.isArray(subjectAttendanceList)) {
+        filteredSubjects = subjectAttendanceList.filter(s => {
+            if (sem && sem !== "all") {
+                if (String(s.semester) !== String(sem)) return false;
+            }
+            if (year && year !== "all") {
+                if (String(s.year) !== String(year)) return false;
+            }
+            if (branch && branch !== "all" && s.branch) {
+                let sB = (s.branch || "").toUpperCase();
+                if (sB === "AIML") sB = "CSE (AIML)";
+                if (!sB.includes(branch) && !branch.includes(sB)) return false;
+            }
+            if (sub && sub !== "all") {
+                const sName = (s.subject_name || "").toLowerCase();
+                const sCode = (s.subject_code || "").toLowerCase();
+                if (!sName.includes(sub.toLowerCase()) && !sCode.includes(sub.toLowerCase())) return false;
+            }
+            return true;
+        });
+    }
+
+    const selectedSubOption = document.getElementById("studentAnalyticsSubject")?.selectedOptions?.[0];
+    const isSpecificSubject = (sub && sub !== "all" && sub !== "");
+    const selectedSubText = (selectedSubOption && isSpecificSubject) ? selectedSubOption.text : "";
+
+    // History check-in records for date/session timeline
+    let subHistoryRecords = [];
+    if (typeof historyDataset !== 'undefined' && Array.isArray(historyDataset)) {
+        subHistoryRecords = historyDataset.filter(r => {
+            if (sem && sem !== "all") {
+                if (String(r.semester) !== String(sem)) return false;
+            }
+            if (year && year !== "all") {
+                if (String(r.year) !== String(year)) return false;
+            }
+            if (branch && branch !== "all" && r.branch) {
+                let rB = (r.branch || "").toUpperCase();
+                if (rB === "AIML") rB = "CSE (AIML)";
+                if (!rB.includes(branch) && !branch.includes(rB)) return false;
+            }
+            if (sub && sub !== "all") {
+                const rName = (r.subject_name || "").toLowerCase();
+                const rCode = (r.subject_code || "").toLowerCase();
+                if (!rName.includes(sub.toLowerCase()) && !rCode.includes(sub.toLowerCase())) return false;
+            }
+            return true;
+        });
+    }
+
+    // 1. Render Bar Chart (Class Attendance Counts - Friendly Whole Numbers)
+    const barCanvas = document.getElementById("studentAnalyticsBarCanvas");
+    const barTitleEl = document.getElementById("studentBarGraphTitle");
+    const barSubEl = document.getElementById("studentBarGraphSubtitle");
+
+    if (barCanvas) {
+        if (studentBarChartInstance) {
+            studentBarChartInstance.destroy();
+            studentBarChartInstance = null;
+        }
+
+        let chartLabels = [];
+        let chartDatasets = [];
+        let showLegend = false;
+
+        if (isSpecificSubject) {
+            // Find counts for this specific subject
+            let attendedCount = 0;
+            let totalClasses = 0;
+
+            if (filteredSubjects.length > 0) {
+                attendedCount = parseInt(filteredSubjects[0].attended || 0, 10);
+                totalClasses = parseInt(filteredSubjects[0].total || 0, 10);
+            } else if (subHistoryRecords.length > 0) {
+                totalClasses = subHistoryRecords.length;
+                attendedCount = subHistoryRecords.filter(r => String(r.status || "").toLowerCase() === "present").length;
+            }
+
+            const missedCount = Math.max(0, totalClasses - attendedCount);
+            const requiredFor75 = Math.ceil(totalClasses * 0.75);
+
+            if (barTitleEl) barTitleEl.innerHTML = '<i class="bi bi-bar-chart-fill me-2" style="color: #4f46e5;"></i> Class Attendance Summary';
+            if (barSubEl) barSubEl.textContent = 'Attended, missed, and total classes conducted for ' + selectedSubText;
+
+            chartLabels = ["Classes Attended", "Classes Missed", "Total Conducted", "75% Target"];
+            chartDatasets = [{
+                label: "Number of Classes",
+                data: [attendedCount, missedCount, totalClasses, requiredFor75],
+                backgroundColor: ['#10b981', '#f43f5e', '#4f46e5', '#0ea5e9'],
+                borderRadius: 8,
+                maxBarThickness: 52
+            }];
+            showLegend = false;
+        } else {
+            // "All Subjects" comparison across semester subjects - Grouped bars for Attended vs Total
+            if (barTitleEl) barTitleEl.innerHTML = '<i class="bi bi-bar-chart-fill me-2" style="color: #4f46e5;"></i> Subject Attendance by Class Count';
+            if (barSubEl) barSubEl.textContent = 'Classes attended vs total conducted across curriculum subjects';
+
+            const validSubs = filteredSubjects.length > 0 ? filteredSubjects : [];
+            chartLabels = validSubs.length > 0 ? validSubs.map(s => s.subject_name || "Subject") : ["No Enrolled Subjects"];
+            const attendedData = validSubs.length > 0 ? validSubs.map(s => parseInt(s.attended || 0, 10)) : [0];
+            const totalData = validSubs.length > 0 ? validSubs.map(s => parseInt(s.total || 0, 10)) : [0];
+
+            chartDatasets = [
+                {
+                    label: "Classes Attended",
+                    data: attendedData,
+                    backgroundColor: "#10b981",
+                    borderRadius: 6,
+                    maxBarThickness: 36
+                },
+                {
+                    label: "Total Classes Conducted",
+                    data: totalData,
+                    backgroundColor: "#4f46e5",
+                    borderRadius: 6,
+                    maxBarThickness: 36
+                }
+            ];
+            showLegend = validSubs.length > 0;
+        }
+
+        studentBarChartInstance = new Chart(barCanvas, {
+            type: "bar",
+            data: {
+                labels: chartLabels,
+                datasets: chartDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: showLegend,
+                        position: "top",
+                        labels: {
+                            boxWidth: 14,
+                            padding: 12,
+                            font: { size: 12, weight: "600" }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const val = ctx.parsed.y;
+                                const unit = val === 1 ? "Class" : "Classes";
+                                if (ctx.dataset.label && showLegend) {
+                                    return ` ${ctx.dataset.label}: ${val} ${unit}`;
+                                }
+                                return ` ${ctx.label}: ${val} ${unit}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1,
+                            callback: function(v) {
+                                return Number.isInteger(v) ? v + (v === 1 ? " Class" : " Classes") : "";
+                            },
+                            font: { size: 12 }
+                        },
+                        grid: { color: "#f1f5f9" }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 12 },
+                            callback: function(val, index) {
+                                const text = this.getLabelForValue(val);
+                                return text.length > 20 ? text.slice(0, 18) + "..." : text;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Render Pie / Doughnut Chart
+    const pieCanvas = document.getElementById("studentAnalyticsPieCanvas");
+    const pieTitleEl = document.getElementById("studentPieGraphTitle");
+    const pieSubEl = document.getElementById("studentPieGraphSubtitle");
+
+    if (pieCanvas) {
+        if (studentPieChartInstance) {
+            studentPieChartInstance.destroy();
+            studentPieChartInstance = null;
+        }
+
+        let pieLabels = [];
+        let pieData = [];
+        let pieColors = [];
+
+        if (isSpecificSubject) {
+            let attendedCount = 0;
+            let totalClasses = 0;
+
+            if (filteredSubjects.length > 0) {
+                attendedCount = parseInt(filteredSubjects[0].attended || 0, 10);
+                totalClasses = parseInt(filteredSubjects[0].total || 0, 10);
+            } else if (subHistoryRecords.length > 0) {
+                totalClasses = subHistoryRecords.length;
+                attendedCount = subHistoryRecords.filter(r => String(r.status || "").toLowerCase() === "present").length;
+            }
+
+            const missedCount = Math.max(0, totalClasses - attendedCount);
+
+            if (pieTitleEl) pieTitleEl.innerHTML = '<i class="bi bi-pie-chart-fill me-2" style="color: #0d9488;"></i> Session Turnout Ratio';
+            if (pieSubEl) pieSubEl.textContent = 'Attended vs Missed out of ' + totalClasses + ' conducted sessions';
+
+            if (attendedCount === 0 && missedCount === 0) {
+                pieLabels = ["No Records"];
+                pieData = [1];
+                pieColors = ["#cbd5e1"];
+            } else {
+                pieLabels = ["Attended (" + attendedCount + ")", "Missed (" + missedCount + ")"];
+                pieData = [attendedCount, missedCount];
+                // Emerald for Attended, Calm Slate for Missed
+                pieColors = ["#10b981", "#64748b"];
+            }
+        } else {
+            // "All Subjects": Show Subject Attendance Share
+            const validSubs = filteredSubjects.filter(s => parseInt(s.attended || 0, 10) > 0);
+            const displaySubs = validSubs.length > 0 ? validSubs : filteredSubjects;
+
+            if (pieTitleEl) pieTitleEl.innerHTML = '<i class="bi bi-pie-chart-fill me-2" style="color: #0d9488;"></i> Subject Attendance Share';
+            if (pieSubEl) pieSubEl.textContent = 'Distribution across ' + displaySubs.length + ' semester subjects';
+
+            if (displaySubs.length === 0) {
+                pieLabels = ["No Records Found"];
+                pieData = [1];
+                pieColors = ["#cbd5e1"];
+            } else {
+                pieLabels = displaySubs.map(s => s.subject_name || "Subject");
+                pieData = displaySubs.map(s => parseInt(s.attended || 0, 10));
+                const totalAtt = pieData.reduce((a, b) => a + b, 0);
+                if (totalAtt === 0) {
+                    pieData = displaySubs.map(s => parseInt(s.total || 1, 10));
+                }
+                const subPalette = ['#4f46e5', '#0ea5e9', '#0d9488', '#8b5cf6', '#d97706', '#0284c7', '#ec4899', '#14b8a6', '#6366f1', '#f59e0b'];
+                pieColors = displaySubs.map((_, i) => subPalette[i % subPalette.length]);
+            }
+        }
+
+        studentPieChartInstance = new Chart(pieCanvas, {
+            type: "doughnut",
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: pieData,
+                    backgroundColor: pieColors,
+                    borderWidth: 2,
+                    borderColor: "#ffffff",
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "60%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 14,
+                            padding: 16,
+                            font: { size: 12, weight: "600" }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const val = ctx.parsed;
+                                const unit = val === 1 ? "Class" : "Classes";
+                                return ` ${ctx.label}: ${val} ${unit}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
 
 // Initial Boot

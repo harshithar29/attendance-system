@@ -561,67 +561,134 @@ def generate_attendance_excel_report(report_data=None, teacher_name="Teacher", c
         bottom=Side(style="thin", color="CBD5E1")
     )
 
-    headers = ["USN", "Name", "Subject", "Teacher", "Present", "Absent"]
-    ws.row_dimensions[1].height = 24
+    if rep_type == "monthly":
+        headers = ["USN", "Name", "Subject", "Total Classes", "Present", "Absent", "Attendance Percentage"]
+        ws.row_dimensions[1].height = 24
 
-    for col_idx, h in enumerate(headers, 1):
-        c = ws.cell(row=1, column=col_idx, value=h)
-        c.font = header_font
-        c.border = thin_border
-        c.alignment = Alignment(horizontal="center" if h in ("USN", "Present", "Absent") else "left", vertical="center")
+        for col_idx, h in enumerate(headers, 1):
+            c = ws.cell(row=1, column=col_idx, value=h)
+            c.font = header_font
+            c.border = thin_border
+            c.alignment = Alignment(horizontal="center" if h in ("USN", "Total Classes", "Present", "Absent", "Attendance Percentage") else "left", vertical="center")
 
-    for r_idx, st in enumerate(students_list, start=2):
-        usn = str(st.get("usn") or "").strip()
-        name = str(st.get("name") or "").strip()
-        if not usn and not name:
-            continue
-        subj = str(st.get("subject") or subject_display or "").strip() or "Subject Attendance"
-        teacher = str(st.get("teacher") or teacher_salutation or "").strip() or "Prof. Harshitha R"
-        present = int(st.get("present", st.get("attended", 0)) or 0)
-        absent = int(st.get("absent", st.get("missed", 0)) or 0)
+        for r_idx, st in enumerate(students_list, start=2):
+            usn = str(st.get("usn") or "").strip()
+            name = str(st.get("name") or "").strip()
+            if not usn and not name:
+                continue
+            sub_col = str(st.get("subject") or subject_display or "").strip() or "Subject"
+            present = int(st.get("present", st.get("attended", 0)) or 0)
+            absent = int(st.get("absent", st.get("missed", 0)) or 0)
+            tot_taken = int(st.get("total", st.get("classes_taken", present + absent)) or (present + absent))
+            if tot_taken <= 0:
+                tot_taken = present + absent if (present + absent) > 0 else 1
+            pct = round((present / tot_taken) * 100, 1) if tot_taken > 0 else 100.0
 
-        ws.row_dimensions[r_idx].height = 20
+            ws.row_dimensions[r_idx].height = 20
 
-        # 1. USN
-        c1 = ws.cell(row=r_idx, column=1, value=usn or "N/A")
-        c1.font = data_font
-        c1.border = thin_border
-        c1.alignment = Alignment(horizontal="center", vertical="center")
+            # 1. USN
+            c1 = ws.cell(row=r_idx, column=1, value=usn or "N/A")
+            c1.font = data_font
+            c1.border = thin_border
+            c1.alignment = Alignment(horizontal="center", vertical="center")
 
-        # 2. Name
-        c2 = ws.cell(row=r_idx, column=2, value=name or "Student")
-        c2.font = data_font
-        c2.border = thin_border
-        c2.alignment = Alignment(horizontal="left", vertical="center")
+            # 2. Name
+            c2 = ws.cell(row=r_idx, column=2, value=name or "Student")
+            c2.font = data_font
+            c2.border = thin_border
+            c2.alignment = Alignment(horizontal="left", vertical="center")
 
-        # 3. Subject
-        c3 = ws.cell(row=r_idx, column=3, value=subj)
-        c3.font = data_font
-        c3.border = thin_border
-        c3.alignment = Alignment(horizontal="left", vertical="center")
+            # 3. Subject
+            c3 = ws.cell(row=r_idx, column=3, value=sub_col)
+            c3.font = data_font
+            c3.border = thin_border
+            c3.alignment = Alignment(horizontal="left", vertical="center")
 
-        # 4. Teacher
-        c4 = ws.cell(row=r_idx, column=4, value=teacher)
-        c4.font = data_font
-        c4.border = thin_border
-        c4.alignment = Alignment(horizontal="left", vertical="center")
+            # 4. Total Classes
+            c4 = ws.cell(row=r_idx, column=4, value=tot_taken)
+            c4.font = data_font
+            c4.border = thin_border
+            c4.alignment = Alignment(horizontal="center", vertical="center")
 
-        # 5. Present
-        c5 = ws.cell(row=r_idx, column=5, value=present)
-        c5.font = data_font
-        c5.border = thin_border
-        c5.alignment = Alignment(horizontal="center", vertical="center")
+            # 5. Present
+            c5 = ws.cell(row=r_idx, column=5, value=present)
+            c5.font = data_font
+            c5.border = thin_border
+            c5.alignment = Alignment(horizontal="center", vertical="center")
 
-        # 6. Absent
-        c6 = ws.cell(row=r_idx, column=6, value=absent)
-        c6.font = data_font
-        c6.border = thin_border
-        c6.alignment = Alignment(horizontal="center", vertical="center")
+            # 6. Absent
+            c6 = ws.cell(row=r_idx, column=6, value=absent)
+            c6.font = data_font
+            c6.border = thin_border
+            c6.alignment = Alignment(horizontal="center", vertical="center")
 
-    # Column widths
-    col_widths = {1: 18, 2: 26, 3: 28, 4: 24, 5: 12, 6: 12}
-    for col_idx, width in col_widths.items():
-        ws.column_dimensions[get_column_letter(col_idx)].width = width
+            # 7. Percentage
+            c7 = ws.cell(row=r_idx, column=7, value=f"{pct}%")
+            c7.font = data_font
+            c7.border = thin_border
+            c7.alignment = Alignment(horizontal="center", vertical="center")
+
+        col_widths = {1: 18, 2: 24, 3: 26, 4: 16, 5: 14, 6: 14, 7: 22}
+        for col_idx, width in col_widths.items():
+            ws.column_dimensions[get_column_letter(col_idx)].width = width
+    else:
+        headers = ["USN", "Name", "Classes Taken", "Present / Absent", "Percentage"]
+        ws.row_dimensions[1].height = 24
+
+        for col_idx, h in enumerate(headers, 1):
+            c = ws.cell(row=1, column=col_idx, value=h)
+            c.font = header_font
+            c.border = thin_border
+            c.alignment = Alignment(horizontal="center" if h in ("USN", "Classes Taken", "Present / Absent", "Percentage") else "left", vertical="center")
+
+        for r_idx, st in enumerate(students_list, start=2):
+            usn = str(st.get("usn") or "").strip()
+            name = str(st.get("name") or "").strip()
+            if not usn and not name:
+                continue
+            present = int(st.get("present", st.get("attended", 0)) or 0)
+            absent = int(st.get("absent", st.get("missed", 0)) or 0)
+            tot_taken = int(st.get("total", st.get("classes_taken", present + absent)) or (present + absent))
+            if tot_taken <= 0:
+                tot_taken = present + absent if (present + absent) > 0 else 1
+            pct = round((present / tot_taken) * 100, 1) if tot_taken > 0 else 100.0
+
+            ws.row_dimensions[r_idx].height = 20
+
+            # 1. USN
+            c1 = ws.cell(row=r_idx, column=1, value=usn or "N/A")
+            c1.font = data_font
+            c1.border = thin_border
+            c1.alignment = Alignment(horizontal="center", vertical="center")
+
+            # 2. Name
+            c2 = ws.cell(row=r_idx, column=2, value=name or "Student")
+            c2.font = data_font
+            c2.border = thin_border
+            c2.alignment = Alignment(horizontal="left", vertical="center")
+
+            # 3. Classes Taken
+            c3 = ws.cell(row=r_idx, column=3, value=tot_taken)
+            c3.font = data_font
+            c3.border = thin_border
+            c3.alignment = Alignment(horizontal="center", vertical="center")
+
+            # 4. Present / Absent (Strictly 'Present' or 'Absent', no mixing!)
+            st_text = st.get("status_text") or ("Present" if present > 0 else "Absent")
+            c4 = ws.cell(row=r_idx, column=4, value=st_text)
+            c4.font = data_font
+            c4.border = thin_border
+            c4.alignment = Alignment(horizontal="center", vertical="center")
+
+            # 5. Percentage
+            c5 = ws.cell(row=r_idx, column=5, value=f"{pct}%")
+            c5.font = data_font
+            c5.border = thin_border
+            c5.alignment = Alignment(horizontal="center", vertical="center")
+
+        col_widths = {1: 18, 2: 26, 3: 16, 4: 24, 5: 14}
+        for col_idx, width in col_widths.items():
+            ws.column_dimensions[get_column_letter(col_idx)].width = width
 
     safe_period = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in period_display).strip("_")
     safe_sub = "".join(c if (c.isalnum() or c in ("-", "_")) else "_" for c in subject_display).strip("_")
@@ -762,38 +829,35 @@ def generate_attendance_pdf_report(report_data, teacher_name="Teacher", class_na
     elements.append(Paragraph(f"{type_title} Attendance Report – {period_display}", subtitle_style))
     elements.append(Spacer(1, 14))
 
-    # Headers: USN | Name | Subject | Teacher | Present | Absent | date
+    # Headers: USN | Name | Classes Taken | Present / Absent | Percentage
     headers = [
         Paragraph("USN", th_style),
         Paragraph("Name", th_left),
-        Paragraph("Subject", th_left),
-        Paragraph("Teacher", th_left),
-        Paragraph("Present", th_style),
-        Paragraph("Absent", th_style),
-        Paragraph("date", th_style)
+        Paragraph("Classes Taken", th_style),
+        Paragraph("Present / Absent", th_style),
+        Paragraph("Percentage", th_style)
     ]
     table_rows = [headers]
 
     for st in students_list:
         usn = str(st.get("usn") or "").strip() or "N/A"
         name = str(st.get("name") or "").strip() or "Student"
-        subj = str(subject_display or "").strip() or "Blockchain Technology"
-        teacher = str(teacher_salutation or "").strip() or "Prof. Harshitha R"
-        present = int(st.get("attended") or 0)
-        absent = int(st.get("missed") or 0)
-        dt_val = str(period_display or "").strip() or "September 2026"
+        present = int(st.get("present", st.get("attended", 0)) or 0)
+        absent = int(st.get("absent", st.get("missed", 0)) or 0)
+        tot_taken = int(st.get("total", present + absent) or (present + absent))
+        if tot_taken <= 0:
+            tot_taken = present + absent if (present + absent) > 0 else 1
+        pct = round((present / tot_taken) * 100, 1) if tot_taken > 0 else 100.0
 
         table_rows.append([
             Paragraph(usn, td_center),
             Paragraph(name, td_left),
-            Paragraph(subj, td_left),
-            Paragraph(teacher, td_left),
-            Paragraph(str(present), td_center),
-            Paragraph(str(absent), td_center),
-            Paragraph(dt_val, td_center)
+            Paragraph(str(tot_taken), td_center),
+            Paragraph(f"{present} Present, {absent} Absent", td_center),
+            Paragraph(f"{pct}%", td_center)
         ])
 
-    t = Table(table_rows, colWidths=[68, 105, 105, 95, 40, 40, 70], repeatRows=1)
+    t = Table(table_rows, colWidths=[90, 160, 85, 115, 75], repeatRows=1)
     t_style = [
         ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),

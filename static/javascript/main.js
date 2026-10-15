@@ -6,14 +6,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordToggle = document.querySelector(".password-toggle");
 
     if (passwordInput && passwordToggle) {
-        passwordToggle.addEventListener("click", () => {
-            const isHidden = passwordInput.type === "password";
-            passwordInput.type = isHidden ? "text" : "password";
+        if (!passwordToggle.hasAttribute("onclick")) {
+            passwordToggle.addEventListener("click", () => {
+                const isHidden = passwordInput.type === "password";
+                passwordInput.type = isHidden ? "text" : "password";
 
-            const icon = passwordToggle.querySelector("i");
-            icon.className = isHidden ? "bi bi-eye-slash" : "bi bi-eye";
-            passwordToggle.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
-        });
+                const icon = passwordToggle.querySelector("i");
+                if (icon) {
+                    icon.className = isHidden ? "bi bi-eye-slash" : "bi bi-eye";
+                }
+                passwordToggle.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+            });
+        }
     }
 
     const loginForm = document.getElementById("loginForm");

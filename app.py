@@ -61,9 +61,24 @@ def create_app():
     app.register_blueprint(teacher_bp)
     app.register_blueprint(student_bp)
 
+    # Initialize automated monthly attendance report background scheduler
+    try:
+        from backend.services.monthly_scheduler import start_monthly_report_scheduler
+        start_monthly_report_scheduler()
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"Could not start monthly report scheduler: {e}")
+
     @app.route("/download-apk")
     def download_apk():
-        from flask import redirect
+        from flask import send_from_directory, redirect
+        local_apk = os.path.join(app.root_path, "static", "apk", "GSSS_Attendance.apk")
+        if os.path.isfile(local_apk):
+            return send_from_directory(
+                os.path.join(app.root_path, "static", "apk"),
+                "GSSS_Attendance.apk",
+                as_attachment=True,
+                download_name="GSSS_Attendance_Portal.apk"
+            )
         return redirect("https://github.com/harshithar29/attendance-system/releases/download/v1.0.1/GSSS_Attendance_Portal.apk")
 
     return app

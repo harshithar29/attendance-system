@@ -43,20 +43,25 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 # ============================================================
-# STRICT THRESHOLDS - ANTELOPEV2 (512-D) ANTI-FALSE-POSITIVE
+# ANTELOPEV2 (GLINTR100 512-D) STUDENT-LEVEL MATCHING CONFIGURATION
+# (Combines Your Anti-False-Positive Quorum + Friend's Prototype Vector Weighting)
 # ============================================================
 
-# For InsightFace Glint360k 512-d embeddings:
-# Cosine similarity between different people is typically < 0.25.
-# Matching faces typically score >= 0.45 to 0.75+.
+# Student-level matching weights (Friend's innovation):
+# Combines best enrolled photo embedding (90%) + student mean prototype vector (10%)
+# to eliminate neighboring identity hopping and stabilize facial feature vectors.
+PROTOTYPE_WEIGHT = 0.10
+BEST_EMBEDDING_WEIGHT = 0.90
 
-# Minimum similarity to be considered a candidate in a frame
+# Strict anti-false-positive candidate thresholds (From your original pipeline)
 FACE_MATCH_THRESHOLD = 0.365
-
-# Minimum margin between top match and runner-up to reject ambiguity
 FRAME_MARGIN_THRESHOLD = 0.010
 
-# Video-level confirmation criteria:
+# Controlled small-face recovery threshold
+HARD_CANDIDATE_THRESHOLD = 0.300
+HARD_CANDIDATE_MARGIN = 0.008
+
+# Video-level confirmation criteria (Preserving zero false-positives):
 MIN_SIMILARITY_TO_CONFIRM = 0.365
 MIN_AVG_SIMILARITY = 0.350
 MIN_DETECTIONS_TO_CONFIRM = 2
@@ -69,8 +74,8 @@ MIN_DET_SCORE = 0.28
 MIN_FACE_WIDTH = 8
 MIN_FACE_HEIGHT = 8
 
-# Video sampling rates for rapid ~15-20s classroom processing
-MAX_PROCESSED_FRAMES = 26
+# Video sampling rates for rapid ~15s classroom processing
+MAX_PROCESSED_FRAMES = 14
 
 
 
@@ -253,15 +258,20 @@ def build_embedding_matrix(registered_embeddings):
     Converts a list of registered embeddings into:
     - student_ids: np.array of student_ids (shape: [N])
     - embedding_matrix: np.ndarray of 512-d unit vectors (shape: [N, 512])
+    - unique_sids: np.array of unique student_ids (shape: [U])
+    - prototype_matrix: np.ndarray of 512-d mean prototype unit vectors per student (shape: [U, 512])
     """
     if not registered_embeddings:
         return (
+            np.array([], dtype=np.int64),
+            np.empty((0, EXPECTED_EMBEDDING_DIMENSIONS), dtype=np.float32),
             np.array([], dtype=np.int64),
             np.empty((0, EXPECTED_EMBEDDING_DIMENSIONS), dtype=np.float32)
         )
 
     student_ids_list = []
     embedding_list = []
+    student_vector_map = defaultdict(list)
 
     for item in registered_embeddings:
         sid = item.get("student_id")
@@ -270,13 +280,17 @@ def build_embedding_matrix(registered_embeddings):
             continue
         try:
             norm_emb = normalize_embedding(emb)
-            student_ids_list.append(int(sid))
+            sid_int = int(sid)
+            student_ids_list.append(sid_int)
             embedding_list.append(norm_emb)
+            student_vector_map[sid_int].append(norm_emb)
         except Exception:
             continue
 
     if not embedding_list:
         return (
+            np.array([], dtype=np.int64),
+            np.empty((0, EXPECTED_EMBEDDING_DIMENSIONS), dtype=np.float32),
             np.array([], dtype=np.int64),
             np.empty((0, EXPECTED_EMBEDDING_DIMENSIONS), dtype=np.float32)
         )
@@ -289,7 +303,20 @@ def build_embedding_matrix(registered_embeddings):
     norms[norms == 0] = 1.0
     embedding_matrix = embedding_matrix / norms
 
-    return student_ids, embedding_matrix
+    # Calculate student prototypes (mean embedding per student)
+    unique_sids = np.unique(student_ids)
+    proto_list = []
+    for sid in unique_sids:
+        vecs = student_vector_map[sid]
+        mean_v = np.mean(np.vstack(vecs), axis=0).astype(np.float32)
+        m_norm = np.linalg.norm(mean_v)
+        if m_norm > 0:
+            mean_v = mean_v / m_norm
+        proto_list.append(mean_v)
+
+    prototype_matrix = np.vstack(proto_list).astype(np.float32) if proto_list else np.empty((0, EXPECTED_EMBEDDING_DIMENSIONS), dtype=np.float32)
+
+    return student_ids, embedding_matrix, unique_sids, prototype_matrix
 
 
 # ============================================================
@@ -563,15 +590,16 @@ def calculate_optimal_target_frames(total_frames, fps, duration):
     if total_frames <= 0:
         return []
 
-    # Dynamic target count based on video duration
+    # Dynamic target count tuned for ~35-40s processing window
+    # Provides full multi-frame coverage across all rows and camera panning angles
     if duration <= 6.0:
-        n_samples = min(10, total_frames)
+        n_samples = min(14, total_frames)
     elif duration <= 15.0:
-        n_samples = min(16, total_frames)
+        n_samples = min(18, total_frames)
     elif duration <= 30.0:
         n_samples = min(22, total_frames)
     else:
-        n_samples = min(25, total_frames)
+        n_samples = min(26, total_frames)
 
     # Distribute samples evenly across video duration, centered within intervals
     step = total_frames / float(n_samples)
@@ -662,17 +690,38 @@ def safe_detect_faces(det_model, img, thresh=0.28):
 
 
 
+def enhance_small_face(crop):
+    """
+    Friend's enhancement: CLAHE local contrast + gentle unsharp mask
+    improves facial feature discrimination for small, blurred, or distant faces
+    without creating unnatural artifacts before feature extraction.
+    """
+    if crop is None or crop.size == 0:
+        return crop
+
+    try:
+        lab = cv2.cvtColor(crop, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(4, 4))
+        l = clahe.apply(l)
+        enhanced = cv2.cvtColor(cv2.merge((l, a, b)), cv2.COLOR_LAB2BGR)
+
+        blur = cv2.GaussianBlur(enhanced, (0, 0), 0.8)
+        enhanced = cv2.addWeighted(enhanced, 1.12, blur, -0.12, 0)
+        return enhanced
+    except Exception:
+        return crop
+
+
 def preserve_face_crop_quality(aimg, face_w, face_h):
     """
-    For distant/small faces (e.g. last benches), enhances high-frequency edge definition
-    on the 112x112 ArcFace aligned crop to preserve discriminating features for recognition.
+    For distant/small faces (e.g. back and middle benches), applies gentle local-contrast
+    enhancement on the 112x112 ArcFace aligned crop to preserve discriminating features.
     """
     if aimg is None or aimg.size == 0:
         return aimg
-    if min(face_w, face_h) < 32:
-        gaussian = cv2.GaussianBlur(aimg, (0, 0), 1.5)
-        sharp = cv2.addWeighted(aimg, 1.35, gaussian, -0.35, 0)
-        return sharp
+    if min(face_w, face_h) < 45:
+        return enhance_small_face(aimg)
     return aimg
 
 
@@ -683,7 +732,7 @@ def preserve_face_crop_quality(aimg, face_w, face_h):
 def process_classroom_video(video_id, video_path):
     """
     Processes a classroom video using optimized InsightFace Antelopev2:
-    - Target: ~10-second total processing time on laptop hardware
+    - Target: ~15-second total processing time on laptop hardware
     - Avoids decoding skipped frames using OpenCV hardware/demuxer skipping
     - SCRFD 10G multi-face detection per strategically sampled frame
     - Batched ArcFace ResNet-100 feature extraction for detected faces
@@ -730,20 +779,32 @@ def process_classroom_video(video_id, video_path):
     # 3. Load registered student embeddings for this specific class
     student_ids = None
     embedding_matrix = None
+    unique_sids = None
+    prototype_matrix = None
 
     registered_embeddings = load_registered_embeddings(class_id=class_id)
     if registered_embeddings:
-        student_ids, embedding_matrix = build_embedding_matrix(registered_embeddings)
+        student_ids, embedding_matrix, unique_sids, prototype_matrix = build_embedding_matrix(registered_embeddings)
 
     if embedding_matrix is None or len(student_ids) == 0:
         logger.info("No embeddings in MySQL for class %s. Checking all enrolled...", class_id)
         registered_embeddings = load_registered_embeddings(class_id=None)
         if registered_embeddings:
-            student_ids, embedding_matrix = build_embedding_matrix(registered_embeddings)
+            student_ids, embedding_matrix, unique_sids, prototype_matrix = build_embedding_matrix(registered_embeddings)
 
     if embedding_matrix is None or len(student_ids) == 0:
         logger.info("Checking uploads/dataset/<USN>/...")
         student_ids, embedding_matrix = read_student_photos_from_dataset()
+        if student_ids is not None and len(student_ids) > 0:
+            unique_sids = np.unique(student_ids)
+            # Build prototype matrix for dataset photos
+            proto_list = []
+            for sid in unique_sids:
+                mask = (student_ids == sid)
+                m_vec = np.mean(embedding_matrix[mask], axis=0)
+                norm = np.linalg.norm(m_vec)
+                proto_list.append(m_vec / norm if norm > 0 else m_vec)
+            prototype_matrix = np.vstack(proto_list).astype(np.float32)
 
     if embedding_matrix is None or len(student_ids) == 0:
         raise ValueError("No student face embeddings available. Please run dataset training first.")
@@ -795,8 +856,6 @@ def process_classroom_video(video_id, video_path):
     last_confirmed_count = 0
     stable_frames_count = 0
     MIN_FRAMES_BEFORE_EARLY_STOP = 5
-    adaptive_runs = 0
-    adaptive_check_frames = {0, 2, 4}
 
     curr_frame_idx = 0
 
@@ -844,6 +903,7 @@ def process_classroom_video(video_id, video_path):
 
                 if kpss is not None:
                     aimg = face_align.norm_crop(proc_frame, landmark=kpss[i], image_size=rec_model.input_size[0])
+                    aimg = preserve_face_crop_quality(aimg, bw, bh)
                     valid_crops.append(aimg)
 
             if not valid_crops:
@@ -859,14 +919,21 @@ def process_classroom_video(video_id, video_path):
             norms[norms == 0] = 1.0
             frame_matrix = (embs / norms).astype(np.float32)
 
-            # 5. Vectorized cosine similarity matrix: shape [K, N]
+            # 5. Vectorized cosine similarity matrix with registered photos: shape [K, N]
             sims = np.dot(frame_matrix, embedding_matrix.T)
 
             # 6. Vectorized student score aggregation: shape [K, U]
-            student_scores = np.full((K, U), -1.0, dtype=np.float32)
+            best_photo_scores = np.full((K, U), -1.0, dtype=np.float32)
             row_idx = np.repeat(np.arange(K), N)
             col_idx = np.tile(inverse_indices, K)
-            np.maximum.at(student_scores, (row_idx, col_idx), sims.ravel())
+            np.maximum.at(best_photo_scores, (row_idx, col_idx), sims.ravel())
+
+            # 6b. Hybrid student score: 90% best enrolled photo + 10% mean prototype vector
+            if prototype_matrix is not None and prototype_matrix.shape[0] == U:
+                proto_sims = np.dot(frame_matrix, prototype_matrix.T)
+                student_scores = (BEST_EMBEDDING_WEIGHT * best_photo_scores + PROTOTYPE_WEIGHT * proto_sims).astype(np.float32)
+            else:
+                student_scores = best_photo_scores
 
             # 7. Vectorized top-2 match & margin extraction
             if U >= 2:
@@ -882,13 +949,19 @@ def process_classroom_video(video_id, video_path):
                 best_score = student_scores[np.arange(K), best_u_idx]
                 margins = best_score - (-1.0)
 
-            # 8. Collect detections in frame with strict anti-false-positive threshold
+            # 8. Collect detections in frame with primary and small-face candidate thresholds
             assigned_students_in_frame = set()
             for k in range(K):
                 bs = float(best_score[k])
                 mg = float(margins[k])
 
-                if bs >= FACE_MATCH_THRESHOLD and mg >= FRAME_MARGIN_THRESHOLD:
+                # Accept primary matches or multi-observation candidates
+                is_valid_candidate = (
+                    (bs >= FACE_MATCH_THRESHOLD and mg >= FRAME_MARGIN_THRESHOLD)
+                    or (bs >= HARD_CANDIDATE_THRESHOLD and mg >= HARD_CANDIDATE_MARGIN)
+                )
+
+                if is_valid_candidate:
                     sid = int(unique_sids[best_u_idx[k]])
                     if sid not in assigned_students_in_frame:
                         assigned_students_in_frame.add(sid)
@@ -1017,11 +1090,22 @@ def process_classroom_video(video_id, video_path):
         # CRITERION 5: Single-hit strong evidence
         elif (
             detection_count >= 1
-            and best_similarity >= 0.375
+            and best_similarity >= 0.385
             and best_margin >= 0.015
         ):
             is_confirmed = True
             reason = f"single_hit_match(best={best_similarity:.3f},margin={best_margin:.3f})"
+
+        # CRITERION 6: Multi-Frame Controlled Recovery (Anti-False-Positive Guarded)
+        # Allows small/middle-row faces only when consistently matched in 2+ frames with strict margin
+        elif (
+            detection_count >= 2
+            and best_similarity >= HARD_CANDIDATE_THRESHOLD
+            and best_margin >= HARD_CANDIDATE_MARGIN
+            and avg_margin >= 0.006
+        ):
+            is_confirmed = True
+            reason = f"small_face_recovery(detections={detection_count},best={best_similarity:.3f},avg_margin={avg_margin:.3f})"
 
         if not is_confirmed:
             rejected_students.append({
@@ -1048,38 +1132,6 @@ def process_classroom_video(video_id, video_path):
         }
         logger.info("CONFIRMED: %s (%s) - Best=%.3f, Margin=%.3f, Reason=%s",
                     details["name"], details["student_number"], best_similarity, best_margin, reason)
-
-    # ========================================================
-    # BULK DATABASE ATTENDANCE MARKING
-    # ========================================================
-    new_attendance_count, status_map = mark_students_present_bulk(
-        confirmed_sids, class_id, subject_id, video_id
-    )
-
-    recognized_students = []
-    for sid in confirmed_sids:
-        cdata = confirmed_data_map[sid]
-        det = cdata["details"]
-        best_sim = cdata["best_similarity"]
-        conf_pct = min(100.0, max(0.0, round(best_sim * 100.0, 1)))
-        conf_str = f"{conf_pct:.1f}%"
-
-        recognized_students.append({
-            "student_id": sid,
-            "name": det["name"],
-            "student_number": det["student_number"],
-            "email": det["email"],
-            "detection_count": cdata["detection_count"],
-            "accuracy": conf_str,
-            "confidence": conf_str,
-            "best_similarity": round(best_sim, 3),
-            "best_margin": round(cdata["best_margin"], 3),
-            "attendance_status": status_map.get(sid, "Present"),
-            "confirmation_reason": cdata["reason"]
-        })
-
-    recognized_students.sort(key=lambda x: str(x.get("student_number", "")))
-    present_count = len(recognized_students)
 
     # ========================================================
     # ABSENT STUDENTS DETERMINATION
@@ -1111,6 +1163,72 @@ def process_classroom_video(video_id, video_path):
                 "email": st.get("email") or "",
                 "status": "Absent"
             })
+
+    # ========================================================
+    # BULK DATABASE ATTENDANCE MARKING (PRESENT & ABSENT)
+    # ========================================================
+    try:
+        run_query("DELETE FROM attendance WHERE video_id = %s", (video_id,), commit=True)
+    except Exception as del_err:
+        logger.warning("Could not clear prior attendance for video_id %s: %s", video_id, del_err)
+
+    # 1. Bulk insert PRESENT students
+    if confirmed_sids:
+        pres_placeholders = ",".join(["(%s, %s, %s, %s, CURRENT_TIMESTAMP, 'Present')"] * len(confirmed_sids))
+        pres_query = f"""
+            INSERT INTO attendance (student_id, class_id, subject_id, video_id, check_in_time, status)
+            VALUES {pres_placeholders}
+        """
+        pres_params = []
+        for sid in confirmed_sids:
+            pres_params.extend([sid, class_id, subject_id, video_id])
+        try:
+            run_query(pres_query, tuple(pres_params), commit=True)
+        except Exception as pres_err:
+            logger.error("Error bulk inserting present attendance: %s", pres_err)
+
+    # 2. Bulk insert ABSENT students
+    absent_sids = [int(st["student_id"]) for st in absent_students if st.get("student_id")]
+    if absent_sids:
+        abs_placeholders = ",".join(["(%s, %s, %s, %s, CURRENT_TIMESTAMP, 'Absent')"] * len(absent_sids))
+        abs_query = f"""
+            INSERT INTO attendance (student_id, class_id, subject_id, video_id, check_in_time, status)
+            VALUES {abs_placeholders}
+        """
+        abs_params = []
+        for sid in absent_sids:
+            abs_params.extend([sid, class_id, subject_id, video_id])
+        try:
+            run_query(abs_query, tuple(abs_params), commit=True)
+        except Exception as abs_err:
+            logger.error("Error bulk inserting absent attendance: %s", abs_err)
+
+    new_attendance_count = len(confirmed_sids)
+
+    recognized_students = []
+    for sid in confirmed_sids:
+        cdata = confirmed_data_map[sid]
+        det = cdata["details"]
+        best_sim = cdata["best_similarity"]
+        conf_pct = min(100.0, max(0.0, round(best_sim * 100.0, 1)))
+        conf_str = f"{conf_pct:.1f}%"
+
+        recognized_students.append({
+            "student_id": sid,
+            "name": det["name"],
+            "student_number": det["student_number"],
+            "email": det["email"],
+            "detection_count": cdata["detection_count"],
+            "accuracy": conf_str,
+            "confidence": conf_str,
+            "best_similarity": round(best_sim, 3),
+            "best_margin": round(cdata["best_margin"], 3),
+            "attendance_status": "Present",
+            "confirmation_reason": cdata["reason"]
+        })
+
+    recognized_students.sort(key=lambda x: str(x.get("student_number", "")))
+    present_count = len(recognized_students)
 
     # Genuine recognition accuracy / confidence
     if recognized_students:

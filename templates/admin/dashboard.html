@@ -14,7 +14,7 @@ Admin Dashboard | GSSS Attendance Portal
 
 .admin-page {
     min-height: calc(100vh - 76px);
-    padding: 25px;
+    padding: 12px 25px 25px 25px;
 }
 
 
@@ -28,19 +28,19 @@ Admin Dashboard | GSSS Attendance Portal
     top: 88px;
     left: 15px;
 
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
 
-    border: none;
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
 
     background: #ffffff;
     color: #315f9d;
 
     box-shadow:
-        0 6px 20px rgba(15, 23, 42, 0.15);
+        0 4px 16px rgba(15, 23, 42, 0.12);
 
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
 
@@ -67,16 +67,16 @@ Admin Dashboard | GSSS Attendance Portal
     position: fixed;
 
     left: 0;
-    top: 76px;
+    top: 58px;
 
     width: 260px;
-    height: calc(100vh - 76px);
+    height: calc(100vh - 58px);
 
     background: #ffffff;
 
     border-radius: 0 18px 18px 0;
 
-    padding: 70px 12px 20px;
+    padding: 12px 12px 20px;
 
     box-shadow:
         8px 0 30px rgba(15, 23, 42, 0.10);
@@ -112,14 +112,32 @@ Admin Dashboard | GSSS Attendance Portal
 .sidebar-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
-    gap: 10px;
-
-    padding: 8px 12px 18px;
+    padding: 6px 10px 14px;
 
     border-bottom: 1px solid #edf0f4;
 
     margin-bottom: 12px;
+}
+
+.sidebar-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
 }
 
 .sidebar-header-icon {
@@ -741,6 +759,222 @@ Admin Dashboard | GSSS Attendance Portal
     box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
     margin-bottom: 24px;
 }
+
+/* =========================================================
+   ADMIN FLOATING CHATBOT WIDGET
+========================================================= */
+.admin-chatbot-bubble {
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 24px !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 10px 25px rgba(30, 64, 175, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    z-index: 99999 !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    border: 2px solid rgba(255, 255, 255, 0.9) !important;
+}
+.admin-chatbot-bubble:hover {
+    transform: translateY(-3px) scale(1.06) !important;
+    box-shadow: 0 14px 32px rgba(30, 64, 175, 0.5) !important;
+}
+.admin-chatbot-bubble i {
+    font-size: 1.55rem !important;
+    color: #ffffff !important;
+    pointer-events: none !important;
+}
+.admin-chatbot-bubble .badge-pulse {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+    pointer-events: none !important;
+}
+.admin-chatbot-panel {
+    position: fixed !important;
+    bottom: 96px !important;
+    right: 24px !important;
+    width: 400px !important;
+    max-width: calc(100vw - 32px) !important;
+    height: 540px !important;
+    max-height: calc(100vh - 120px) !important;
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2) !important;
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    display: none;
+    flex-direction: column !important;
+    z-index: 99999 !important;
+    overflow: hidden !important;
+    animation: adminSlideUpChat 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.admin-chatbot-panel.open,
+.admin-chatbot-panel.active {
+    display: flex !important;
+}
+@keyframes adminSlideUpChat {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.admin-chatbot-header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #ffffff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.admin-chat-header-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+.admin-chat-header-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+.admin-chat-pills {
+    display: flex;
+    gap: 6px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-bottom: 1px solid #edf2f7;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.admin-chat-pill {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.admin-chat-pill:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+.admin-chat-messages {
+    flex: 1;
+    padding: 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #ffffff;
+}
+.admin-msg-bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    word-break: break-word;
+}
+.admin-msg-user {
+    align-self: flex-end;
+    background: #2563eb;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+.admin-msg-bot {
+    align-self: flex-start;
+    background: #f1f5f9;
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+.admin-chat-input-form {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-top: 1px solid #edf2f7;
+    align-items: center;
+}
+.admin-chat-input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.admin-chat-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.admin-chat-send-btn {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+}
+.admin-chat-send-btn:hover {
+    background: #1d4ed8;
+}
+.admin-chat-mic-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 1.15rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.admin-chat-mic-btn:hover {
+    color: #2563eb;
+    background: #e2e8f0;
+}
+.admin-chat-mic-btn.listening {
+    color: #2563eb;
+    background: #dbeafe;
+    animation: adminMicPulse 1.2s infinite;
+}
+@keyframes adminMicPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
 </style>
 
 
@@ -770,21 +1004,31 @@ Admin Dashboard | GSSS Attendance Portal
 
     <div class="sidebar-header">
 
-        <div class="sidebar-header-icon">
-            <i class="bi bi-shield-lock-fill"></i>
-        </div>
-
-        <div>
-
-            <div class="sidebar-header-title">
-                Admin Panel
+        <div class="d-flex align-items-center gap-2">
+            <div class="sidebar-header-icon">
+                <i class="bi bi-shield-lock-fill"></i>
             </div>
 
-            <div class="sidebar-header-subtitle">
-                Management
-            </div>
+            <div>
+                <div class="sidebar-header-title">
+                    Admin Panel
+                </div>
 
+                <div class="sidebar-header-subtitle">
+                    Management
+                </div>
+            </div>
         </div>
+
+        <button
+            type="button"
+            id="sidebarCloseBtn"
+            class="sidebar-close-btn"
+            title="Close Menu"
+            aria-label="Close Menu"
+        >
+            <i class="bi bi-x-lg"></i>
+        </button>
 
     </div>
 
@@ -879,14 +1123,23 @@ Admin Dashboard | GSSS Attendance Portal
                     <i class="bi bi-dash"></i>
                     <span>Manage Subjects</span>
                 </a>
-                <a href="#" class="sidebar-sublink" data-subtab="cls-students" onclick="switchAdminSection('classes'); setClassesSubtab('students'); return false;">
-                    <i class="bi bi-dash"></i>
-                    <span>Manage Students</span>
-                </a>
             </div>
         </div>
 
-        <!-- 5. ATTENDANCE -->
+        <!-- 5. TEACHER ASSIGNMENTS -->
+        <div class="sidebar-item-group">
+            <a
+                href="#"
+                class="sidebar-link"
+                data-section="assignments"
+                onclick="switchAdminSection('assignments', this); return false;"
+            >
+                <i class="bi bi-person-lines-fill"></i>
+                <span>Teacher Assignment</span>
+            </a>
+        </div>
+
+        <!-- 6. ATTENDANCE -->
         <div class="sidebar-item-group">
             <a
                 href="{{ url_for('admin.attendance') }}"
@@ -903,37 +1156,22 @@ Admin Dashboard | GSSS Attendance Portal
                     <i class="bi bi-dash"></i>
                     <span>View Attendance Records</span>
                 </a>
-                <a href="#" class="sidebar-sublink" data-subtab="att-review" onclick="switchAdminSection('attendance'); setAttendanceSubtab('review'); return false;">
-                    <i class="bi bi-dash"></i>
-                    <span>Review Attendance</span>
-                </a>
                 <a href="#" class="sidebar-sublink" data-subtab="att-reports" onclick="switchAdminSection('attendance'); setAttendanceSubtab('reports'); return false;">
                     <i class="bi bi-dash"></i>
                     <span>Attendance Reports</span>
                 </a>
             </div>
-        </div>
-
-        <div class="sidebar-divider"></div>
-
-        <!-- 6. SETTINGS -->
+        <!-- 7. ANALYTICS -->
         <div class="sidebar-item-group">
             <a
-                href="{{ url_for('admin.settings') }}"
+                href="#"
                 class="sidebar-link"
-                data-section="settings"
-                onclick="switchAdminSection('settings', this); toggleSubmenu('submenu-settings'); return false;"
+                data-section="analytics"
+                onclick="switchAdminSection('analytics', this); return false;"
             >
-                <i class="bi bi-gear-fill"></i>
-                <span>Settings</span>
-                <i class="bi bi-chevron-right submenu-arrow"></i>
+                <i class="bi bi-graph-up-arrow"></i>
+                <span>Analytics</span>
             </a>
-            <div class="sidebar-submenu" id="submenu-settings">
-                <a href="{{ url_for('admin.settings') }}" class="sidebar-sublink" onclick="switchAdminSection('settings'); return false;">
-                    <i class="bi bi-dash"></i>
-                    <span>Admin/System Settings</span>
-                </a>
-            </div>
         </div>
 
     </div>
@@ -954,52 +1192,7 @@ Admin Dashboard | GSSS Attendance Portal
 >
 
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
 
-    <div class="admin-header">
-
-        <div>
-
-            <span class="admin-badge">
-
-                <i class="bi bi-shield-lock-fill me-1"></i>
-
-                ADMIN PANEL
-
-            </span>
-
-
-            <h2>
-                Welcome, {{ name or 'Admin' }}
-            </h2>
-
-
-            <p>
-                Manage teachers, students, classes and attendance
-                from one place.
-            </p>
-
-        </div>
-
-
-        <div>
-
-            <a
-                href="{{ url_for('auth.logout') }}"
-                class="btn btn-outline-secondary rounded-pill px-4"
-            >
-
-                <i class="bi bi-box-arrow-right me-1"></i>
-
-                Logout
-
-            </a>
-
-        </div>
-
-    </div>
 
     <!-- =====================================================
          SECTION 1: OVERVIEW
@@ -1203,271 +1396,7 @@ Admin Dashboard | GSSS Attendance Portal
     </div>
 
 
-    <!-- =====================================================
-         MANAGEMENT
-    ====================================================== -->
 
-    <h4 class="fw-bold mb-1">
-        Management
-    </h4>
-
-
-    <p class="text-muted mb-4">
-        Manage users and academic information.
-    </p>
-
-
-    <div class="row g-4 mb-5">
-
-
-        <!-- TEACHER MANAGEMENT -->
-
-        <div class="col-lg-6">
-
-            <div class="management-card">
-
-                <div class="d-flex align-items-center gap-3 mb-3">
-
-                    <div class="management-icon teacher-management-icon">
-
-                        <i class="bi bi-person-workspace"></i>
-
-                    </div>
-
-
-                    <div>
-
-                        <h5 class="fw-bold mb-1">
-                            Teacher Management
-                        </h5>
-
-                        <p class="text-muted mb-0">
-                            View, add, edit and delete teachers.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin.teachers') }}"
-                    class="dashboard-action"
-                    onclick="switchAdminSection('teachers'); return false;"
-                >
-
-                    <i class="bi bi-people"></i>
-
-                    <span>
-                        View Teachers
-                    </span>
-
-                    <i class="bi bi-chevron-right ms-auto"></i>
-
-                </a>
-
-
-            </div>
-
-        </div>
-
-
-        <!-- STUDENT MANAGEMENT -->
-
-        <div class="col-lg-6">
-
-            <div class="management-card">
-
-                <div class="d-flex align-items-center gap-3 mb-3">
-
-                    <div class="management-icon student-management-icon">
-
-                        <i class="bi bi-mortarboard-fill"></i>
-
-                    </div>
-
-
-                    <div>
-
-                        <h5 class="fw-bold mb-1">
-                            Student Management
-                        </h5>
-
-                        <p class="text-muted mb-0">
-                            View, add, edit and delete students.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin.students') }}"
-                    class="dashboard-action"
-                    onclick="switchAdminSection('students'); return false;"
-                >
-
-                    <i class="bi bi-people"></i>
-
-                    <span>
-                        View Students
-                    </span>
-
-                    <i class="bi bi-chevron-right ms-auto"></i>
-
-                </a>
-
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         ACADEMIC MANAGEMENT
-    ====================================================== -->
-
-    <h4 class="fw-bold mb-1">
-        Academic Management
-    </h4>
-
-
-    <p class="text-muted mb-4">
-        Manage classes and subjects.
-    </p>
-
-
-    <div class="row g-4 mb-5">
-
-
-        <!-- CLASSES -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon classes-icon">
-                    <i class="bi bi-building"></i>
-                </div>
-                <h5 class="fw-bold">Classes</h5>
-                <p class="text-muted">
-                    Organize students into classes, branches, semesters and sections.
-                </p>
-                <a
-                    href="{{ url_for('admin.classes') }}"
-                    class="btn btn-outline-primary rounded-pill"
-                    onclick="switchAdminSection('classes'); setClassesSubtab('view'); return false;"
-                >
-                    Manage Classes
-                </a>
-            </div>
-        </div>
-
-        <!-- SUBJECTS -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon subjects-icon">
-                    <i class="bi bi-book"></i>
-                </div>
-                <h5 class="fw-bold">Subjects</h5>
-                <p class="text-muted">
-                    Manage subject names, course codes, and allocations.
-                </p>
-                <a
-                    href="{{ url_for('admin.subjects') }}"
-                    class="btn btn-outline-primary rounded-pill"
-                    onclick="switchAdminSection('classes'); setClassesSubtab('subjects'); return false;"
-                >
-                    Manage Subjects
-                </a>
-            </div>
-        </div>
-
-        <!-- FACE REGISTRATION -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon face-icon">
-                    <i class="bi bi-person-bounding-box"></i>
-                </div>
-                <h5 class="fw-bold">Face Registration</h5>
-                <p class="text-muted">
-                    Register student faces and sync AI recognition embeddings.
-                </p>
-                <button
-                    type="button"
-                    class="btn btn-outline-primary rounded-pill mt-2"
-                    onclick="switchAdminSection('students'); setStudentSubtab('face');"
-                >
-                    Manage Face Registration
-                </button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- =====================================================
-         ATTENDANCE & AUDITING SYSTEM
-    ====================================================== -->
-    <h4 class="fw-bold mb-1">
-        Attendance &amp; Verification System
-    </h4>
-    <p class="text-muted mb-4">
-        Live logbooks, verification audits, and comprehensive reports.
-    </p>
-
-    <div class="row g-4">
-        <!-- ATTENDANCE RECORDS -->
-        <div class="col-lg-6">
-            <div class="feature-card">
-                <div class="feature-icon attendance-icon">
-                    <i class="bi bi-calendar-check"></i>
-                </div>
-                <h5 class="fw-bold">Attendance Logbook</h5>
-                <p class="text-muted">
-                    Audit recorded class attendance and verify student presence.
-                </p>
-                <ul class="small text-muted">
-                    <li>Real-time attendance logbook</li>
-                    <li>Present and absent records</li>
-                    <li>Search and filter records</li>
-                    <li>Export logbook to CSV</li>
-                </ul>
-                <button
-                    type="button"
-                    class="btn btn-outline-primary rounded-pill mt-2"
-                    onclick="switchAdminSection('attendance'); setAttendanceSubtab('records');"
-                >
-                    View Attendance Records
-                </button>
-            </div>
-        </div>
-
-        <!-- REPORTS & ANALYTICS -->
-        <div class="col-lg-6">
-            <div class="feature-card">
-                <div class="feature-icon report-icon">
-                    <i class="bi bi-file-earmark-bar-graph"></i>
-                </div>
-                <h5 class="fw-bold">Reports &amp; Analytics</h5>
-                <p class="text-muted">
-                    Comprehensive student attendance breakdown and shortage defaulter tracking.
-                </p>
-                <ul class="small text-muted">
-                    <li>Attendance Defaulters (&lt; 75%)</li>
-                    <li>Subject-wise attendance percentages</li>
-                    <li>Class-wise statistics</li>
-                    <li>Download master CSV reports</li>
-                </ul>
-                <button
-                    type="button"
-                    class="btn btn-outline-primary rounded-pill mt-2"
-                    onclick="switchAdminSection('attendance'); setAttendanceSubtab('reports');"
-                >
-                    View Reports &amp; Analytics
-                </button>
-            </div>
-        </div>
-    </div>
 
     </div> <!-- END SECTION 1: OVERVIEW -->
 
@@ -1536,9 +1465,16 @@ Admin Dashboard | GSSS Attendance Portal
                                 <td><span class="badge bg-light text-dark border">{{ t.department or 'General' }}</span></td>
                                 <td><span class="text-muted">{{ t.phone or 'N/A' }}</span></td>
                                 <td class="text-end">
-                                    <a href="{{ url_for('admin.edit_teacher', teacher_id=t.teacher_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" title="Edit Teacher">
-                                        <i class="bi bi-pencil-square"></i> Edit
-                                    </a>
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        <a href="{{ url_for('admin.edit_teacher', teacher_id=t.teacher_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1" title="Edit Teacher">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </a>
+                                        <form method="POST" action="{{ url_for('admin.delete_teacher', teacher_id=t.teacher_id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete teacher {{ t.name|replace('\'', '\\\'') }}?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1" title="Delete Teacher">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% else %}
@@ -1643,14 +1579,69 @@ Admin Dashboard | GSSS Attendance Portal
 
         <!-- SUBTAB 1: View Students -->
         <div id="subtab-std-view" class="admin-subtab-view active">
+            <!-- CASCADING ACADEMIC FILTERS (BRANCH, YEAR, SEMESTER) -->
+            <div class="p-3 bg-light rounded-3 border mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminStdBranchFilter">
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch
+                        </label>
+                        <select class="form-select form-select-sm" id="adminStdBranchFilter" onchange="onAdminStudentFilterChange()">
+                            <option value="" selected>-- Select Branch --</option>
+                            <option value="CSE (AIML)">CSE (AIML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="CSE (AIDS)">CSE (AIDS)</option>
+                            <option value="ECE">ECE</option>
+                            <option value="IS">IS</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminStdYearFilter">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> Select Year
+                        </label>
+                        <select class="form-select form-select-sm" id="adminStdYearFilter" onchange="onAdminStudentFilterChange()">
+                            <option value="" selected>-- Select Year --</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminStdSemFilter">
+                            <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester
+                        </label>
+                        <select class="form-select form-select-sm" id="adminStdSemFilter" onchange="onAdminStudentFilterChange()">
+                            <option value="" selected>-- Select Semester --</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                            <option value="7">7th Semester</option>
+                            <option value="8">8th Semester</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetAdminStudentFilters()">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                 <div class="search-box-pill">
                     <i class="bi bi-search"></i>
-                    <input type="text" id="studentSearchInput" class="form-control" placeholder="Search USN or Name...">
+                    <input type="text" id="studentSearchInput" class="form-control" placeholder="Search USN or Name..." oninput="onAdminStudentFilterChange()">
                 </div>
-                <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
-                    <i class="bi bi-person-plus me-1"></i> Add Student
-                </a>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small" id="adminStdCounterSpan">Showing all {{ students|length }} students</span>
+                    <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
+                        <i class="bi bi-person-plus me-1"></i> Add Student
+                    </a>
+                </div>
             </div>
 
             <div class="section-card">
@@ -1668,7 +1659,7 @@ Admin Dashboard | GSSS Attendance Portal
                         </thead>
                         <tbody id="studentsTableBody">
                             {% for s in students %}
-                            <tr>
+                            <tr data-branch="{{ (s.branch or 'AIML')|upper }}" data-semester="{{ s.semester or 7 }}" data-year="{{ s.year or 4 }}" class="student-table-row">
                                 <td><span class="badge bg-light text-primary border fw-semibold px-2 py-1">{{ s.usn }}</span></td>
                                 <td class="fw-semibold text-dark">{{ s.name }}</td>
                                 <td><span class="text-muted">{{ s.class_name }}</span></td>
@@ -1754,53 +1745,12 @@ Admin Dashboard | GSSS Attendance Portal
 
         <!-- SUBTAB 3: Face Registration -->
         <div id="subtab-std-face" class="admin-subtab-view">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-                <div>
-                    <h5 class="fw-bold text-dark mb-1">Face Recognition &amp; Dataset Enrolment</h5>
-                    <p class="text-muted small mb-0">Upload student face photos and synchronize facial embeddings for real-time video attendance.</p>
-                </div>
+            <div class="d-flex justify-content-end mb-3">
                 <form action="{{ url_for('admin.sync_face_embeddings') }}" method="POST" class="d-inline" onsubmit="return confirm('Do you want to extract and synchronize facial embeddings for all student dataset images?');">
                     <button type="submit" class="btn btn-primary rounded-pill px-3 shadow-sm">
                         <i class="bi bi-arrow-repeat me-1"></i> Sync Embeddings Now
                     </button>
                 </form>
-            </div>
-
-            <!-- Metrics Row -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-4">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-primary-subtle text-primary">
-                            <i class="bi bi-person-check-fill"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Enrolled Students</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('enrolled_faces', 0) }} / {{ stats.get('total_students', 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-warning-subtle text-warning">
-                            <i class="bi bi-hourglass-split"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Pending Enrolment</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('pending_faces', 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-info-subtle text-info">
-                            <i class="bi bi-images"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Total Training Photos</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('total_face_images', 0) }}</div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="section-card">
@@ -1914,9 +1864,6 @@ Admin Dashboard | GSSS Attendance Portal
             <button type="button" class="admin-subnav-btn" id="btn-cls-subjects" onclick="setClassesSubtab('subjects')">
                 <i class="bi bi-book me-1"></i> Manage Subjects
             </button>
-            <button type="button" class="admin-subnav-btn" id="btn-cls-students" onclick="setClassesSubtab('students')">
-                <i class="bi bi-mortarboard me-1"></i> Manage Students
-            </button>
         </div>
 
         <!-- SUBTAB 1: View Classes -->
@@ -1970,6 +1917,46 @@ Admin Dashboard | GSSS Attendance Portal
 
         <!-- SUBTAB 2: Manage Subjects -->
         <div id="subtab-cls-subjects" class="admin-subtab-view">
+            <!-- CASCADING ACADEMIC FILTERS (BRANCH, SEMESTER) -->
+            <div class="p-3 bg-light rounded-3 border mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminSubBranchFilter">
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch
+                        </label>
+                        <select class="form-select form-select-sm" id="adminSubBranchFilter" onchange="onAdminSubjectFilterChange()">
+                            <option value="" selected>-- Select Branch --</option>
+                            <option value="CSE (AIML)">CSE (AIML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="CSE (AIDS)">CSE (AIDS)</option>
+                            <option value="ECE">ECE</option>
+                            <option value="IS">IS</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminSubSemFilter">
+                            <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester
+                        </label>
+                        <select class="form-select form-select-sm" id="adminSubSemFilter" onchange="onAdminSubjectFilterChange()">
+                            <option value="" selected>-- All Semesters --</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                            <option value="7">7th Semester</option>
+                            <option value="8">8th Semester</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetAdminSubjectFilters()">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">Curriculum Course Subjects</h5>
                 <a href="{{ url_for('admin.subjects') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
@@ -1989,9 +1976,9 @@ Admin Dashboard | GSSS Attendance Portal
                                 <th scope="col" class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="subjectsTableBody">
                             {% for sub in subjects %}
-                            <tr>
+                            <tr data-branch="{{ (sub.branch or 'AIML')|upper }}" data-semester="{{ sub.semester }}" class="subject-table-row">
                                 <td><span class="badge bg-light text-primary border fw-semibold">{{ sub.subject_code }}</span></td>
                                 <td class="fw-semibold text-dark">{{ sub.subject_name }}</td>
                                 <td><span class="badge bg-light text-dark border">Sem {{ sub.semester }}</span></td>
@@ -2014,43 +2001,160 @@ Admin Dashboard | GSSS Attendance Portal
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- SUBTAB 3: Manage Students -->
-        <div id="subtab-cls-students" class="admin-subtab-view">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">Class-wise Student Allocation</h5>
-                <a href="{{ url_for('admin.students') }}" class="btn btn-outline-primary rounded-pill px-3" onclick="switchAdminSection('students'); setStudentSubtab('view'); return false;">
-                    <i class="bi bi-people me-1"></i> Open Student Directory
-                </a>
+
+    <!-- =====================================================
+         SECTION 5: TEACHER ASSIGNMENT
+    ====================================================== -->
+    <div id="section-assignments" class="admin-section-view">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="bi bi-person-lines-fill text-primary me-2"></i>Teacher Subject Assignment
+                </h2>
+                <p class="text-muted mb-0">Assign subjects to teachers by selecting Branch, Year, Semester, and Subject so they can view and upload attendance.</p>
             </div>
+        </div>
 
-            <div class="row g-3">
-                {% for c in classes %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="admin-section-card h-100 p-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Sem {{ c.semester }} &bull; Sec {{ c.section or 'A' }}</span>
-                            <span class="badge bg-light text-muted border">{{ c.branch }}</span>
-                        </div>
-                        <h6 class="fw-bold text-dark mb-1">{{ c.class_name }}</h6>
-                        <p class="text-muted small mb-3">Branch: <strong>{{ c.branch }}</strong> &bull; Semester {{ c.semester }}</p>
-                        <a href="{{ url_for('admin.classes') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                            <i class="bi bi-gear me-1"></i> Class Details
-                        </a>
+        <!-- ASSIGNMENT CREATION FORM -->
+        <div class="section-card mb-4">
+            <h5 class="fw-bold text-dark mb-3">
+                <i class="bi bi-plus-circle text-primary me-2"></i>Assign Subject to Teacher
+            </h5>
+            <form method="POST" action="{{ url_for('admin.assign_teacher_subject') }}" id="assignTeacherForm">
+                <div class="row g-3 align-items-end">
+                    <!-- 1. TEACHER -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-dark mb-1" for="assignTeacherSelect">
+                            <i class="bi bi-person me-1 text-primary"></i> Select Teacher *
+                        </label>
+                        <select name="teacher_id" id="assignTeacherSelect" class="form-select form-select-sm" required>
+                            <option value="" selected>-- Select Teacher --</option>
+                            {% for t in teachers %}
+                            <option value="{{ t.teacher_id }}">{{ t.name }} ({{ t.email or t.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- 2. BRANCH -->
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold text-dark mb-1" for="assignBranchSelect">
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch *
+                        </label>
+                        <select name="branch" id="assignBranchSelect" class="form-select form-select-sm" onchange="onAssignBranchChange()" required>
+                            <option value="" selected>-- Select Branch --</option>
+                            <option value="CSE (AIML)">CSE (AIML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="CSE (AIDS)">CSE (AIDS)</option>
+                            <option value="ECE">ECE</option>
+                            <option value="IS">IS</option>
+                        </select>
+                    </div>
+
+                    <!-- 3. YEAR -->
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold text-dark mb-1" for="assignYearSelect">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> Select Year *
+                        </label>
+                        <select name="year" id="assignYearSelect" class="form-select form-select-sm" onchange="onAssignYearChange()" required>
+                            <option value="" selected>-- Select Year --</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+
+                    <!-- 4. SEMESTER -->
+                    <div class="col-md-2">
+                        <label class="form-label small fw-semibold text-dark mb-1" for="assignSemSelect">
+                            <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester *
+                        </label>
+                        <select name="semester" id="assignSemSelect" class="form-select form-select-sm" onchange="onAssignSemChange()" required disabled>
+                            <option value="" selected>-- Select Semester --</option>
+                        </select>
+                    </div>
+
+                    <!-- 5. SUBJECT -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-dark mb-1" for="assignSubjectSelect">
+                            <i class="bi bi-book me-1 text-primary"></i> Select Subject *
+                        </label>
+                        <select name="subject_id" id="assignSubjectSelect" class="form-select form-select-sm" required>
+                            <option value="" selected>-- Select Subject --</option>
+                            {% for sub in subjects %}
+                            <option value="{{ sub.subject_id }}" data-branch="{{ (sub.branch or 'AIML')|upper }}" data-sem="{{ sub.semester }}" data-year="{{ sub.year or 4 }}">{{ sub.subject_name }} ({{ sub.subject_code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <div class="col-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                            <i class="bi bi-check2-circle me-1"></i> Save Assignment
+                        </button>
                     </div>
                 </div>
-                {% else %}
-                <div class="col-12">
-                    <div class="p-4 bg-light rounded-3 text-center text-muted">No classes configured.</div>
-                </div>
-                {% endfor %}
+            </form>
+        </div>
+
+        <!-- CURRENT ASSIGNMENTS TABLE -->
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">Active Teacher Assignments</h5>
+                <span class="badge bg-light text-dark border rounded-pill px-3 py-2">{{ teacher_assignments|length }} Assigned</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Teacher Name</th>
+                            <th scope="col">Branch</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Semester</th>
+                            <th scope="col">Assigned Subject</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in teacher_assignments %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ a.teacher_name }}</div>
+                                <small class="text-muted">{{ a.teacher_email or '' }}</small>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ a.branch }}</span></td>
+                            <td><span class="badge bg-light text-secondary border">{{ a.year }}th Year</span></td>
+                            <td><span class="badge bg-light text-dark border">Sem {{ a.semester }}</span></td>
+                            <td>
+                                <span class="badge bg-light text-primary border me-1">{{ a.subject_code }}</span>
+                                <span class="fw-medium text-dark">{{ a.subject_name }}</span>
+                            </td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ url_for('admin.delete_teacher_assignment', assignment_id=a.assignment_id) }}" class="d-inline" onsubmit="return confirm('Remove this subject assignment from this teacher?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1">
+                                        <i class="bi bi-trash me-1"></i> Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-3 d-block mb-2"></i>No subjects assigned to teachers yet. Select a teacher above to assign subjects.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
 
     <!-- =====================================================
-         SECTION 5: ATTENDANCE (RECORDS, REVIEW, REPORTS)
+         SECTION 6: ATTENDANCE (RECORDS, REVIEW, REPORTS)
     ====================================================== -->
     <div id="section-attendance" class="admin-section-view">
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
@@ -2067,9 +2171,6 @@ Admin Dashboard | GSSS Attendance Portal
             <button type="button" class="admin-subnav-btn active" id="btn-att-records" onclick="setAttendanceSubtab('records')">
                 <i class="bi bi-table me-1"></i> View Attendance Records
             </button>
-            <button type="button" class="admin-subnav-btn" id="btn-att-review" onclick="setAttendanceSubtab('review')">
-                <i class="bi bi-check2-circle me-1"></i> Review Attendance
-            </button>
             <button type="button" class="admin-subnav-btn" id="btn-att-reports" onclick="setAttendanceSubtab('reports')">
                 <i class="bi bi-file-earmark-bar-graph me-1"></i> Attendance Reports
             </button>
@@ -2077,27 +2178,40 @@ Admin Dashboard | GSSS Attendance Portal
 
         <!-- SUBTAB 1: View Attendance Records -->
         <div id="subtab-att-records" class="admin-subtab-view active">
-            <!-- CASCADING ACADEMIC FILTERS (BRANCH, SEMESTER, SUBJECT) -->
+            <!-- CASCADING ACADEMIC FILTERS (BRANCH, YEAR, SEMESTER, SUBJECT, SESSION) -->
             <div class="p-3 bg-light rounded-3 border mb-3">
                 <div class="row g-2 align-items-end">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttBranchFilter">
-                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Branch
                         </label>
                         <select class="form-select form-select-sm" id="adminAttBranchFilter" onchange="onAdminAttFilterChange()">
-                            <option value="" selected>-- All Branches --</option>
-                            <option value="AIML">Artificial Intelligence &amp; Machine Learning (AIML)</option>
-                            <option value="CSE">Computer Science &amp; Engineering (CSE)</option>
-                            <option value="ISE">Information Science &amp; Engineering (ISE)</option>
-                            <option value="ECE">Electronics &amp; Communication (ECE)</option>
+                            <option value="" selected>-- Select Branch --</option>
+                            <option value="CSE (AIML)">CSE (AIML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="CSE (AIDS)">CSE (AIDS)</option>
+                            <option value="ECE">ECE</option>
+                            <option value="IS">IS</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttYearFilter">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> Year
+                        </label>
+                        <select class="form-select form-select-sm" id="adminAttYearFilter" onchange="onAdminAttFilterChange()">
+                            <option value="" selected>-- Select Year --</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttSemFilter">
-                            <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester
+                            <i class="bi bi-mortarboard me-1 text-primary"></i> Semester
                         </label>
                         <select class="form-select form-select-sm" id="adminAttSemFilter" onchange="onAdminAttFilterChange()">
-                            <option value="" selected>-- All Semesters --</option>
+                            <option value="" selected>-- Select Semester --</option>
                             <option value="1">1st Semester</option>
                             <option value="2">2nd Semester</option>
                             <option value="3">3rd Semester</option>
@@ -2108,20 +2222,32 @@ Admin Dashboard | GSSS Attendance Portal
                             <option value="8">8th Semester</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttSubjectFilter">
-                            <i class="bi bi-book me-1 text-primary"></i> Select Subject
+                            <i class="bi bi-book me-1 text-primary"></i> Subject
                         </label>
                         <select class="form-select form-select-sm" id="adminAttSubjectFilter" onchange="onAdminAttFilterChange()">
-                            <option value="" selected>-- All Subjects --</option>
+                            <option value="" selected>-- Select Subject --</option>
                             {% for sub in subjects %}
                                 <option value="{{ sub.subject_name }}" data-semester="{{ sub.semester }}" data-branch="{{ sub.branch }}">{{ sub.subject_name }} ({{ sub.subject_code or 'N/A' }})</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetAdminAttFilters()">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminAttSessionFilter">
+                            <i class="bi bi-clock-history me-1 text-primary"></i> Class / Period
+                        </label>
+                        <select class="form-select form-select-sm" id="adminAttSessionFilter" onchange="onAdminAttFilterChange()">
+                            <option value="" selected>-- Select Class / Period --</option>
+                            <option value="class 1">Class 1</option>
+                            <option value="class 2">Class 2</option>
+                            <option value="class 3">Class 3</option>
+                            <option value="class 4">Class 4</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" onclick="resetAdminAttFilters()" title="Reset Filters">
+                            <i class="bi bi-arrow-counterclockwise"></i>
                         </button>
                     </div>
                 </div>
@@ -2134,18 +2260,18 @@ Admin Dashboard | GSSS Attendance Portal
                         <input type="text" id="attSearchInput" class="form-control" placeholder="Filter student or subject..." oninput="onAdminAttFilterChange()">
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary active" onclick="filterAttendanceStatus('all', this)">All</button>
-                        <button type="button" class="btn btn-outline-success" onclick="filterAttendanceStatus('present', this)">Present</button>
-                        <button type="button" class="btn btn-outline-danger" onclick="filterAttendanceStatus('absent', this)">Absent</button>
+                        <button type="button" class="btn btn-outline-secondary active" onclick="filterAttendanceStatus('all', this)">All</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="filterAttendanceStatus('present', this)">Present</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="filterAttendanceStatus('absent', this)">Absent</button>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <span class="text-muted small" id="adminAttCounterSpan">
                         Showing latest {{ attendance_records|length }} entries
                     </span>
-                    <a href="{{ url_for('admin.export_reports_csv') }}" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm">
-                        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
-                    </a>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" onclick="downloadAttendanceExcel()">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Download Excel
+                    </button>
                 </div>
             </div>
 
@@ -2155,12 +2281,12 @@ Admin Dashboard | GSSS Attendance Portal
                         <thead class="table-light">
                             <tr>
                                 <th scope="col">Date &amp; Time</th>
+                                <th scope="col">Session</th>
                                 <th scope="col">Student USN</th>
                                 <th scope="col">Student Name</th>
                                 <th scope="col">Subject</th>
                                 <th scope="col">Class</th>
                                 <th scope="col">Status</th>
-                                <th scope="col">Source</th>
                             </tr>
                         </thead>
                         <tbody id="attendanceTableBody">
@@ -2168,27 +2294,27 @@ Admin Dashboard | GSSS Attendance Portal
                             <tr data-status="{{ (a.status or '').lower() }}"
                                 data-branch="{{ (a.branch or '').upper() }}"
                                 data-semester="{{ a.semester or '' }}"
+                                data-year="{{ a.year or '' }}"
                                 data-subject="{{ (a.subject_name or '').lower() }}"
                                 data-subject-code="{{ (a.subject_code or '').lower() }}"
+                                data-session="{{ (a.session_label or 'Class 1').lower() }}"
                                 class="attendance-log-row">
                                 <td><span class="text-muted small fw-medium">{{ a.check_in_time }}</span></td>
+                                <td><span class="badge bg-light text-dark border fw-semibold">{{ a.session_label or 'Class 1' }}</span></td>
                                 <td><span class="badge bg-light text-primary border fw-semibold">{{ a.usn }}</span></td>
                                 <td class="fw-semibold text-dark">{{ a.student_name }}</td>
                                 <td><span class="text-dark">{{ a.subject_name or a.subject_code or 'N/A' }}</span></td>
                                 <td><span class="badge bg-light text-secondary border">{{ a.class_name or 'N/A' }}</span></td>
                                 <td>
                                     {% if (a.status or '').lower() == 'present' %}
-                                        <span class="badge bg-success-subtle text-success px-2 py-1">
-                                            <i class="bi bi-check-circle-fill me-1"></i>Present
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-check-circle me-1"></i>Present
                                         </span>
                                     {% else %}
-                                        <span class="badge bg-danger-subtle text-danger px-2 py-1">
-                                            <i class="bi bi-x-circle-fill me-1"></i>Absent
+                                        <span class="badge bg-light text-muted border">
+                                            <i class="bi bi-x-circle me-1"></i>Absent
                                         </span>
                                     {% endif %}
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-muted border">Class Lecture Session</span>
                                 </td>
                             </tr>
                             {% else %}
@@ -2204,320 +2330,286 @@ Admin Dashboard | GSSS Attendance Portal
             </div>
         </div>
 
-        <!-- SUBTAB 2: Review Attendance -->
-        <div id="subtab-att-review" class="admin-subtab-view">
-            <!-- Metrics Row -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-primary-subtle text-primary">
-                            <i class="bi bi-receipt"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Total Logs</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('total_attendance', 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-success-subtle text-success">
-                            <i class="bi bi-check-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Present Marks</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('present_attendance', 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-danger-subtle text-danger">
-                            <i class="bi bi-x-lg"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Absent Marks</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('absent_attendance', 0) }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-summary-box">
-                        <div class="stat-icon-wrap bg-info-subtle text-info">
-                            <i class="bi bi-pie-chart-fill"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted small">Average Presence</div>
-                            <div class="fs-4 fw-bold text-dark">{{ stats.get('attendance_rate', 0) }}%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="admin-section-card">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-patch-check-fill text-primary me-2"></i>Attendance Verification &amp; Auditing Protocol</h5>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="p-3 bg-light rounded-3 border h-100">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-1-circle-fill text-primary me-2"></i>Automated Recognition Verification</h6>
-                            <p class="small text-muted mb-0">Classroom sessions processed by faculty utilize RetinaFace detection and FaceNet 512-dimensional embeddings to match registered student facial datasets.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="p-3 bg-light rounded-3 border h-100">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-2-circle-fill text-primary me-2"></i>Faculty Shortage Notifications</h6>
-                            <p class="small text-muted mb-0">Course teachers inspect real-time attendance percentages and dispatch official weekly and monthly shortage notices directly to affected students' dashboards.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SUBTAB 3: Attendance Reports -->
+        <!-- SUBTAB 2: Attendance Reports -->
         <div id="subtab-att-reports" class="admin-subtab-view">
+            <!-- CASCADING ACADEMIC FILTERS (BRANCH, YEAR, SEMESTER, SUBJECT) FOR REPORTS -->
+            <div class="p-3 bg-light rounded-3 border mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminRepBranchFilter">
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Select Branch
+                        </label>
+                        <select class="form-select form-select-sm" id="adminRepBranchFilter" onchange="onAdminRepFilterChange()">
+                            <option value="" selected>-- Select Branch --</option>
+                            <option value="CSE (AIML)">CSE (AIML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="CSE (AIDS)">CSE (AIDS)</option>
+                            <option value="ECE">ECE</option>
+                            <option value="IS">IS</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminRepYearFilter">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> Select Year
+                        </label>
+                        <select class="form-select form-select-sm" id="adminRepYearFilter" onchange="onAdminRepFilterChange()">
+                            <option value="" selected>-- All Years --</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminRepSemFilter">
+                            <i class="bi bi-mortarboard me-1 text-primary"></i> Select Semester
+                        </label>
+                        <select class="form-select form-select-sm" id="adminRepSemFilter" onchange="onAdminRepFilterChange()">
+                            <option value="" selected>-- All Semesters --</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                            <option value="7">7th Semester</option>
+                            <option value="8">8th Semester</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="filter-label small fw-semibold text-dark mb-1" for="adminRepSubjectFilter">
+                            <i class="bi bi-book me-1 text-primary"></i> Select Subject
+                        </label>
+                        <select class="form-select form-select-sm" id="adminRepSubjectFilter">
+                            <option value="" selected>-- All Subjects --</option>
+                            {% for sub in subjects %}
+                                <option value="{{ sub.subject_name }}" data-semester="{{ sub.semester }}" data-branch="{{ sub.branch }}">{{ sub.subject_name }} ({{ sub.subject_code or 'N/A' }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                 <div>
                     <h5 class="fw-bold text-dark mb-1">Attendance Breakdown &amp; Shortage Defaulters</h5>
-                    <p class="text-muted small mb-0">Track students falling below statutory 75% thresholds and analyze subject attendance.</p>
+                    <p class="text-muted small mb-0">Review attendance shortage records and export reports in clean Excel format.</p>
                 </div>
-                <a href="{{ url_for('admin.export_reports_csv') }}" class="btn btn-primary rounded-pill px-3 shadow-sm">
-                    <i class="bi bi-download me-1"></i> Download Master Report (.CSV)
-                </a>
-            </div>
-
-            <!-- Defaulters List Card -->
-            <div class="section-card mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h6 class="fw-bold mb-1 text-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>Attendance Defaulters List (&lt; 75%)
-                        </h6>
-                        <p class="text-muted small mb-0">Students who require immediate follow-up due to falling below statutory attendance thresholds.</p>
-                    </div>
-                    <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">{{ defaulters|length }} Students</span>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col">USN</th>
-                                <th scope="col">Student Name</th>
-                                <th scope="col">Total Classes</th>
-                                <th scope="col">Attended</th>
-                                <th scope="col">Percentage</th>
-                                <th scope="col">Risk Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for d in defaulters %}
-                            <tr>
-                                <td><span class="badge bg-light text-danger border fw-semibold">{{ d.usn }}</span></td>
-                                <td class="fw-semibold text-dark">{{ d.name }}</td>
-                                <td>{{ d.total }}</td>
-                                <td class="fw-semibold text-success">{{ d.attended }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold text-danger">{{ d.percentage }}%</span>
-                                        <div class="progress flex-grow-1" style="height: 6px; max-width: 80px;">
-                                            <div class="progress-bar bg-danger" style="width: {{ d.percentage }}%;"></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ d.badge_class }}-subtle text-{{ d.badge_class }} px-2 py-1">
-                                        {{ d.status }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="6" class="text-center py-4 text-success">
-                                    <i class="bi bi-check-circle fs-3 d-block mb-2"></i>All students currently satisfy the 75% attendance threshold!
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <!-- Subject-wise Breakdown -->
-                <div class="col-lg-6">
-                    <div class="section-card h-100">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-book me-2 text-primary"></i>Subject-wise Attendance Rate
-                        </h6>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col">Subject</th>
-                                        <th scope="col">Logs</th>
-                                        <th scope="col">Attendance Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for sub in subject_reports %}
-                                    <tr>
-                                        <td>
-                                            <div class="fw-semibold text-dark">{{ sub.subject_name }}</div>
-                                            <small class="text-muted">{{ sub.subject_code }}</small>
-                                        </td>
-                                        <td>{{ sub.present }} / {{ sub.total }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ sub.badge_class }}-subtle text-{{ sub.badge_class }} fw-semibold px-2 py-1">
-                                                {{ sub.percentage }}%
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    {% else %}
-                                    <tr>
-                                        <td colspan="3" class="text-center py-3 text-muted">No subject records available.</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Class-wise Breakdown -->
-                <div class="col-lg-6">
-                    <div class="section-card h-100">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-building me-2 text-primary"></i>Class-wise Attendance Rate
-                        </h6>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col">Class / Section</th>
-                                        <th scope="col">Logs</th>
-                                        <th scope="col">Attendance Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for cl in class_reports %}
-                                    <tr>
-                                        <td class="fw-semibold text-dark">{{ cl.class_name }}</td>
-                                        <td>{{ cl.present }} / {{ cl.total }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ cl.badge_class }}-subtle text-{{ cl.badge_class }} fw-semibold px-2 py-1">
-                                                {{ cl.percentage }}%
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    {% else %}
-                                    <tr>
-                                        <td colspan="3" class="text-center py-3 text-muted">No class records available.</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-primary rounded-pill px-3 shadow-sm" onclick="downloadAttendanceExcel()">
+                        <i class="bi bi-file-earmark-excel me-1"></i> Download Excel (.xlsx)
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm" onclick="downloadAttendanceCSV()">
+                        <i class="bi bi-download me-1"></i> Download CSV
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- =====================================================
-         SECTION 6: SETTINGS (ADMIN / SYSTEM SETTINGS)
+         SECTION 7: ANALYTICS (VISUAL CHARTS & KPI)
     ====================================================== -->
-    <div id="section-settings" class="admin-section-view">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
-            <div>
-                <h2 class="fw-bold text-dark mb-1">
-                    <i class="bi bi-gear-fill text-primary me-2"></i>Admin &amp; System Settings
-                </h2>
-                <p class="text-muted mb-0">System configuration, institutional attendance policies, and administrative preferences.</p>
+    <div id="section-analytics" class="admin-section-view pt-0" style="margin-top: -6px;">
+        <!-- Admin Analytics Header -->
+        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+            <h4 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-bar-chart-line-fill text-primary"></i> Admin Analytics
+            </h4>
+            <span class="badge bg-light text-secondary border px-3 py-1 rounded-pill small fw-normal">
+                <i class="bi bi-database-check me-1 text-success"></i> Live Records
+            </span>
+        </div>
+
+        <!-- CASCADING FILTERS CARD -->
+        <div class="card border border-light-subtle shadow-sm rounded-3 mb-3 bg-white">
+            <div class="card-body p-2 px-3">
+                <div class="row g-2 align-items-end">
+                    <!-- Branch Filter -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label class="form-label fw-semibold text-secondary small mb-1">
+                            <i class="bi bi-building me-1 text-primary"></i> Branch
+                        </label>
+                        <select id="adminAnalyticsBranch" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onAdminAnalyticsBranchChange()">
+                            <option value="" selected>-- Select Branch --</option>
+                            <option value="CSE (AIML)">CSE (AIML)</option>
+                            <option value="CSE">CSE</option>
+                            <option value="ECE">ECE</option>
+                            <option value="ISE">ISE</option>
+                            <option value="MECH">MECH</option>
+                        </select>
+                    </div>
+
+                    <!-- Year Filter -->
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label fw-semibold text-secondary small mb-1">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i> Year
+                        </label>
+                        <select id="adminAnalyticsYear" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onAdminAnalyticsYearChange()">
+                            <option value="" selected>-- Select Year --</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+
+                    <!-- Semester Filter -->
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label fw-semibold text-secondary small mb-1">
+                            <i class="bi bi-diagram-3 me-1 text-primary"></i> Semester
+                        </label>
+                        <select id="adminAnalyticsSemester" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onAdminAnalyticsSemesterChange()">
+                            <option value="" selected>-- Select Semester --</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                            <option value="7">7th Semester</option>
+                            <option value="8">8th Semester</option>
+                        </select>
+                    </div>
+
+                    <!-- Subject Filter -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label class="form-label fw-semibold text-secondary small mb-1">
+                            <i class="bi bi-journal-bookmark me-1 text-primary"></i> Subject
+                        </label>
+                        <select id="adminAnalyticsSubject" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onAdminAnalyticsFilterChange()">
+                            <option value="" selected>-- Select Subject --</option>
+                            <option value="all">All Subjects</option>
+                            {% for sub in subjects %}
+                            <option value="{{ sub.subject_name }}" data-code="{{ sub.subject_code }}" data-semester="{{ sub.semester }}" data-year="{{ sub.year }}" data-branch="{{ sub.branch }}">{{ sub.subject_name }} ({{ sub.subject_code or 'N/A' }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Graph Selector / Toggle Filter -->
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label fw-semibold text-secondary small mb-1">
+                            <i class="bi bi-pie-chart me-1 text-primary"></i> Select Graph
+                        </label>
+                        <select id="adminAnalyticsGraphType" class="form-select form-select-sm rounded-2 shadow-none border-secondary-subtle" onchange="onAdminAnalyticsFilterChange()">
+                            <option value="" selected>-- Select Graph --</option>
+                            <option value="bar">Bar Graph Only</option>
+                            <option value="pie">Pie Chart Only</option>
+                            <option value="both">Both (Bar &amp; Pie)</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row g-4">
-            <!-- Institutional Attendance Policy -->
-            <div class="col-lg-6">
-                <div class="admin-section-card h-100">
-                    <h5 class="fw-bold text-dark mb-3">
-                        <i class="bi bi-shield-check text-primary me-2"></i>VTU Attendance Guidelines &amp; Criteria
-                    </h5>
-                    <div class="p-3 bg-light rounded-3 border mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold text-dark">Statutory Minimum Attendance</span>
-                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">75.0%</span>
-                        </div>
-                        <p class="small text-muted mb-0">Students maintaining &ge; 75% aggregate in each subject are fully eligible for Semester End Examinations (SEE).</p>
-                    </div>
+        <!-- SELECTION PROMPT PLACEHOLDER -->
+        <div id="adminAnalyticsPrompt" class="card border border-dashed rounded-3 p-5 text-center bg-white mb-4 shadow-sm" style="border-color: #cbd5e1;">
+            <div class="stat-icon-wrap mx-auto mb-3" style="width: 56px; height: 56px; background: #eef2ff; color: #4f46e5; border-radius: 14px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-bar-chart-line"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">Select Criteria to Display Analytics</h5>
+            <p class="text-muted small mx-auto mb-0" style="max-width: 440px;">
+                Please select Branch, Year, Semester, Subject, and Graph Type above to view detailed attendance analytics.
+            </p>
+        </div>
 
-                    <div class="p-3 bg-light rounded-3 border mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold text-dark">Condonation Margin (Medical / Sports)</span>
-                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1">65.0% - 74.9%</span>
+        <!-- GRAPHS CONTAINER: BAR GRAPH & PIE/DOUGHNUT CHART -->
+        <div id="adminAnalyticsGraphsContainer" class="row g-4 mb-4" style="display: none;">
+            <!-- Left: Bar Graph -->
+            <div class="col-12 col-lg-7" id="adminBarGraphCol">
+                <div class="card border border-light-subtle shadow-sm rounded-3 bg-white h-100">
+                    <div class="card-header bg-transparent border-0 pt-3 px-4 pb-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0" id="adminBarGraphTitle">
+                                <i class="bi bi-bar-chart-fill me-2" style="color: #4f46e5;"></i> Attendance Overview
+                            </h5>
+                            <span class="text-muted small" id="adminBarGraphSubtitle">Average attendance rate across curriculum</span>
                         </div>
-                        <p class="small text-muted mb-0">Condonation is subject to official principal approval upon submission of certified medical or university representation documentation.</p>
+                        <span class="badge px-3 py-1 rounded-pill fw-semibold" style="background-color: #eef2ff; color: #4f46e5; border: 1px solid #c7d2fe;">
+                            Bar Graph
+                        </span>
                     </div>
-
-                    <div class="p-3 bg-light rounded-3 border">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-semibold text-dark">Detention Threshold</span>
-                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">&lt; 65.0%</span>
-                        </div>
-                        <p class="small text-muted mb-0">Students below 65% are flagged for mandatory course repetition as per University Ordinance.</p>
+                    <div class="card-body p-4" style="min-height: 480px; position: relative;">
+                        <canvas id="adminAnalyticsBarCanvas"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- System Information & Engine -->
-            <div class="col-lg-6">
-                <div class="admin-section-card h-100">
-                    <h5 class="fw-bold text-dark mb-3">
-                        <i class="bi bi-cpu-fill text-primary me-2"></i>AI Engine &amp; Platform Status
-                    </h5>
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <tbody>
-                                <tr>
-                                    <td class="text-muted fw-semibold">Facial Detection Model</td>
-                                    <td><span class="badge bg-light text-dark border">RetinaFace (ResNet50 / MobileNet)</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted fw-semibold">Feature Embedding Model</td>
-                                    <td><span class="badge bg-light text-dark border">FaceNet (512-dim)</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted fw-semibold">Enrolled Students</td>
-                                    <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ stats.get('enrolled_faces', 0) }} / {{ stats.get('total_students', 0) }}</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted fw-semibold">Total Face Images</td>
-                                    <td><span class="badge bg-info-subtle text-info border border-info-subtle">{{ stats.get('total_face_images', 0) }} photos</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted fw-semibold">Database Connection</td>
-                                    <td><span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>Active MySQL</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted fw-semibold">Video Upload Handling</td>
-                                    <td><span class="badge bg-secondary-subtle text-secondary">Faculty / Teacher Portal Exclusive</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <!-- Right: Pie / Doughnut Chart -->
+            <div class="col-12 col-lg-5" id="adminPieChartCol">
+                <div class="card border border-light-subtle shadow-sm rounded-3 bg-white h-100">
+                    <div class="card-header bg-transparent border-0 pt-3 px-4 pb-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0" id="adminPieGraphTitle">
+                                <i class="bi bi-pie-chart-fill me-2" style="color: #0d9488;"></i> Attendance Ratio
+                            </h5>
+                            <span class="text-muted small" id="adminPieGraphSubtitle">Present vs Absent proportion</span>
+                        </div>
+                        <span class="badge px-3 py-1 rounded-pill fw-semibold" style="background-color: #f0fdfa; color: #0d9488; border: 1px solid #99f6e4;">
+                            Pie / Doughnut
+                        </span>
                     </div>
-
-                    <div class="alert alert-info py-2 px-3 mt-4 small mb-0">
-                        <i class="bi bi-info-circle-fill me-1"></i> Video uploading and class lecture video processing are managed exclusively by Course Faculty via the Teacher Dashboard.
+                    <div class="card-body p-4 d-flex align-items-center justify-content-center" style="min-height: 480px; position: relative;">
+                        <canvas id="adminAnalyticsPieCanvas"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div> <!-- /#adminMain -->
 
+    <!-- FLOATING ADMIN AI CHATBOT WIDGET -->
+    <div class="admin-chatbot-bubble" id="adminChatbotBubble" onclick="toggleAdminChatbot()" title="Admin AI & Academic Assistant">
+        <i class="bi bi-chat-dots-fill"></i>
+        <span class="badge-pulse"></span>
+    </div>
 
-</div>
+    <div class="admin-chatbot-panel" id="adminChatbotPanel">
+        <div class="admin-chatbot-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-weight: bold;">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <div>
+                    <div class="fw-bold small" style="line-height: 1.2;">Admin AI Assistant</div>
+                    <div class="text-white-50" style="font-size: 0.72rem;"><i class="bi bi-circle-fill text-info me-1" style="font-size: 0.5rem;"></i> Live Database Grounded</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-1">
+                <button type="button" class="admin-chat-header-btn" onclick="toggleAdminChatbot()" title="Close Assistant">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
 
+        <div class="admin-chat-pills">
+            <button type="button" class="admin-chat-pill" onclick="sendAdminQuickQuery('Overall attendance percentage')">📊 Overall Attendance</button>
+            <button type="button" class="admin-chat-pill" onclick="sendAdminQuickQuery('Who is absent today?')">📅 Today's Absentees</button>
+            <button type="button" class="admin-chat-pill" onclick="sendAdminQuickQuery('Show defaulters below 75%')">📋 Defaulters (&lt;75%)</button>
+            <button type="button" class="admin-chat-pill" onclick="sendAdminQuickQuery('How many total students and faculty?')">👥 Total Counts</button>
+            <button type="button" class="admin-chat-pill" onclick="sendAdminQuickQuery('Show teacher assignments')">📚 Teacher Assignments</button>
+        </div>
+
+        <div class="admin-chat-messages" id="adminChatMessages">
+            <div class="admin-msg-bubble admin-msg-bot">
+                <strong>Hello Admin!</strong> 👋<br>
+                I am your live academic intelligence assistant. Ask me anything about attendance rates, today's turnout, defaulters, or faculty assignments!
+            </div>
+        </div>
+
+        <form class="admin-chat-input-form" onsubmit="handleAdminChatSubmit(event)">
+            <input type="text" id="adminChatInput" class="admin-chat-input" placeholder="Ask about attendance, defaulters, etc..." autocomplete="off">
+            <button type="button" class="admin-chat-mic-btn" id="adminChatMicBtn" onclick="toggleAdminSpeechRecognition()" title="Voice Input (Click to speak)">
+                <i class="bi bi-mic-fill" id="adminMicIcon"></i>
+            </button>
+            <button type="submit" class="admin-chat-send-btn" id="adminChatSendBtn" title="Send Question">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <!-- =========================================================
      SIDEBAR JAVASCRIPT
@@ -2546,57 +2638,41 @@ document.addEventListener(
             window.innerWidth > 992;
 
 
-        function updateSidebar() {
+        const closeBtn = document.getElementById("sidebarCloseBtn");
 
+        function updateSidebar() {
             const overlay = document.getElementById("adminSidebarOverlay");
 
             if (sidebarOpen) {
-
                 sidebar.classList.remove("closed");
-
                 main.classList.remove("full");
-
-                icon.className =
-                    "bi bi-x-lg";
-
-                menuButton.setAttribute(
-                    "aria-label",
-                    "Close Admin Menu"
-                );
-
+                if (menuButton) menuButton.style.display = "none";
                 if (overlay && window.innerWidth <= 992) {
                     overlay.classList.add("show");
                 }
-
             } else {
-
                 sidebar.classList.add("closed");
-
                 main.classList.add("full");
-
-                icon.className =
-                    "bi bi-list";
-
-                menuButton.setAttribute(
-                    "aria-label",
-                    "Open Admin Menu"
-                );
-
+                if (menuButton) menuButton.style.display = "flex";
                 if (overlay) {
                     overlay.classList.remove("show");
                 }
-
             }
         }
 
-
-        menuButton.addEventListener(
-            "click",
-            function () {
-                sidebarOpen = !sidebarOpen;
+        if (menuButton) {
+            menuButton.addEventListener("click", function () {
+                sidebarOpen = true;
                 updateSidebar();
-            }
-        );
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener("click", function() {
+                sidebarOpen = false;
+                updateSidebar();
+            });
+        }
 
         // Sidebar overlay click closes sidebar
         const overlay = document.getElementById("adminSidebarOverlay");
@@ -2607,30 +2683,18 @@ document.addEventListener(
             });
         }
 
-
-        window.addEventListener(
-            "resize",
-            function () {
-
-                if (window.innerWidth <= 992) {
-
-                    if (!sidebar.classList.contains("closed")) {
-                        sidebarOpen = false;
-                    }
-
+        window.addEventListener("resize", function () {
+            if (window.innerWidth <= 992) {
+                if (!sidebar.classList.contains("closed")) {
+                    sidebarOpen = false;
                 }
-
-                updateSidebar();
-
             }
-        );
-
+            updateSidebar();
+        });
 
         updateSidebar();
-
     }
 );
-
 
 // Submenu Toggle
 function toggleSubmenu(submenuId) {
@@ -2639,7 +2703,6 @@ function toggleSubmenu(submenuId) {
     const parentLink = submenu.previousElementSibling;
     const isShowing = submenu.classList.contains("show");
     
-    // Toggle active state
     if (isShowing) {
         submenu.classList.remove("show");
         if (parentLink) parentLink.classList.remove("open");
@@ -2718,7 +2781,6 @@ function setAttendanceSubtab(subtab) {
 function switchAdminSection(sectionId, el) {
     if (!sectionId) sectionId = "overview";
 
-    // Handle aliases & mapping
     if (sectionId === "dashboard") sectionId = "overview";
     if (sectionId === "subjects") {
         sectionId = "classes";
@@ -2732,7 +2794,7 @@ function switchAdminSection(sectionId, el) {
         sectionId = "attendance";
         setTimeout(() => setAttendanceSubtab("reports"), 50);
     }
-    if (sectionId === "videos" || sectionId === "video-processing") {
+    if (sectionId === "videos" || sectionId === "video-processing" || sectionId === "settings") {
         sectionId = "overview";
     }
 
@@ -2766,7 +2828,16 @@ function switchAdminSection(sectionId, el) {
     if (sectionId === "students") openSubmenu("submenu-students");
     if (sectionId === "classes") openSubmenu("submenu-classes");
     if (sectionId === "attendance") openSubmenu("submenu-attendance");
-    if (sectionId === "settings") openSubmenu("submenu-settings");
+    if (sectionId === "analytics") {
+        setTimeout(function() {
+            const sVal = (document.getElementById("adminAnalyticsSemester")?.value || "").trim();
+            const bVal = (document.getElementById("adminAnalyticsBranch")?.value || "").trim().toUpperCase();
+            if (typeof filterAdminAnalyticsSubjectDropdown === "function") {
+                filterAdminAnalyticsSubjectDropdown(sVal, bVal);
+            }
+            renderAdminAnalyticsCharts();
+        }, 100);
+    }
 
     // 4. Update browser history state
     if (window.history && window.history.replaceState) {
@@ -2786,7 +2857,118 @@ function switchAdminSection(sectionId, el) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// Attendance Status Filter
+// Student Cascading Filters (Branch, Year, Semester, Search)
+function onAdminStudentFilterChange() {
+    const branchVal = (document.getElementById('adminStdBranchFilter')?.value || '').trim().toUpperCase();
+    const yearVal = (document.getElementById('adminStdYearFilter')?.value || '').trim();
+    const semVal = (document.getElementById('adminStdSemFilter')?.value || '').trim();
+    const searchVal = (document.getElementById('studentSearchInput')?.value || '').trim().toLowerCase();
+
+    const tbody = document.getElementById("studentsTableBody");
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll("tr.student-table-row");
+    let visibleCount = 0;
+
+    // Must be selected by user (Branch, Year, or Semester)
+    const hasFilterSelected = (branchVal !== '' || yearVal !== '' || semVal !== '' || searchVal !== '');
+
+    rows.forEach(function(tr) {
+        if (!hasFilterSelected) {
+            tr.style.display = "none";
+            return;
+        }
+
+        const rowBranch = (tr.getAttribute("data-branch") || "").toUpperCase();
+        const rowSem = (tr.getAttribute("data-semester") || "").trim();
+        const rowYear = (tr.getAttribute("data-year") || "").trim();
+        const rowText = tr.innerText.toLowerCase();
+
+        let match = true;
+        if (branchVal && rowBranch && !rowBranch.includes(branchVal) && !branchVal.includes(rowBranch)) {
+            match = false;
+        }
+        if (yearVal && rowYear && rowYear !== yearVal) {
+            match = false;
+        }
+        if (semVal && rowSem && rowSem !== semVal) {
+            match = false;
+        }
+        if (searchVal && !rowText.includes(searchVal)) {
+            match = false;
+        }
+
+        if (match) {
+            tr.style.display = "";
+            visibleCount++;
+        } else {
+            tr.style.display = "none";
+        }
+    });
+
+    const counterSpan = document.getElementById("adminStdCounterSpan");
+    if (counterSpan) {
+        if (!hasFilterSelected) {
+            counterSpan.textContent = `Select Branch, Year, or Semester to view students`;
+        } else {
+            counterSpan.textContent = `Showing ${visibleCount} students`;
+        }
+    }
+}
+
+function resetAdminStudentFilters() {
+    const bSel = document.getElementById('adminStdBranchFilter');
+    const ySel = document.getElementById('adminStdYearFilter');
+    const sSel = document.getElementById('adminStdSemFilter');
+    const searchInp = document.getElementById('studentSearchInput');
+    if (bSel) bSel.value = '';
+    if (ySel) ySel.value = '';
+    if (sSel) sSel.value = '';
+    if (searchInp) searchInp.value = '';
+    onAdminStudentFilterChange();
+}
+
+// Subject Cascading Filters (Branch, Semester)
+function onAdminSubjectFilterChange() {
+    const branchVal = (document.getElementById('adminSubBranchFilter')?.value || '').trim().toUpperCase();
+    const semVal = (document.getElementById('adminSubSemFilter')?.value || '').trim();
+
+    const tbody = document.getElementById("subjectsTableBody");
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll("tr.subject-table-row");
+
+    // Require selection by user before displaying
+    const hasFilterSelected = (branchVal !== '' || semVal !== '');
+
+    rows.forEach(function(tr) {
+        if (!hasFilterSelected) {
+            tr.style.display = "none";
+            return;
+        }
+
+        const rowBranch = (tr.getAttribute("data-branch") || "").toUpperCase();
+        const rowSem = (tr.getAttribute("data-semester") || "").trim();
+
+        let match = true;
+        if (branchVal && rowBranch && !rowBranch.includes(branchVal) && !branchVal.includes(rowBranch)) {
+            match = false;
+        }
+        if (semVal && rowSem && rowSem !== semVal) {
+            match = false;
+        }
+
+        tr.style.display = match ? "" : "none";
+    });
+}
+
+function resetAdminSubjectFilters() {
+    const bSel = document.getElementById('adminSubBranchFilter');
+    const sSel = document.getElementById('adminSubSemFilter');
+    if (bSel) bSel.value = '';
+    if (sSel) sSel.value = '';
+    onAdminSubjectFilterChange();
+}
+
+// Attendance Status Filter Buttons
 function filterAttendanceStatus(status, btn) {
     if (btn) {
         const group = btn.closest(".btn-group");
@@ -2798,11 +2980,13 @@ function filterAttendanceStatus(status, btn) {
     onAdminAttFilterChange();
 }
 
-// Master Attendance Cascading Filter (Branch, Semester, Subject, Status, Search)
+// Master Attendance Cascading Filter (Branch, Year, Semester, Subject, Session, Status, Search)
 function onAdminAttFilterChange() {
     const branchVal = (document.getElementById('adminAttBranchFilter')?.value || '').trim().toUpperCase();
+    const yearVal = (document.getElementById('adminAttYearFilter')?.value || '').trim();
     const semVal = (document.getElementById('adminAttSemFilter')?.value || '').trim();
     const subVal = (document.getElementById('adminAttSubjectFilter')?.value || '').trim().toLowerCase();
+    const sessionVal = (document.getElementById('adminAttSessionFilter')?.value || '').trim().toLowerCase();
     const searchVal = (document.getElementById('attSearchInput')?.value || '').trim().toLowerCase();
     const activeStatusBtn = document.querySelector('#subtab-att-records .btn-group button.active');
     const statusVal = (activeStatusBtn?.textContent || 'all').trim().toLowerCase();
@@ -2814,7 +2998,8 @@ function onAdminAttFilterChange() {
         options.forEach(opt => {
             if (!opt.value) return; // Keep "All Subjects"
             const optSem = (opt.getAttribute('data-semester') || '').trim();
-            const optBranch = (opt.getAttribute('data-branch') || '').toUpperCase();
+            let optBranch = (opt.getAttribute('data-branch') || '').toUpperCase();
+            if (optBranch === "AIML") optBranch = "CSE (AIML)";
             let show = true;
             if (semVal && optSem && optSem !== semVal) show = false;
             if (branchVal && optBranch && !optBranch.includes(branchVal) && !branchVal.includes(optBranch)) show = false;
@@ -2827,12 +3012,37 @@ function onAdminAttFilterChange() {
     const rows = tbody.querySelectorAll("tr.attendance-log-row");
     let visibleCount = 0;
 
+    const hasAttSelection = Boolean(branchVal || yearVal || semVal || subVal || sessionVal || searchVal);
+    let selectPromptRow = document.getElementById("attSelectPromptRow");
+    let noMatchRow = document.getElementById("attNoMatchRow");
+
+    if (!hasAttSelection) {
+        rows.forEach(tr => tr.style.display = "none");
+        if (!selectPromptRow) {
+            selectPromptRow = document.createElement("tr");
+            selectPromptRow.id = "attSelectPromptRow";
+            selectPromptRow.innerHTML = '<td colspan="7" class="text-center py-5 text-muted"><i class="bi bi-funnel fs-2 text-primary d-block mb-2"></i><span class="fw-bold text-dark fs-6 d-block mb-1">Select Criteria to View Attendance</span><span class="small text-muted">Please select Branch, Year, Semester, or Subject from the filters above to display attendance records.</span></td>';
+            tbody.appendChild(selectPromptRow);
+        } else {
+            selectPromptRow.style.display = "";
+        }
+        if (noMatchRow) noMatchRow.style.display = "none";
+        const counterSpan = document.getElementById("adminAttCounterSpan");
+        if (counterSpan) counterSpan.textContent = "Select filters above to display records";
+        return;
+    }
+
+    if (selectPromptRow) selectPromptRow.style.display = "none";
+
     rows.forEach(function(tr) {
         const rowStatus = (tr.getAttribute("data-status") || "").toLowerCase();
-        const rowBranch = (tr.getAttribute("data-branch") || "").toUpperCase();
+        let rowBranch = (tr.getAttribute("data-branch") || "").toUpperCase();
+        if (rowBranch === "AIML") rowBranch = "CSE (AIML)";
         const rowSem = (tr.getAttribute("data-semester") || "").trim();
+        const rowYear = (tr.getAttribute("data-year") || "").trim();
         const rowSubject = (tr.getAttribute("data-subject") || "").toLowerCase();
         const rowSubCode = (tr.getAttribute("data-subject-code") || "").toLowerCase();
+        const rowSession = (tr.getAttribute("data-session") || "").toLowerCase();
         const rowText = tr.innerText.toLowerCase();
 
         let match = true;
@@ -2840,13 +3050,19 @@ function onAdminAttFilterChange() {
         if (statusVal && statusVal !== "all" && rowStatus !== statusVal) {
             match = false;
         }
-        if (branchVal && rowBranch && !rowBranch.includes(branchVal) && !branchVal.includes(rowBranch)) {
+        if (branchVal && !rowBranch.includes(branchVal) && !branchVal.includes(rowBranch)) {
+            match = false;
+        }
+        if (yearVal && rowYear && rowYear !== yearVal) {
             match = false;
         }
         if (semVal && rowSem && rowSem !== semVal) {
             match = false;
         }
         if (subVal && !rowSubject.includes(subVal) && !rowSubCode.includes(subVal)) {
+            match = false;
+        }
+        if (sessionVal && !rowSession.includes(sessionVal)) {
             match = false;
         }
         if (searchVal && !rowText.includes(searchVal)) {
@@ -2865,16 +3081,35 @@ function onAdminAttFilterChange() {
     if (counterSpan) {
         counterSpan.textContent = `Showing ${visibleCount} entries`;
     }
+
+    // Handle no matching records message
+    noMatchRow = document.getElementById("attNoMatchRow");
+    if (visibleCount === 0 && rows.length > 0) {
+        if (!noMatchRow) {
+            noMatchRow = document.createElement("tr");
+            noMatchRow.id = "attNoMatchRow";
+            noMatchRow.innerHTML = '<td colspan="7" class="text-center py-4 text-muted"><i class="bi bi-filter-circle fs-3 d-block mb-2 text-secondary"></i>No attendance records match the selected filters.</td>';
+            tbody.appendChild(noMatchRow);
+        } else {
+            noMatchRow.style.display = "";
+        }
+    } else if (noMatchRow) {
+        noMatchRow.style.display = "none";
+    }
 }
 
 function resetAdminAttFilters() {
     const bSel = document.getElementById('adminAttBranchFilter');
+    const ySel = document.getElementById('adminAttYearFilter');
     const sSel = document.getElementById('adminAttSemFilter');
     const subSel = document.getElementById('adminAttSubjectFilter');
+    const sessSel = document.getElementById('adminAttSessionFilter');
     const searchInp = document.getElementById('attSearchInput');
     if (bSel) bSel.value = '';
+    if (ySel) ySel.value = '';
     if (sSel) sSel.value = '';
     if (subSel) subSel.value = '';
+    if (sessSel) sessSel.value = '';
     if (searchInp) searchInp.value = '';
     const allBtn = document.querySelector('#subtab-att-records .btn-group button:first-child');
     if (allBtn) {
@@ -2883,6 +3118,44 @@ function resetAdminAttFilters() {
         allBtn.classList.add("active");
     }
     onAdminAttFilterChange();
+}
+
+// Reports Cascading Filter & Export Handlers
+function onAdminRepFilterChange() {
+    const branchVal = (document.getElementById('adminRepBranchFilter')?.value || '').trim().toUpperCase();
+    const semVal = (document.getElementById('adminRepSemFilter')?.value || '').trim();
+
+    const subDropdown = document.getElementById('adminRepSubjectFilter');
+    if (subDropdown) {
+        const options = subDropdown.querySelectorAll('option');
+        options.forEach(opt => {
+            if (!opt.value) return; // Keep "All Subjects"
+            const optSem = (opt.getAttribute('data-semester') || '').trim();
+            const optBranch = (opt.getAttribute('data-branch') || '').toUpperCase();
+            let show = true;
+            if (semVal && optSem && optSem !== semVal) show = false;
+            if (branchVal && optBranch && !optBranch.includes(branchVal) && !branchVal.includes(optBranch)) show = false;
+            opt.style.display = show ? '' : 'none';
+        });
+    }
+}
+
+function downloadAttendanceExcel() {
+    const branch = encodeURIComponent(document.getElementById('adminRepBranchFilter')?.value || document.getElementById('adminAttBranchFilter')?.value || '');
+    const year = encodeURIComponent(document.getElementById('adminRepYearFilter')?.value || document.getElementById('adminAttYearFilter')?.value || '');
+    const semester = encodeURIComponent(document.getElementById('adminRepSemFilter')?.value || document.getElementById('adminAttSemFilter')?.value || '');
+    const subject = encodeURIComponent(document.getElementById('adminRepSubjectFilter')?.value || document.getElementById('adminAttSubjectFilter')?.value || '');
+    const url = `{{ url_for('admin.export_reports_excel') }}?branch=${branch}&year=${year}&semester=${semester}&subject=${subject}`;
+    window.location.href = url;
+}
+
+function downloadAttendanceCSV() {
+    const branch = encodeURIComponent(document.getElementById('adminRepBranchFilter')?.value || document.getElementById('adminAttBranchFilter')?.value || '');
+    const year = encodeURIComponent(document.getElementById('adminRepYearFilter')?.value || document.getElementById('adminAttYearFilter')?.value || '');
+    const semester = encodeURIComponent(document.getElementById('adminRepSemFilter')?.value || document.getElementById('adminAttSemFilter')?.value || '');
+    const subject = encodeURIComponent(document.getElementById('adminRepSubjectFilter')?.value || document.getElementById('adminAttSubjectFilter')?.value || '');
+    const url = `{{ url_for('admin.export_reports_csv') }}?branch=${branch}&year=${year}&semester=${semester}&subject=${subject}`;
+    window.location.href = url;
 }
 
 // Table search helper
@@ -2900,13 +3173,674 @@ function attachSearchFilter(inputId, tableBodyId) {
     });
 }
 
+// Teacher Assignment Form Cascading Handlers
+function onAssignBranchChange() {
+    filterAssignSubjects();
+}
+
+function onAssignYearChange() {
+    const yearVal = (document.getElementById("assignYearSelect")?.value || "").trim();
+    const semSelect = document.getElementById("assignSemSelect");
+    if (!semSelect) return;
+
+    if (!yearVal) {
+        semSelect.innerHTML = '<option value="" selected>-- Select Semester --</option>';
+        semSelect.disabled = true;
+    } else {
+        const yNum = parseInt(yearVal, 10);
+        const sem1 = (yNum * 2) - 1;
+        const sem2 = yNum * 2;
+        const ordinals = {1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th', 6: '6th', 7: '7th', 8: '8th'};
+        semSelect.innerHTML = `<option value="" selected>-- Select Semester --</option>` +
+                              `<option value="${sem1}">${ordinals[sem1] || sem1 + 'th'} Semester</option>` +
+                              `<option value="${sem2}">${ordinals[sem2] || sem2 + 'th'} Semester</option>`;
+        semSelect.disabled = false;
+    }
+    filterAssignSubjects();
+}
+
+function onAssignSemChange() {
+    filterAssignSubjects();
+}
+
+function filterAssignSubjects() {
+    const branchVal = (document.getElementById("assignBranchSelect")?.value || "").trim().toUpperCase();
+    const semVal = (document.getElementById("assignSemSelect")?.value || "").trim();
+    const yearVal = (document.getElementById("assignYearSelect")?.value || "").trim();
+    const subSelect = document.getElementById("assignSubjectSelect");
+    if (!subSelect) return;
+
+    const options = subSelect.querySelectorAll("option");
+    options.forEach(opt => {
+        if (!opt.value) return; // keep default placeholder
+        const optBranch = (opt.getAttribute("data-branch") || "").toUpperCase();
+        const optSem = (opt.getAttribute("data-sem") || "").trim();
+        const optYear = (opt.getAttribute("data-year") || "").trim();
+
+        let show = true;
+        if (branchVal && optBranch && !optBranch.includes(branchVal) && !branchVal.includes(optBranch)) {
+            show = false;
+        }
+        if (semVal && optSem && optSem !== semVal) {
+            show = false;
+        }
+        if (yearVal && optYear && optYear !== yearVal) {
+            show = false;
+        }
+        opt.style.display = show ? "" : "none";
+    });
+}
+
+/* =========================================================
+   ADMIN ATTENDANCE ANALYTICS LOGIC & CHART.JS INTEGRATION
+========================================================= */
+const adminAttendanceRawData = {{ admin_attendance_json|safe if admin_attendance_json else '[]' }};
+let adminBarChartInstance = null;
+let adminPieChartInstance = null;
+
+function filterAdminAnalyticsSubjectDropdown(semVal, branchVal) {
+    const subSelect = document.getElementById("adminAnalyticsSubject");
+    if (!subSelect) return;
+
+    const currentVal = subSelect.value;
+    let currentStillValid = false;
+
+    for (let i = 0; i < subSelect.options.length; i++) {
+        const opt = subSelect.options[i];
+        const val = opt.value;
+        if (!val || val === "all") {
+            opt.hidden = false;
+            opt.style.display = "";
+            opt.disabled = false;
+            continue;
+        }
+
+        const optSem = (opt.getAttribute("data-semester") || "").trim();
+        let optBranch = (opt.getAttribute("data-branch") || "").toUpperCase();
+        if (optBranch === "AIML") optBranch = "CSE (AIML)";
+
+        let show = true;
+        if (semVal && semVal !== "all" && optSem && optSem !== String(semVal)) {
+            show = false;
+        }
+        if (branchVal && branchVal !== "all" && optBranch && !optBranch.includes(branchVal) && !branchVal.includes(optBranch)) {
+            show = false;
+        }
+
+        if (show) {
+            opt.hidden = false;
+            opt.style.display = "";
+            opt.disabled = false;
+            if (val === currentVal) currentStillValid = true;
+        } else {
+            opt.hidden = true;
+            opt.style.display = "none";
+            opt.disabled = true;
+        }
+    }
+
+    if (currentVal && currentVal !== "all" && !currentStillValid) {
+        subSelect.value = "";
+    }
+}
+
+function onAdminAnalyticsSemesterChange() {
+    const semVal = (document.getElementById("adminAnalyticsSemester")?.value || "").trim();
+    const yrSelect = document.getElementById("adminAnalyticsYear");
+    const branchVal = (document.getElementById("adminAnalyticsBranch")?.value || "").trim().toUpperCase();
+
+    if (yrSelect && semVal && semVal !== "all") {
+        const sNum = parseInt(semVal, 10);
+        if (!isNaN(sNum)) {
+            yrSelect.value = String(Math.ceil(sNum / 2));
+        }
+    }
+
+    filterAdminAnalyticsSubjectDropdown(semVal, branchVal);
+    onAdminAnalyticsFilterChange();
+}
+
+function onAdminAnalyticsYearChange() {
+    const yr = (document.getElementById("adminAnalyticsYear")?.value || "").trim();
+    const semSelect = document.getElementById("adminAnalyticsSemester");
+    const branchVal = (document.getElementById("adminAnalyticsBranch")?.value || "").trim().toUpperCase();
+
+    if (semSelect && yr && yr !== "all") {
+        const yNum = parseInt(yr, 10);
+        const sem1 = (yNum * 2) - 1;
+        const curSem = parseInt(semSelect.value, 10);
+        if (curSem !== (yNum * 2) && curSem !== sem1) {
+            semSelect.value = String(sem1);
+        }
+    }
+
+    const activeSem = semSelect ? semSelect.value : "";
+    filterAdminAnalyticsSubjectDropdown(activeSem, branchVal);
+    onAdminAnalyticsFilterChange();
+}
+
+function onAdminAnalyticsBranchChange() {
+    const semVal = (document.getElementById("adminAnalyticsSemester")?.value || "").trim();
+    const branchVal = (document.getElementById("adminAnalyticsBranch")?.value || "").trim().toUpperCase();
+    filterAdminAnalyticsSubjectDropdown(semVal, branchVal);
+    onAdminAnalyticsFilterChange();
+}
+
+function onAdminAnalyticsFilterChange() {
+    renderAdminAnalyticsCharts();
+}
+
+function toggleAdminGraphDisplay() {
+    const mode = (document.getElementById("adminAnalyticsGraphType")?.value || "").trim();
+    const barCol = document.getElementById("adminBarGraphCol");
+    const pieCol = document.getElementById("adminPieChartCol");
+    const graphsEl = document.getElementById("adminAnalyticsGraphsContainer");
+
+    if (!barCol || !pieCol) return;
+
+    if (mode === "bar") {
+        barCol.className = "col-12";
+        barCol.style.display = "block";
+        pieCol.style.display = "none";
+        if (graphsEl) graphsEl.style.display = "";
+    } else if (mode === "pie") {
+        pieCol.className = "col-12 col-md-10 col-lg-8 mx-auto";
+        pieCol.style.display = "block";
+        barCol.style.display = "none";
+        if (graphsEl) graphsEl.style.display = "";
+    } else if (mode === "both") {
+        barCol.className = "col-12 col-lg-7";
+        barCol.style.display = "block";
+        pieCol.className = "col-12 col-lg-5";
+        pieCol.style.display = "block";
+        if (graphsEl) graphsEl.style.display = "";
+    } else {
+        barCol.style.display = "none";
+        pieCol.style.display = "none";
+        if (graphsEl) graphsEl.style.display = "none";
+    }
+    if (adminBarChartInstance) adminBarChartInstance.resize();
+    if (adminPieChartInstance) adminPieChartInstance.resize();
+}
+
+function renderAdminAnalyticsCharts() {
+    if (typeof Chart === 'undefined') return;
+
+    const branch = (document.getElementById("adminAnalyticsBranch")?.value || "").trim().toUpperCase();
+    const year = (document.getElementById("adminAnalyticsYear")?.value || "").trim();
+    const sem = (document.getElementById("adminAnalyticsSemester")?.value || "").trim();
+    const sub = (document.getElementById("adminAnalyticsSubject")?.value || "").trim().toLowerCase();
+    const graphType = (document.getElementById("adminAnalyticsGraphType")?.value || "").trim();
+
+    const promptEl = document.getElementById("adminAnalyticsPrompt");
+    const graphsEl = document.getElementById("adminAnalyticsGraphsContainer");
+
+    const hasSelection = Boolean(branch || year || sem || sub || graphType);
+
+    if (!hasSelection || !graphType) {
+        if (promptEl) promptEl.style.display = "";
+        if (graphsEl) graphsEl.style.display = "none";
+        return;
+    }
+
+    if (promptEl) promptEl.style.display = "none";
+    if (graphsEl) graphsEl.style.display = "";
+    toggleAdminGraphDisplay();
+
+    // Filter database attendance records
+    const filtered = adminAttendanceRawData.filter(item => {
+        if (branch && branch !== "all") {
+            let itemB = (item.branch || "").toUpperCase();
+            if (itemB === "AIML") itemB = "CSE (AIML)";
+            if (!itemB.includes(branch) && !branch.includes(itemB)) return false;
+        }
+        if (year && year !== "all") {
+            if (String(item.year) !== String(year)) return false;
+        }
+        if (sem && sem !== "all") {
+            if (String(item.semester) !== String(sem)) return false;
+        }
+        if (sub && sub !== "all") {
+            const itemSub = (item.subject_name || "").toLowerCase();
+            const itemCode = (item.subject_code || "").toLowerCase();
+            if (!itemSub.includes(sub) && !itemCode.includes(sub)) return false;
+        }
+        return true;
+    });
+
+    const totalEnrolledStudents = {{ students|length or 67 }};
+    const subjectStats = {};
+    const dateStats = {};
+    const attendedUSNs = new Set();
+
+    filtered.forEach(item => {
+        const isPresent = String(item.status || "present").toLowerCase() === "present";
+        if (isPresent && item.usn) {
+            attendedUSNs.add(item.usn);
+        }
+
+        // Subject grouping
+        const sName = item.subject_name || "General";
+        if (!subjectStats[sName]) {
+            subjectStats[sName] = { total: 0, attendees: new Set() };
+        }
+        subjectStats[sName].total++;
+        if (isPresent && item.usn) {
+            subjectStats[sName].attendees.add(item.usn);
+        }
+
+        // Date / Session grouping
+        let dStr = (item.check_in_time || "").trim().slice(0, 10);
+        if (!dStr) dStr = "Session 1";
+        if (!dateStats[dStr]) {
+            dateStats[dStr] = { total: 0, attendees: new Set() };
+        }
+        dateStats[dStr].total++;
+        if (isPresent && item.usn) {
+            dateStats[dStr].attendees.add(item.usn);
+        }
+    });
+
+    const selectedSubOption = document.getElementById("adminAnalyticsSubject")?.selectedOptions?.[0];
+    const isSpecificSubject = (sub && sub !== "all" && sub !== "");
+    const selectedSubText = (selectedSubOption && isSpecificSubject) 
+        ? selectedSubOption.text 
+        : "";
+
+    // 1. Render Bar Chart (Subject or Session Attendance %)
+    const barCanvas = document.getElementById("adminAnalyticsBarCanvas");
+    const barTitleEl = document.getElementById("adminBarGraphTitle");
+    const barSubEl = document.getElementById("adminBarGraphSubtitle");
+
+    if (barCanvas) {
+        if (adminBarChartInstance) {
+            adminBarChartInstance.destroy();
+            adminBarChartInstance = null;
+        }
+
+        let barLabels = [];
+        let barData = [];
+        let barHoverDetails = [];
+
+        // If specific subject selected and multiple dates/sessions exist, show session-wise breakdown
+        const dateKeys = Object.keys(dateStats).sort();
+        if (isSpecificSubject && dateKeys.length > 1) {
+            if (barTitleEl) barTitleEl.innerHTML = '<i class="bi bi-bar-chart-fill me-2" style="color: #4f46e5;"></i> Session-Wise Turnout (%)';
+            if (barSubEl) barSubEl.textContent = 'Turnout across conducted sessions for ' + selectedSubText;
+
+            barLabels = dateKeys.map(d => {
+                const parts = d.split("-");
+                if (parts.length === 3) {
+                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const mIdx = parseInt(parts[1], 10) - 1;
+                    return (months[mIdx] || parts[1]) + " " + parseInt(parts[2], 10);
+                }
+                return d;
+            });
+            barData = dateKeys.map(d => {
+                const attendeesCount = dateStats[d].attendees.size || dateStats[d].total;
+                return totalEnrolledStudents > 0 ? Math.min(100, Math.round((attendeesCount / totalEnrolledStudents) * 100)) : 0;
+            });
+            barHoverDetails = dateKeys.map(d => {
+                const attendeesCount = dateStats[d].attendees.size || dateStats[d].total;
+                return `${attendeesCount} Present / ${totalEnrolledStudents} Enrolled`;
+            });
+        } else {
+            // Compare subjects
+            if (barTitleEl) barTitleEl.innerHTML = '<i class="bi bi-bar-chart-fill me-2" style="color: #4f46e5;"></i> Subject Attendance Rate (%)';
+            if (barSubEl) {
+                barSubEl.textContent = isSpecificSubject 
+                    ? 'Attendance summary for ' + selectedSubText
+                    : 'Turnout comparison across semester subjects';
+            }
+
+            barLabels = Object.keys(subjectStats);
+            barData = barLabels.map(s => {
+                const attendeesCount = subjectStats[s].attendees.size || subjectStats[s].total;
+                return totalEnrolledStudents > 0 ? Math.min(100, Math.round((attendeesCount / totalEnrolledStudents) * 100)) : 0;
+            });
+            barHoverDetails = barLabels.map(s => {
+                const attendeesCount = subjectStats[s].attendees.size || subjectStats[s].total;
+                return `${attendeesCount} Present / ${totalEnrolledStudents} Enrolled`;
+            });
+        }
+
+        let finalLabels = barLabels;
+        let finalData = barData;
+        if (finalLabels.length === 0) {
+            finalLabels = [selectedSubText || "No Attendance Recorded"];
+            finalData = [0];
+            barHoverDetails = [`0 Present / ${totalEnrolledStudents} Enrolled`];
+        }
+
+        // Clean, elegant, multi-toned palette
+        const palette = ['#4f46e5', '#0ea5e9', '#0d9488', '#8b5cf6', '#64748b', '#d97706', '#0284c7'];
+        const barColors = finalData.map((_, idx) => palette[idx % palette.length]);
+
+        adminBarChartInstance = new Chart(barCanvas, {
+            type: "bar",
+            data: {
+                labels: finalLabels,
+                datasets: [{
+                    label: "Attendance Rate (%)",
+                    data: finalData,
+                    backgroundColor: barColors,
+                    borderRadius: 6,
+                    maxBarThickness: 45
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const detail = barHoverDetails[ctx.dataIndex] || "";
+                                return ` Attendance: ${ctx.parsed.y}% (${detail})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(v) { return v + "%"; },
+                            font: { size: 12 }
+                        },
+                        grid: { color: "#f1f5f9" }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 12 },
+                            callback: function(val, index) {
+                                const text = this.getLabelForValue(val);
+                                return text.length > 20 ? text.slice(0, 18) + "..." : text;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Render Pie / Doughnut Chart
+    const pieCanvas = document.getElementById("adminAnalyticsPieCanvas");
+    const pieTitleEl = document.getElementById("adminPieGraphTitle");
+    const pieSubEl = document.getElementById("adminPieGraphSubtitle");
+
+    if (pieCanvas) {
+        if (adminPieChartInstance) {
+            adminPieChartInstance.destroy();
+            adminPieChartInstance = null;
+        }
+
+        let pieLabels = [];
+        let pieData = [];
+        let pieColors = [];
+        let isPresentAbsentRatio = false;
+
+        if (isSpecificSubject) {
+            // Specific subject: Show Class Turnout (Present vs Absent out of enrolled students)
+            isPresentAbsentRatio = true;
+            const presentCount = attendedUSNs.size;
+            const absentCount = Math.max(0, totalEnrolledStudents - presentCount);
+
+            if (pieTitleEl) pieTitleEl.innerHTML = '<i class="bi bi-pie-chart-fill me-2" style="color: #0d9488;"></i> Class Turnout Ratio';
+            if (pieSubEl) pieSubEl.textContent = 'Present vs Absent out of ' + totalEnrolledStudents + ' enrolled students';
+
+            if (presentCount === 0 && absentCount === 0) {
+                pieLabels = ["No Records"];
+                pieData = [1];
+                pieColors = ["#cbd5e1"];
+            } else {
+                pieLabels = ["Present (" + presentCount + ")", "Absent (" + absentCount + ")"];
+                pieData = [presentCount, absentCount];
+                // Emerald for Present, Calm Slate for Absent
+                pieColors = ["#10b981", "#64748b"];
+            }
+        } else {
+            // "All Subjects": Show Subject Attendance Share
+            const subNames = Object.keys(subjectStats);
+            if (pieTitleEl) pieTitleEl.innerHTML = '<i class="bi bi-pie-chart-fill me-2" style="color: #0d9488;"></i> Subject Attendance Share';
+            if (pieSubEl) pieSubEl.textContent = 'Distribution across ' + subNames.length + ' semester subjects';
+
+            if (subNames.length === 0) {
+                pieLabels = ["No Records Found"];
+                pieData = [1];
+                pieColors = ["#cbd5e1"];
+            } else {
+                pieLabels = subNames;
+                pieData = subNames.map(s => subjectStats[s].total);
+                const subPalette = ['#4f46e5', '#0ea5e9', '#0d9488', '#8b5cf6', '#d97706', '#0284c7', '#ec4899', '#14b8a6', '#6366f1', '#f59e0b'];
+                pieColors = subNames.map((_, i) => subPalette[i % subPalette.length]);
+            }
+        }
+
+        const totalPieSum = pieData.reduce((a, b) => a + b, 0);
+
+        adminPieChartInstance = new Chart(pieCanvas, {
+            type: "doughnut",
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: pieData,
+                    backgroundColor: pieColors,
+                    borderWidth: 2,
+                    borderColor: "#ffffff",
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "60%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 14,
+                            padding: 16,
+                            font: { size: 12, weight: "600" }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                if (pieColors[0] === "#cbd5e1") return " No attendance recorded";
+                                if (isPresentAbsentRatio) {
+                                    const pct = totalEnrolledStudents > 0 ? Math.round((ctx.parsed / totalEnrolledStudents) * 100) : 0;
+                                    return ` ${ctx.label}: ${ctx.parsed} students (${pct}%)`;
+                                } else {
+                                    const pct = totalPieSum > 0 ? Math.round((ctx.parsed / totalPieSum) * 100) : 0;
+                                    return ` ${ctx.label}: ${ctx.parsed} records (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+/* =========================================================
+   ADMIN FLOATING CHATBOT CONTROLLER
+========================================================= */
+let adminChatOpen = false;
+let adminSpeechRecognition = null;
+let adminIsListening = false;
+
+function toggleAdminChatbot() {
+    const panel = document.getElementById("adminChatbotPanel");
+    if (!panel) return;
+    adminChatOpen = !adminChatOpen;
+    if (adminChatOpen) {
+        panel.classList.add("open");
+        panel.classList.add("active");
+        setTimeout(() => document.getElementById("adminChatInput")?.focus(), 150);
+    } else {
+        panel.classList.remove("open");
+        panel.classList.remove("active");
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (adminIsListening && adminSpeechRecognition) {
+            adminSpeechRecognition.stop();
+        }
+    }
+}
+
+function speakAdminText(text) {
+    // Disabled: Agent voice output muted per user requirement.
+    return;
+}
+
+function toggleAdminSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser. Please type your message.");
+        return;
+    }
+
+    const micBtn = document.getElementById("adminChatMicBtn");
+    const micIcon = document.getElementById("adminMicIcon");
+    const input = document.getElementById("adminChatInput");
+
+    if (adminIsListening) {
+        if (adminSpeechRecognition) {
+            adminSpeechRecognition.stop();
+        }
+        return;
+    }
+
+    try {
+        adminSpeechRecognition = new SpeechRecognition();
+        adminSpeechRecognition.continuous = false;
+        adminSpeechRecognition.interimResults = false;
+        adminSpeechRecognition.lang = "en-US";
+
+        adminSpeechRecognition.onstart = function() {
+            adminIsListening = true;
+            if (micBtn) micBtn.classList.add("listening");
+            if (micIcon) micIcon.className = "bi bi-mic-fill text-primary";
+            if (input) input.placeholder = "Listening... Speak your question now...";
+        };
+
+        adminSpeechRecognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            if (input) {
+                input.value = transcript;
+                handleAdminChatSubmit(new Event("submit"));
+            }
+        };
+
+        adminSpeechRecognition.onerror = function(event) {
+            console.warn("Speech recognition error:", event.error);
+            adminIsListening = false;
+            if (micBtn) micBtn.classList.remove("listening");
+            if (micIcon) micIcon.className = "bi bi-mic-fill";
+            if (input) input.placeholder = "Ask about attendance, defaulters, etc...";
+        };
+
+        adminSpeechRecognition.onend = function() {
+            adminIsListening = false;
+            if (micBtn) micBtn.classList.remove("listening");
+            if (micIcon) micIcon.className = "bi bi-mic-fill";
+            if (input) input.placeholder = "Ask about attendance, defaulters, etc...";
+        };
+
+        adminSpeechRecognition.start();
+    } catch (err) {
+        console.error("Speech recognition start failed:", err);
+        adminIsListening = false;
+        if (micBtn) micBtn.classList.remove("listening");
+        if (micIcon) micIcon.className = "bi bi-mic-fill";
+    }
+}
+
+function appendAdminChatMessage(content, sender = "bot", isHtml = false) {
+    const container = document.getElementById("adminChatMessages");
+    if (!container) return;
+
+    const bubble = document.createElement("div");
+    bubble.className = `admin-msg-bubble admin-msg-${sender}`;
+
+    if (isHtml) {
+        bubble.innerHTML = content;
+    } else {
+        bubble.textContent = content;
+    }
+
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendAdminQuickQuery(query) {
+    const input = document.getElementById("adminChatInput");
+    if (input) input.value = query;
+    handleAdminChatSubmit(new Event("submit"));
+}
+
+async function handleAdminChatSubmit(event) {
+    if (event) event.preventDefault();
+    const input = document.getElementById("adminChatInput");
+    if (!input) return;
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = "";
+    appendAdminChatMessage(msg, "user");
+
+    const container = document.getElementById("adminChatMessages");
+    const loader = document.createElement("div");
+    loader.className = "admin-msg-bubble admin-msg-bot text-muted small";
+    loader.id = "adminChatTyping";
+    loader.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Checking institutional records...`;
+    if (container) {
+        container.appendChild(loader);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    try {
+        const resp = await fetch("/admin/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await resp.json();
+        const loaderEl = document.getElementById("adminChatTyping");
+        if (loaderEl) loaderEl.remove();
+
+        if (data && data.success && data.reply) {
+            appendAdminChatMessage(data.reply, "bot", true);
+            if (data.plain_text) speakAdminText(data.plain_text);
+        } else {
+            const err = data.reply || "Sorry, I could not process your request.";
+            appendAdminChatMessage(err, "bot");
+            speakAdminText(err);
+        }
+    } catch (err) {
+        const loaderEl = document.getElementById("adminChatTyping");
+        if (loaderEl) loaderEl.remove();
+        appendAdminChatMessage("Network error connecting to Admin Assistant.", "bot");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     // Attach real-time search filters
     attachSearchFilter("teacherSearchInput", "teachersTableBody");
-    attachSearchFilter("studentSearchInput", "studentsTableBody");
     attachSearchFilter("faceSearchInput", "faceTableBody");
     attachSearchFilter("attSearchInput", "attendanceTableBody");
     attachSearchFilter("quickEditSearchInput", "studentsTableBody");
+
+    // Initialize students, subjects, attendance, and analytics states
+    onAdminStudentFilterChange();
+    onAdminSubjectFilterChange();
+    onAdminAttFilterChange();
+    renderAdminAnalyticsCharts();
 
     // Boot initial view from server or URL parameter
     const initialView = {{ initial_view|tojson|safe }} || "overview";

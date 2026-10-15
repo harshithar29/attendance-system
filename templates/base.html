@@ -7,7 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
     >
 
     <meta
@@ -20,6 +20,49 @@
             GSSS Attendance Portal
         {% endblock %}
     </title>
+
+    <meta
+        name="theme-color"
+        content="#1a56db"
+    >
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+    <meta
+        name="apple-mobile-web-app-title"
+        content="GSSS Attendance"
+    >
+    <meta
+        name="application-name"
+        content="GSSS Attendance"
+    >
+    <meta
+        name="format-detection"
+        content="telephone=no"
+    >
+    <link
+        rel="manifest"
+        href="{{ url_for('static', filename='manifest.json') }}"
+    >
+    <link
+        rel="apple-touch-icon"
+        href="{{ url_for('static', filename='images/icon-192.png') }}"
+    >
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="{{ url_for('static', filename='images/icon-192.png') }}"
+    >
 
 
     <!-- =====================================================
@@ -533,6 +576,22 @@
 
 {% block extra_js %}{% endblock %}
 
+<!-- =========================================================
+     SERVICE WORKER (PWA)
+========================================================= -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register("{{ url_for('static', filename='sw.js') }}")
+                .then(function(reg) {
+                    console.log('PWA ServiceWorker registered successfully:', reg.scope);
+                })
+                .catch(function(err) {
+                    console.log('PWA ServiceWorker registration failed:', err);
+                });
+        });
+    }
+</script>
 
 </body>
 

@@ -238,6 +238,7 @@
                             <button type="button"
                                     class="btn password-toggle"
                                     id="togglePassword"
+                                    onclick="togglePasswordVisibility(event)"
                                     aria-label="Show password">
 
                                 <i class="bi bi-eye"
@@ -303,22 +304,6 @@
                         <i class="bi bi-person-plus-fill me-1"></i>Create New User / Register
                     </a>
                 </div>
-
-                <div class="mt-3 text-center">
-                    <a href="https://github.com/harshithar29/attendance-system/releases/download/v1.0.0/GSSS_Attendance_Portal.apk" class="btn btn-outline-success btn-sm w-100 rounded-pill py-2 shadow-sm fw-semibold">
-                        <i class="bi bi-android2 me-2"></i>Download Android App (.APK)
-                    </a>
-                </div>
-
-                <div class="auth-footer">
-
-                    <p>
-                        <i class="bi bi-shield-check me-1"></i>
-                        One secure login for Admins, Teachers, and Students.
-                    </p>
-
-                </div>
-
             </div>
 
         </div>
@@ -372,46 +357,38 @@
        PASSWORD SHOW / HIDE
        ========================================== */
 
-    document
-        .getElementById("togglePassword")
-        .addEventListener("click", function() {
+    function togglePasswordVisibility(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
-            const password =
-                document.getElementById("password");
+        const password = document.getElementById("password");
+        const icon = document.getElementById("passwordIcon");
+        const btn = document.getElementById("togglePassword");
 
-            const icon =
-                document.getElementById("passwordIcon");
+        if (!password) return;
 
-
-            if (password.type === "password") {
-
-                password.type = "text";
-
+        if (password.type === "password") {
+            password.type = "text";
+            if (icon) {
                 icon.classList.remove("bi-eye");
-
                 icon.classList.add("bi-eye-slash");
-
-                this.setAttribute(
-                    "aria-label",
-                    "Hide password"
-                );
-
-            } else {
-
-                password.type = "password";
-
-                icon.classList.remove("bi-eye-slash");
-
-                icon.classList.add("bi-eye");
-
-                this.setAttribute(
-                    "aria-label",
-                    "Show password"
-                );
-
             }
-
-        });
+            if (btn) {
+                btn.setAttribute("aria-label", "Hide password");
+            }
+        } else {
+            password.type = "password";
+            if (icon) {
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+            if (btn) {
+                btn.setAttribute("aria-label", "Show password");
+            }
+        }
+    }
 
 
     /* ==========================================
