@@ -9,7 +9,7 @@ android/
 *.apk
 uploads/
 dataset/
-face_embeddings/
+# face_embeddings/ tracked for student reference embeddings
 extracted_frames/
 reports/
 *.bak
